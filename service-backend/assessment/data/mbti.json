@@ -1,0 +1,92 @@
+{
+  "assessment_name": "Myers-Briggs Type Indicator (MBTI)",
+  "version": "1.0",
+  "description": "This assessment identifies personality preferences based on Carl Jung's theory, as operationalized by Myers and Briggs.",
+  "instructions": "For each pair of statements, choose the one that sounds more like you.",
+  "scoring": {
+    "type": "Dichotomous Choice",
+    "scale": [
+      {"value": 1, "label": "Statement A"},
+      {"value": 2, "label": "Statement B"}
+    ]
+  },
+  "dimensions": [
+    {
+      "code": "E-I",
+      "name": "Extraversion (E) - Introversion (I)",
+      "description": "Where you focus your energy."
+    },
+    {
+      "code": "S-N",
+      "name": "Sensing (S) - Intuition (N)",
+      "description": "How you take in information."
+    },
+    {
+      "code": "T-F",
+      "name": "Thinking (T) - Feeling (F)",
+      "description": "How you make decisions."
+    },
+    {
+      "code": "J-P",
+      "name": "Judging (J) - Perceiving (P)",
+      "description": "How you deal with the outside world."
+    }
+  ],
+  "question_pairs": [
+    {
+      "pair_id": 1,
+      "statements": {
+        "A": "I prefer to be out and about, meeting new people and experiencing new things.",
+        "B": "I prefer quiet, solitary activities and spending time with a few close friends or family."
+      },
+      "dimension": "E-I",
+      "scoring": {
+        "A": {"E": 1},
+        "B": {"I": 1}
+      }
+    },
+    {
+      "pair_id": 2,
+      "statements": {
+        "A": "I focus on facts, details, and the present moment.",
+        "B": "I focus on possibilities, patterns, and the future."
+      },
+      "dimension": "S-N",
+      "scoring": {
+        "A": {"S": 1},
+        "B": {"N": 1}
+      }
+    },
+    {
+      "pair_id": 3,
+      "statements": {
+        "A": "I make decisions based on logic, principles, and objective analysis.",
+        "B": "I make decisions based on personal values, harmony, and how it affects others."
+      },
+      "dimension": "T-F",
+      "scoring": {
+        "A": {"T": 1},
+        "B": {"F": 1}
+      }
+    },
+    {
+      "pair_id": 4,
+      "statements": {
+        "A": "I like to have a plan, make decisions quickly, and stick to a schedule.",
+        "B": "I like to stay flexible, keep my options open, and adapt to new information."
+      },
+      "dimension": "J-P",
+      "scoring": {
+        "A": {"J": 1},
+        "B": {"P": 1}
+      }
+    }
+    // ... (more question pairs would follow)
+  ],
+  "types": [
+    "ISTJ", "ISFJ", "INFJ", "INTJ",
+    "ISTP", "ISFP", "INFP", "INTP",
+    "ESTP", "ESFP", "ENFP", "ENTP",
+    "ESTJ", "ESFJ", "ENFJ", "ENTJ"
+  ]
+}

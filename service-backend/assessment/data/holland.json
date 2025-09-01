@@ -1,0 +1,57 @@
+{
+  "assessment_name": "Holland Occupational Themes (RIASEC)",
+  "version": "1.0",
+  "description": "This assessment identifies personality types based on John L. Holland's theory.",
+  "instructions": "For each statement, indicate the degree to which you agree or disagree.",
+  "scoring": {
+    "type": "Likert Scale",
+    "scale": [
+      {"value": 1, "label": "Strongly Disagree"},
+      {"value": 2, "label": "Disagree"},
+      {"value": 3, "label": "Neutral"},
+      {"value": 4, "label": "Agree"},
+      {"value": 5, "label": "Strongly Agree"}
+    ]
+  },
+  "categories": [
+    {"code": "R", "name": "Realistic", "description": "People who prefer practical, hands-on problem-solving."},
+    {"code": "I", "name": "Investigative", "description": "People who prefer activities involving thinking, organizing, and understanding."},
+    {"code": "A", "name": "Artistic", "description": "People who prefer activities involving creative, artistic, and expressive pursuits."},
+    {"code": "S", "name": "Social", "description": "People who prefer activities involving helping, teaching, or providing services to others."},
+    {"code": "E", "name": "Enterprising", "description": "People who prefer activities involving leading, persuading, and managing people or projects."},
+    {"code": "C", "name": "Conventional", "description": "People who prefer activities involving data, record-keeping, and organizational tasks."}
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "text": "I enjoy working with my hands to build or fix things.",
+      "category_weights": {"R": 2, "I": 0, "A": 0, "S": 0, "E": 0, "C": 1}
+    },
+    {
+      "id": 2,
+      "text": "I like to analyze data and find patterns.",
+      "category_weights": {"R": 0, "I": 2, "A": 0, "S": 0, "E": 0, "C": 1}
+    },
+    {
+      "id": 3,
+      "text": "I enjoy writing stories or poetry.",
+      "category_weights": {"R": 0, "I": 0, "A": 2, "S": 0, "E": 0, "C": 0}
+    },
+    {
+      "id": 4,
+      "text": "I find it rewarding to help others solve their problems.",
+      "category_weights": {"R": 0, "I": 0, "A": 0, "S": 2, "E": 0, "C": 0}
+    },
+    {
+      "id": 5,
+      "text": "I am good at convincing people to see things my way.",
+      "category_weights": {"R": 0, "I": 0, "A": 0, "S": 0, "E": 2, "C": 1}
+    },
+    {
+      "id": 6,
+      "text": "I prefer working in a structured environment with clear rules.",
+      "category_weights": {"R": 1, "I": 0, "A": 0, "S": 0, "E": 0, "C": 2}
+    }
+    // ... (more questions would follow)
+  ]
+}

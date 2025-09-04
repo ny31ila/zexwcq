@@ -128,10 +128,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC' # Consider setting to your local timezone
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
 
+# Keep this as True to use timezone-aware datetimes:
 USE_TZ = True
 
 

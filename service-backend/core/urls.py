@@ -22,13 +22,13 @@ urlpatterns = [
     # Using namespaced includes is good practice.
     path('api/account/', include('account.urls', namespace='account')),
     # Add paths for other apps as they are developed and tested
-    # path('api/assessment/', include('assessment.urls', namespace='assessment')),
-    # path('api/ai/', include('ai_integration.urls', namespace='ai_integration')),
-    # path('api/resume/', include('resume.urls', namespace='resume')),
-    # path('api/skill/', include('skill.urls', namespace='skill')),
-    # path('api/career/', include('career.urls', namespace='career')),
-    # path('api/counseling/', include('counseling.urls', namespace='counseling')),
-    # path('api/content/', include('content.urls', namespace='content')),
+    path('api/assessment/', include('assessment.urls', namespace='assessment')),
+    path('api/ai/', include('ai_integration.urls', namespace='ai_integration')),
+    path('api/resume/', include('resume.urls', namespace='resume')),
+    path('api/skill/', include('skill.urls', namespace='skill')),
+    path('api/career/', include('career.urls', namespace='career')),
+    path('api/counseling/', include('counseling.urls', namespace='counseling')),
+    path('api/content/', include('content.urls', namespace='content')),
 ]
 
 # Serve media files during development

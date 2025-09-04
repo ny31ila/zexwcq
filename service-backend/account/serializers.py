@@ -4,6 +4,8 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+# Import the custom field
+from util.fields import JalaliDateField # Import the new custom field
 
 User = get_user_model()
 
@@ -16,15 +18,17 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'national_code', 'phone_number', 'password', 'password_confirm',
-            'first_name', 'last_name', 'gender', 'birth_date_gregorian',
-            'birth_date_shamsi', 'email' # profile_picture can be handled separately if needed
+            'first_name', 'last_name', 'gender', 'birth_date', # Include birth_date
+            'email' # profile_picture can be handled separately if needed
         )
         extra_kwargs = {
-            'first_name': {'required': False},
-            'last_name': {'required': False},
+            # first_name and last_name are mandatory in the model, so they are required by default
+            # unless overridden here. Let's keep them optional in registration if needed,
+            # but the model will enforce them on save.
+            # 'first_name': {'required': False}, # Keep optional for registration API if desired
+            # 'last_name': {'required': False},  # Keep optional for registration API if desired
             'gender': {'required': False},
-            'birth_date_gregorian': {'required': False},
-            'birth_date_shamsi': {'required': False},
+            'birth_date': {'required': False}, # Keep optional for registration API if desired
             'email': {'required': False},
         }
 
@@ -50,12 +54,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
     national_code = serializers.CharField(read_only=True)
     phone_number = serializers.CharField(read_only=True)
 
+    # --- Use the custom JalaliDateField for birth_date ---
+    # This handles conversion between Gregorian (model) and Jalali (API)
+    birth_date = JalaliDateField(required=False) # Use the custom field
+
     class Meta:
         model = User
         fields = (
             'id', 'national_code', 'phone_number', 'email',
-            'first_name', 'last_name', 'gender',
-            'birth_date_gregorian', 'birth_date_shamsi',
+            'first_name', 'last_name', 'gender', 'birth_date', # Use renamed field
             'profile_picture', 'date_joined', 'last_login'
         )
         read_only_fields = ('id', 'date_joined', 'last_login') # These should not be editable
@@ -67,7 +74,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(_("A user with that email already exists."))
         return value
 
-# Serializers for Password Reset can be added later, likely involving sending SMS.
-# They would typically involve:
-# 1. A serializer to request reset (takes phone_number/national_code)
-# 2. A serializer to confirm reset (takes code, new password, confirm password)
+    # Serializers for Password Reset can be added later, likely involving sending SMS.
+    # They would typically involve:
+    # 1. A serializer to request reset (takes phone_number/national_code)
+    # 2. A serializer to confirm reset (takes code, new password, confirm password)

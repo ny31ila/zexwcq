@@ -1,6 +1,6 @@
 # service-backend/account/models.py
 from django.db import models
-from django.contrib.auth.models import AbstractUser, BaseUserManager # Import BaseUserManager
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 import jdatetime
 from datetime import date
@@ -20,7 +20,7 @@ class CustomUserManager(BaseUserManager):
         if not phone_number:
             raise ValueError(_('The Phone Number must be set'))
         user = self.model(national_code=national_code, phone_number=phone_number, **extra_fields)
-        user.set_password(password) # Hash the password
+        user.set_password(password)
         user.save(using=self._db)
         return user
 
@@ -36,7 +36,6 @@ class CustomUserManager(BaseUserManager):
             raise ValueError(_('Superuser must have is_staff=True.'))
         if extra_fields.get('is_superuser') is not True:
             raise ValueError(_('Superuser must have is_superuser=True.'))
-        # Note: We are NOT passing a 'username' argument here
         return self.create_user(national_code, phone_number, password, **extra_fields)
 
 
@@ -59,28 +58,33 @@ class User(AbstractUser):
         _("phone number"), max_length=15, unique=True, help_text=_("User's Phone Number (Required)")
     )
 
-    # --- Profile Fields ---
-    first_name = models.CharField(_("first name"), max_length=150, blank=True)
-    last_name = models.CharField(_("last name"), max_length=150, blank=True)
+    # --- Profile Fields (Updated Mandatory Fields) ---
+    # As per agreement, first_name and last_name are mandatory for data integrity,
+    # even if not required at initial bulk creation.
+    first_name = models.CharField(_("first name"), max_length=150, blank=False) # Mandatory
+    last_name = models.CharField(_("last name"), max_length=150, blank=False)  # Mandatory
     GENDER_CHOICES = [
         ('M', _('Male')),
         ('F', _('Female')),
+        # ('O', _('Other')), # Add if needed based on prompt
     ]
     gender = models.CharField(_("gender"), max_length=1, choices=GENDER_CHOICES, blank=True)
 
-    # Birth dates in different calendars
-    birth_date_gregorian = models.DateField(_("birth date (Gregorian)"), blank=True, null=True)
-    birth_date_shamsi = models.CharField(_("birth date (Shamsi/Jalali)"), max_length=10, blank=True, null=True)
-    # birth_date_hebrew = models.CharField(_("birth date (Hebrew)"), max_length=20, blank=True, null=True) # Optional
+    # --- Birth Date (Simplified and Gregorian Storage) ---
+    # Store the primary date in Gregorian format for database integrity and querying.
+    # Conversion to/from Jalali will be handled by serializers/views.
+    birth_date = models.DateField(_("birth date (Gregorian)"), blank=True, null=True) # Name simplified
+
+    # Note: birth_date_shamsi field has been removed as per discussion.
+    # It can be calculated on-the-fly or stored separately if legacy systems require it,
+    # but the primary source is birth_date (Gregorian).
 
     profile_picture = models.ImageField(_("profile picture"), upload_to='profile_pictures/', blank=True, null=True)
 
     # --- Use the custom manager ---
-    objects = CustomUserManager() # Use the custom manager
+    objects = CustomUserManager()
 
-    USERNAME_FIELD = 'national_code' # Use national_code to uniquely identify the user
-    # Note: national_code is already included in REQUIRED_FIELDS implicitly because it's the USERNAME_FIELD
-    # We add phone_number to REQUIRED_FIELDS as it's also mandatory
+    USERNAME_FIELD = 'national_code'
     REQUIRED_FIELDS = ['phone_number'] # phone_number is required alongside national_code
 
     class Meta:
@@ -103,13 +107,13 @@ class User(AbstractUser):
 
     def calculate_age(self):
         """Calculate age based on Gregorian birth date."""
-        if self.birth_date_gregorian:
+        if self.birth_date: # Use the renamed field
             today = date.today()
-            return today.year - self.birth_date_gregorian.year - \
-                   ((today.month, today.day) < (self.birth_date_gregorian.month, self.birth_date_gregorian.day))
+            return today.year - self.birth_date.year - \
+                   ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
         return None
 
-# The Role model and any other models remain the same...
+# The Role model and any other models remain the same or are not part of this update...
 # If you add a Role model later:
 # class Role(models.Model):
 #     name = models.CharField(max_length=50, unique=True)

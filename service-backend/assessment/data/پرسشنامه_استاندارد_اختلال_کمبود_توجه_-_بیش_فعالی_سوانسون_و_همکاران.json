@@ -1,0 +1,77 @@
+{
+  "title": "پرسشنامه استاندارد اختلال کمبود توجه - بیش فعالی سوانسون و همکاران",
+  "short_name": "SNAP-IV",
+  "description": {
+    "overall": "پرسشنامه SNAP-IV توسط سوانسون، نولان و پلهام در سال ۱۹۸۰ برای سنجش اختلال کمبود توجه – بیش فعالی در کودکان طراحی و تدوین شده است و توسط والدین کودک تکمیل می شود.",
+    "purpose": "سنجش اختلال کمبود توجه – بیش فعالی در کودکان",
+    "target_audience": "والدین کودکان"
+  },
+  "response_scale": {
+    "type": "لیکرت",
+    "options": [
+      {"label": "هرگز", "value": 0},
+      {"label": "خیلی کم", "value": 1},
+      {"label": "زیاد", "value": 2},
+      {"label": "خیلی زیاد", "value": 3}
+    ],
+    "instructions": "پاسخ دهندگان به سوالات ۱۸ گویه ای پرسشنامه اختلال کمبود توجه - بیش فعالی می دهند."
+  },
+  "dimensions": [
+    {
+      "id": "attention_deficit",
+      "name": "اختلال کمبود توجه",
+      "questions_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    },
+    {
+      "id": "hyperactivity",
+      "name": "اختلال بیش فعالی",
+      "questions_ids": [10, 11, 12, 13, 14, 15, 16, 17, 18]
+    }
+  ],
+  "questions": [
+    {"id": 1, "text": "اغلب نمی تواند به جزئیات توجه کند و از روی بی دقتی اشتباه می کند.", "dimension_id": "attention_deficit", "is_reverse_scored": false},
+    {"id": 2, "text": "اغلب به راحتی از تلاش کردن مایوس می شود.", "dimension_id": "attention_deficit", "is_reverse_scored": false},
+    {"id": 3, "text": "اغلب در انجام تکالیف و بازی ها اغلب نمی تواند توجه اش را حفظ کند.", "dimension_id": "attention_deficit", "is_reverse_scored": false},
+    {"id": 4, "text": "اغلب وقتی به طور مستقیم مورد خطاب قرار می گیرد نمی شنود.", "dimension_id": "attention_deficit", "is_reverse_scored": false},
+    {"id": 5, "text": "اغلب به دلیل بی توجهی از دستورات و فرامین معلم پیروی نمی کند.", "dimension_id": "attention_deficit", "is_reverse_scored": false},
+    {"id": 6, "text": "اغلب درگیر فعالیت هایی که مستلزم تلاش ذهنی هستند نمی شود.", "dimension_id": "attention_deficit", "is_reverse_scored": false},
+    {"id": 7, "text": "اغلب وسایل لازم برای انجام تکالیف یا فعالیت ها را گم می کند.", "dimension_id": "attention_deficit", "is_reverse_scored": false},
+    {"id": 8, "text": "اغلب در فعالیت های روزانه فراموش کار است.", "dimension_id": "attention_deficit", "is_reverse_scored": false},
+    {"id": 9, "text": "اغلب با کوچکترین سر و صدایی آشفته می شود.", "dimension_id": "attention_deficit", "is_reverse_scored": false},
+    {"id": 10, "text": "اغلب بی مسولیت است.", "dimension_id": "hyperactivity", "is_reverse_scored": false},
+    {"id": 11, "text": "اغلب در رویا ها فرو می رود.", "dimension_id": "hyperactivity", "is_reverse_scored": false},
+    {"id": 12, "text": "اغلب قادر به سازماندهی تکالیف خود نیست.", "dimension_id": "hyperactivity", "is_reverse_scored": false},
+    {"id": 13, "text": "هنگام صحبت کردن با دیگران به ادامه مکالمات توجهی ندارد.", "dimension_id": "hyperactivity", "is_reverse_scored": false},
+    {"id": 14, "text": "اغلب هنوز یک فعالیت را تمام نکرده به فعالیت دیگری مشغول می شود و آنرا نیز ناتمام رها می کند.", "dimension_id": "hyperactivity", "is_reverse_scored": false},
+    {"id": 15, "text": "اغلب در نگهداری دوستان مشکل دارد.", "dimension_id": "hyperactivity", "is_reverse_scored": false},
+    {"id": 16, "text": "اغلب بی قرار است و مدام وول می خورد و به این طرف و آن طرف می رود.", "dimension_id": "hyperactivity", "is_reverse_scored": false},
+    {"id": 17, "text": "اغلب وسط صحبت دیگران حرف آنها را قطع می کند.", "dimension_id": "hyperactivity", "is_reverse_scored": false},
+    {"id": 18, "text": "اغلب پاهای خود را به طور افراطی تکان می دهد.", "dimension_id": "hyperactivity", "is_reverse_scored": false}
+  ],
+  "scoring": {
+    "method": "جمع نمرات برای هر خرده مقیاس",
+    "instructions": "نمرات سوالات مربوط به هر خرده مقیاس را جمع کنید. هر گویه دارای امتیازی از 0 (هرگز) تا 3 (خیلی زیاد) است. حداکثر نمره کل پرسشنامه 54 خواهد بود.",
+    "thresholds": [
+      {"range": "0 تا 18", "interpretation": "میزان اختلال کمبود توجه - بیش فعالی در حد پایینی می باشد."},
+      {"range": "18 تا 36", "interpretation": "میزان اختلال کمبود توجه - بیش فعالی در حد متوسطی می باشد."},
+      {"range": "بالاتر از 36", "interpretation": "میزان اختلال کمبود توجه - بیش فعالی حد بالایی می باشد."}
+    ],
+    "notes": "این نمرات برای یک پرسشنامه است. اگر چندین پرسشنامه دارید (مثلا ۱۰ پرسشنامه)، باید نمرات را در تعداد پرسشنامه‌ها ضرب کنید."
+  },
+  "interpretation": {
+    "overall_interpretation": "تفسیر نمره کلی بر اساس محدوده های مشخص شده، نشان دهنده میزان اختلال کمبود توجه - بیش فعالی است."
+  },
+  "psychometric_properties": {
+    "validity": {
+      "info": "روایی محتوایی و صوری و ملاکی این پرسشنامه مناسب ارزیابی شده است (صدرالسادات و همکاران، ۱۳۸۶)."
+    },
+    "reliability": {
+      "alpha_cronbach": "0.817",
+      "info": "ضریب آلفای کرونباخ محاسبه شده در پژوهش صدرالسادات و همکاران (۱۳۸۶) بالای ۰/۷ برآورد شد."
+    }
+  },
+  "references": [
+    {"author": "سرمد، زهره؛ حجازی، الهه و بازرگان، عباس", "year": "۱۳۹۰", "title": "روش تحقیق در علوم رفتاری", "source": "ناشر ذکر نشده"},
+    {"author": "صدرالسادات، ج؛ هوشیاری، ز؛ صدرالسادات، ل؛ زمانی، ر", "year": "۱۳۸۶", "title": "تعیین مشخصات روان سنجی مقیاس درجه بندی SNAP-IV اجرای والدین", "source": "مجله توانبخشی، ۳: ۵۹-۶۵"}
+  ]
+}

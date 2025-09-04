@@ -1,92 +1,238 @@
 {
-  "assessment_name": "Myers-Briggs Type Indicator (MBTI)",
-  "version": "1.0",
-  "description": "This assessment identifies personality preferences based on Carl Jung's theory, as operationalized by Myers and Briggs.",
-  "instructions": "For each pair of statements, choose the one that sounds more like you.",
-  "scoring": {
-    "type": "Dichotomous Choice",
-    "scale": [
-      {"value": 1, "label": "Statement A"},
-      {"value": 2, "label": "Statement B"}
-    ]
+  "title": "پرسشنامه سنخ نمای مایرز- بریگز",
+  "short_name": "MBTI",
+  "description": {
+    "overall": "سنخ نمای مایرز- بریگز یک پرسشنامه خودسنجی است که بر اساس نظریه تیپ‌های روان شناس و روانپزشک سویسی کارل گوستاو یونگ طراحی شده است. نتایج MBTI تفاوت‌های با ارزش ما بین انسان‌های طبیعی و سالم را مشخص می‌کند، تفاوت‌هایی که می‌تواند منبع و منشأ اکثر سوء تفاهم‌ها و اختلال‌های ارتباطاتی شود.",
+    "purpose": "شناخت و درک تفاوت‌های شخصیت‌های سالم",
+    "applications": [
+      "فهم بهتر خود و دیگران",
+      "مشاوره ازدواج",
+      "مشاوره شغلی",
+      "کارمند یابی یا انتخاب مدیران",
+      "ایجاد تیم‌های کاری",
+      "آموزش و توسعه مدیریت و رهبری",
+      "حل تعارضات درون سازمانی",
+      "توسعه برنامه‌های درسی و آموزشی و تربیتی"
+    ],
+    "number_of_questions": 60
+  },
+  "response_scale": {
+    "type": "انتخاب دوتایی (الف یا ب)",
+    "options": [
+      {"label": "الف"},
+      {"label": "ب"}
+    ],
+    "instructions": "لطفاً پاسخ مدنظر خود را با علامت ✓ یا X مشخص کنید. برای هر سوال، گزینه‌ای را انتخاب کنید که بیشتر با شما همخوانی دارد."
   },
   "dimensions": [
-    {
-      "code": "E-I",
-      "name": "Extraversion (E) - Introversion (I)",
-      "description": "Where you focus your energy."
-    },
-    {
-      "code": "S-N",
-      "name": "Sensing (S) - Intuition (N)",
-      "description": "How you take in information."
-    },
-    {
-      "code": "T-F",
-      "name": "Thinking (T) - Feeling (F)",
-      "description": "How you make decisions."
-    },
-    {
-      "code": "J-P",
-      "name": "Judging (J) - Perceiving (P)",
-      "description": "How you deal with the outside world."
-    }
+    {"id": "EI", "name": "برون‌گرایی/درون‌گرایی", "description": "نحوه تمرکز توجه (دنیای بیرون در مقابل دنیای درون)"},
+    {"id": "SN", "name": "حسی/شهودی", "description": "نحوه کسب اطلاعات (واقعیات ملموس در مقابل الگوها و احتمالات)"},
+    {"id": "TF", "name": "تفکری/احساسی", "description": "نحوه تصمیم‌گیری (منطق و استدلال در مقابل ارزش‌ها و احساسات)"},
+    {"id": "JP", "name": "قضاوت‌گر/ادراک‌کننده", "description": "نحوه مواجهه با دنیای بیرون (برنامه‌ریزی و ساختار در مقابل انعطاف‌پذیری)"}
   ],
-  "question_pairs": [
-    {
-      "pair_id": 1,
-      "statements": {
-        "A": "I prefer to be out and about, meeting new people and experiencing new things.",
-        "B": "I prefer quiet, solitary activities and spending time with a few close friends or family."
-      },
-      "dimension": "E-I",
-      "scoring": {
-        "A": {"E": 1},
-        "B": {"I": 1}
-      }
-    },
-    {
-      "pair_id": 2,
-      "statements": {
-        "A": "I focus on facts, details, and the present moment.",
-        "B": "I focus on possibilities, patterns, and the future."
-      },
-      "dimension": "S-N",
-      "scoring": {
-        "A": {"S": 1},
-        "B": {"N": 1}
-      }
-    },
-    {
-      "pair_id": 3,
-      "statements": {
-        "A": "I make decisions based on logic, principles, and objective analysis.",
-        "B": "I make decisions based on personal values, harmony, and how it affects others."
-      },
-      "dimension": "T-F",
-      "scoring": {
-        "A": {"T": 1},
-        "B": {"F": 1}
-      }
-    },
-    {
-      "pair_id": 4,
-      "statements": {
-        "A": "I like to have a plan, make decisions quickly, and stick to a schedule.",
-        "B": "I like to stay flexible, keep my options open, and adapt to new information."
-      },
-      "dimension": "J-P",
-      "scoring": {
-        "A": {"J": 1},
-        "B": {"P": 1}
-      }
-    }
-    // ... (more question pairs would follow)
+  "questions": [
+    {"id": 1, "text_a": "معمولاً احساسات و عواطف خود را در خویش نگه می‌دارم.", "text_b": "معمولاً احساسات و عواطف خود را با دیگران و به راحتی در میان می‌گذارم.", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 2, "text_a": "امور قطعی و عینی مهم هستند.", "text_b": "نظریه‌ها مهم هستند.", "dimension_mapping": {"a": "S", "b": "N"}},
+    {"id": 3, "text_a": "هنگام تصمیم‌گیری به آنچه که منطق و خرد بر آن حکم می‌کند، عمل می‌کنم.", "text_b": "هنگام تصمیم‌گیری به آنچه که عاطفه و دل به آن گواه می‌دهد، عمل می‌کنم.", "dimension_mapping": {"a": "T", "b": "F"}},
+    {"id": 4, "text_a": "مایل هستم انعطاف‌پذیر باشم و در لحظه‌های آخر تصمیم بگیرم.", "text_b": "مایل هستم همه چیز برنامه‌ریزی شده باشد.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 5, "text_a": "کم ولی عمیق", "text_b": "زیاد ولی سطحی", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 6, "text_a": "واقعیات عینی (آنچه وجود دارد) را مورد بررسی قرار می‌دهم.", "text_b": "حقایق (آنچه که باید وجود داشته باشد) را با قدرت تخیل خود مجسم می‌کنم.", "dimension_mapping": {"a": "S", "b": "N"}},
+    {"id": 7, "text_a": "قاضی و داور عادل بهتر است.", "text_b": "معلم و مربی مهربان بهتر است.", "dimension_mapping": {"a": "T", "b": "F"}},
+    {"id": 8, "text_a": "ترجیحاً ملاقات‌ها و دیدارهای خود را هرطور که پیش آید و بر اساس موقعیت آزادانه انجام می‌دهم.", "text_b": "ترجیحاً دیدار با افراد و وعده ملاقات را از پیش تعیین می‌کنم.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 9, "text_a": "کم حرف و محتاط هستم.", "text_b": "توجه دیگران را به خود جلب می‌کنم.", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 10, "text_a": "اگر معلم بودم ترجیح می‌دادم دروسی را تدریس کنم که واقعیات و امور قطعی و عینی را شامل شوند.", "text_b": "اگر معلم بودم، ترجیحاً دروسی را تدریس می‌کردم که حقایق و نظریه‌ها و تئوری‌ها را شامل شوند.", "dimension_mapping": {"a": "S", "b": "N"}},
+    {"id": 11, "text_a": "قاطع، محکم و استوار", "text_b": "انعطاف‌پذیر، ملایم و لطیف", "dimension_mapping": {"a": "T", "b": "F"}},
+    {"id": 12, "text_a": "غالباً انجام کارهای پیش پا افتاده و جزئی را فراموش می‌کنم.", "text_b": "به منظور جلوگیری از فراموش شدن انجام کارها، آنها را یادداشت می‌کنم.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 13, "text_a": "در مهمانی‌ها، جلسات و گردهمایی‌ها منتظر می‌مانم تا دیگران به سوی من بیایند.", "text_b": "در مهمانی‌ها، جلسات و گردهمایی‌ها، من سر صحبت با دیگران را باز می‌کنم.", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 14, "text_a": "گفتار مشروح و صریح", "text_b": "مفاهیم ادبی", "dimension_mapping": {"a": "S", "b": "N"}},
+    {"id": 15, "text_a": "برنامه‌ریزی و آینده‌نگری", "text_b": "توجه کمتر به آینده", "dimension_mapping": {"a": "J", "b": "P"}},
+    {"id": 16, "text_a": "معمولاً کارها را شروع می‌کنم و حین اجرا به رفع اشکالات اجرایی و تدارک مورد نیاز می‌پردازم.", "text_b": "قبل از اجرای طرح‌ها و کارها برنامه‌ریزی را انجام می‌دهم.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 17, "text_a": "دوستان کمتر ولی تماس بیشتر", "text_b": "دوستان بیشتر ولی تماس کمتر", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 18, "text_a": "واقعی و مشخص", "text_b": "بر اساس قوه تخیل و ذوق", "dimension_mapping": {"a": "S", "b": "N"}},
+    {"id": 19, "text_a": "منطق و دلیل", "text_b": "احساس و عاطفه", "dimension_mapping": {"a": "T", "b": "F"}},
+    {"id": 20, "text_a": "در انجام کارهایی که از قبل پیش‌بینی نشده و یا فعالیت‌هایی که به سرعت و عکس‌العمل فوری نیاز دارند، موفق هستم.", "text_b": "در انجام کارهایی که بر اساس طرح و برنامه می‌باشد، موفق هستم.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 21, "text_a": "به طور معمول دوستان کمی داشته ولی روابط صمیمانه‌ای دارم.", "text_b": "به طور معمول با افراد زیادی دوستی و آشنایی دارم.", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 22, "text_a": "به امور قطعی و مسلم و واقعیات جاری توجه دارم.", "text_b": "به پیش‌بینی اتفاقات و علل وقایع فکر می‌کنم.", "dimension_mapping": {"a": "S", "b": "N"}},
+    {"id": 23, "text_a": "مغز من بر قلب من حاکم است.", "text_b": "قلب من بر مغز من حاکم است.", "dimension_mapping": {"a": "T", "b": "F"}},
+    {"id": 24, "text_a": "معمولاً در کارهای روزانه مایلم بر حسب ضرورت‌ها و فوریت‌هایی که پیش می‌آید عمل کنم.", "text_b": "معمولاً در کارهای روزانه مایلم که طبق برنامه عمل کنم.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 25, "text_a": "از احساسات و عواطف درونی خود کمتر با دیگران صحبت می‌کنم.", "text_b": "افکار و عواطف خود را آزاد و راحت بیان می‌کنم.", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 26, "text_a": "کلمه مشخص و دقیق", "text_b": "کلمه تمثیلی و کنایه‌ای", "dimension_mapping": {"a": "S", "b": "N"}},
+    {"id": 27, "text_a": "آدم منصف", "text_b": "آدم قدردان", "dimension_mapping": {"a": "T", "b": "F"}},
+    {"id": 28, "text_a": "معمولاً کارها را شروع می‌کنم و در حین اجرا به رفع مشکلات پیش آمده می‌پردازم.", "text_b": "معمولاً قبل از شروع کارها مقدمات کار را آماده و مشکلات را پیش‌بینی می‌کنم.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 29, "text_a": "کارهای فردی", "text_b": "کارهای گروهی", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 30, "text_a": "واقعیات (آنچه که هست) و پدیده‌ها", "text_b": "حقایق (آنچه که باید باشد) و ایده‌ها", "dimension_mapping": {"a": "S", "b": "N"}},
+    {"id": 31, "text_a": "عدل و انصاف", "text_b": "بذل و بخشش", "dimension_mapping": {"a": "T", "b": "F"}},
+    {"id": 32, "text_a": "تهیه فهرست از کارهایی که باید در روز تعطیل انجام داد را کاری بیهوده و عبث می‌دانم.", "text_b": "تهیه فهرست از کارهایی که باید در روز تعطیل انجام داد را کاری جدی و سودمند می‌دانم.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 33, "text_a": "معمولاً در مهمانی‌ها و مجالس با شخص یا اشخاصی که از قبل می‌شناسم گفتگو می‌کنم.", "text_b": "معمولاً در مهمانی‌ها و مجالس به دنبال اشخاص جدیدی هستم تا با آنها گفتگو کرده و آشنا شوم.", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 34, "text_a": "دوستان من اکثراً واقع‌گرا و واقع‌بین هستند.", "text_b": "دوستان من اکثراً کسانی هستند که قوه تخیل قوی دارند.", "dimension_mapping": {"a": "S", "b": "N"}},
+    {"id": 35, "text_a": "فردی که با دلایل و استدلال با موضوعات برخورد می‌کند، بهتر است.", "text_b": "فردی که با عاطفه و احساس واقعی و دلسوزی با موضوعات برخورد می‌کند، بهتر است.", "dimension_mapping": {"a": "T", "b": "F"}},
+    {"id": 36, "text_a": "غالباً خود را ملزم به انجام کارها سر وقت معین و مشخص ندانسته و خود را در محدوده زمان مقید نمی‌کنم.", "text_b": "غالباً برنامه خود را بطور مشخص و دقیق تعیین کرده و بر انجام آنها در سر وقت مقرر اصرار می‌ورزم.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 37, "text_a": "آرام و کم صدا", "text_b": "با نشاط و فعال", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 38, "text_a": "دوست دارم فردی واقع‌گرا و دقیق باشم.", "text_b": "دوست دارم فردی مبتکر و خلاق باشم.", "dimension_mapping": {"a": "S", "b": "N"}},
+    {"id": 39, "text_a": "به تجزیه و تحلیل موضوعات علاقه دارم.", "text_b": "به فیلم‌ها و بحث‌های عاطفی که به مسائل انسانی می‌پردازند، علاقه دارم.", "dimension_mapping": {"a": "T", "b": "F"}},
+    {"id": 40, "text_a": "معمولاً زندگی خود را با توجه به اوضاع و احوالی که پیش می‌آید، تنظیم و اداره می‌کنم.", "text_b": "معمولاً کارهایی را که مایل به انجام آن هستم یادداشت کرده یا حداقل به طور مرتب به خاطر می‌سپارم.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 41, "text_a": "کم حرف", "text_b": "خوش صحبت", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 42, "text_a": "عینیت", "text_b": "ذهنیت", "dimension_mapping": {"a": "S", "b": "N"}},
+    {"id": 43, "text_a": "دوست دارم فردی باشم متفکر، که عاقلانه رفتار می‌کند.", "text_b": "دوست دارم فردی باشم عاطفی، که با احساسات انسانی رفتار می‌کند.", "dimension_mapping": {"a": "T", "b": "F"}},
+    {"id": 44, "text_a": "بعضی افراد مرا آدمی بی‌نظم و دارای زندگی شلوغ می‌دانند.", "text_b": "بعضی افراد مرا آدمی متوقع و غیر قابل انعطاف می‌دانند.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 45, "text_a": "پس از مکث و تأمل کافی، نسبت به بحث یا سوالات مطرح شده اظهار نظر می‌کنم.", "text_b": "در هر لحظه که فرصت شد سوالات را مطرح یا نظر خود را اعلام می‌کنم.", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 46, "text_a": "ثبات و استحکام", "text_b": "تغییر و انعطاف", "dimension_mapping": {"a": "S", "b": "N"}},
+    {"id": 47, "text_a": "بیشتر از نتیجه‌گیری‌های منطقی و استدلال استفاده می‌کنم.", "text_b": "بیشتر بر اساس عواطف و عقاید شخصی نسبت به زندگی یا افراد عمل می‌کنم.", "dimension_mapping": {"a": "T", "b": "F"}},
+    {"id": 48, "text_a": "هر وقت که مناسب بود و فرصت دست داد نسبت به انجام کارها آزادانه و بدون فشار اقدام می‌کنم.", "text_b": "این مهم است که از قبل بدانم چه کاری یا چه چیزی از من انتظار دارند تا به انجام آنها بپردازم.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 49, "text_a": "ترجیح می‌دهم در جمع افراد توسط فرد دیگری معرفی شوم.", "text_b": "معمولاً در جمع افراد دیگران را به یکدیگر معرفی می‌کنم.", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 50, "text_a": "تلاش می‌کنم با رعایت ترتیب مراحل پیش‌بینی شده کارها را انجام دهم.", "text_b": "هنگام انجام دادن کارها از قسمت‌های بی‌اهمیت آن صرف‌نظر کنم.", "dimension_mapping": {"a": "J", "b": "P"}},
+    {"id": 51, "text_a": "نسبت به هر گروه یا افراد سازمانی که با آنها کار می‌کنم، بر اساس تجزیه و تحلیل دقیق اوضاع و اطلاعات موجود اظهار نظر می‌کنم.", "text_b": "نسبت به هر گروه یا افراد سازمانی که با آنها کار می‌کنم، بر اساس درک نیازهایشان عواطف انسانی و خود را به جای آنها گذاشتن اظهار نظر می‌کنم.", "dimension_mapping": {"a": "T", "b": "F"}},
+    {"id": 52, "text_a": "معمولاً بدون فوت وقت یک کار یا پروژه را شروع و به هر قسمتی از آن که ممکن باشد زودتر می‌پردازم.", "text_b": "معمولاً در انجام کارها آنها را به اجزای مشخص تقسیم کرده و سپس به ترتیب به انجام بخش‌های مشخص شده می‌پردازم.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 53, "text_a": "به کارهای فردی (یا حداکثر با یکی دو نفر دیگر) علاقه مندم.", "text_b": "به کارهای گروهی علاقه مندم.", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 54, "text_a": "یکی از اشکالات اساسی زندگی من یکنواختی و چسبیدن به برنامه و کار مشخص بوده است.", "text_b": "یکی از اشکالات اساسی زندگی من از شاخه‌ای به شاخه ای دیگر پریدن و داشتن برنامه‌های متعدد بوده است.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 55, "text_a": "قاطع بودن", "text_b": "ملایم بودن", "dimension_mapping": {"a": "T", "b": "F"}},
+    {"id": 56, "text_a": "علاقه مندم جلسات و گردهمایی‌ها هنگامی شروع شود که همگی افراد حضور و آمادگی لازم را داشته و احساس راحتی کنند.", "text_b": "علاقه مندم که جلسات رأس ساعت مقرر شروع شود و روی وقت‌شناسی تأکید دارم.", "dimension_mapping": {"a": "P", "b": "J"}},
+    {"id": 57, "text_a": "از نظر دیگران ممکن است فردی منزوی و گوشه‌گیر به نظر برسم.", "text_b": "از نظر دیگران ممکن است فردی پرحرف و سطحی به نظر برسم.", "dimension_mapping": {"a": "I", "b": "E"}},
+    {"id": 58, "text_a": "کارها را با نظم و ترتیب و مرحله به مرحله انجام می‌دهم.", "text_b": "قسمت‌های مهم و جالب کار را زودتر انجام می‌دهم.", "dimension_mapping": {"a": "J", "b": "P"}},
+    {"id": 59, "text_a": "اصول و حق", "text_b": "گذشت و مهربانی", "dimension_mapping": {"a": "T", "b": "F"}},
+    {"id": 60, "text_a": "مقید بودن به برنامه‌ای که از قبل مشخص شده باشد برای من جالب نیست.", "text_b": "از انجام دادن کارهایی که از قبل مشخص شده باشد، احساس رضایت دارم.", "dimension_mapping": {"a": "P", "b": "J"}}
   ],
-  "types": [
-    "ISTJ", "ISFJ", "INFJ", "INTJ",
-    "ISTP", "ISFP", "INFP", "INTP",
-    "ESTP", "ESFP", "ENFP", "ENTP",
-    "ESTJ", "ESFJ", "ENFJ", "ENTJ"
+  "scoring": {
+    "method": "شمارش ترجیحات برای هر دو قطبی",
+    "instructions": "برای هر سوال، اگر پاسخ انتخابی شما 'الف' است، نمره آن را به بعد مربوطه اضافه کنید. اگر 'ب' است، نمره آن را به بعد مربوطه اضافه کنید. سپس برای هر دو قطبی (مثلا E/I)، نمرات مربوط به هر یک را با هم جمع کنید. بالاترین نمره در هر جفت از گرایش‌ها و کارکردها، ملاک تعیین تیپ شخصیتی است.",
+    "question_type_mapping": {
+      "EI": {
+        "I_questions": [
+          {"id": 1, "choice": "a"}, {"id": 5, "choice": "a"}, {"id": 9, "choice": "a"}, {"id": 13, "choice": "a"},
+          {"id": 17, "choice": "a"}, {"id": 21, "choice": "a"}, {"id": 25, "choice": "a"}, {"id": 29, "choice": "a"},
+          {"id": 33, "choice": "a"}, {"id": 37, "choice": "a"}, {"id": 41, "choice": "a"}, {"id": 45, "choice": "a"},
+          {"id": 49, "choice": "a"}, {"id": 53, "choice": "a"}, {"id": 57, "choice": "a"}
+        ],
+        "E_questions": [
+          {"id": 1, "choice": "b"}, {"id": 5, "choice": "b"}, {"id": 9, "choice": "b"}, {"id": 13, "choice": "b"},
+          {"id": 17, "choice": "b"}, {"id": 21, "choice": "b"}, {"id": 25, "choice": "b"}, {"id": 29, "choice": "b"},
+          {"id": 33, "choice": "b"}, {"id": 37, "choice": "b"}, {"id": 41, "choice": "b"}, {"id": 45, "choice": "b"},
+          {"id": 49, "choice": "b"}, {"id": 53, "choice": "b"}, {"id": 57, "choice": "b"}
+        ]
+      },
+      "SN": {
+        "S_questions": [
+          {"id": 2, "choice": "a"}, {"id": 6, "choice": "a"}, {"id": 10, "choice": "a"}, {"id": 14, "choice": "a"},
+          {"id": 18, "choice": "a"}, {"id": 22, "choice": "a"}, {"id": 26, "choice": "a"}, {"id": 30, "choice": "a"},
+          {"id": 34, "choice": "a"}, {"id": 38, "choice": "a"}, {"id": 42, "choice": "a"}, {"id": 46, "choice": "a"}
+        ],
+        "N_questions": [
+          {"id": 2, "choice": "b"}, {"id": 6, "choice": "b"}, {"id": 10, "choice": "b"}, {"id": 14, "choice": "b"},
+          {"id": 18, "choice": "b"}, {"id": 22, "choice": "b"}, {"id": 26, "choice": "b"}, {"id": 30, "choice": "b"},
+          {"id": 34, "choice": "b"}, {"id": 38, "choice": "b"}, {"id": 42, "choice": "b"}, {"id": 46, "choice": "b"}
+        ]
+      },
+      "TF": {
+        "T_questions": [
+          {"id": 3, "choice": "a"}, {"id": 7, "choice": "a"}, {"id": 11, "choice": "a"}, {"id": 15, "choice": "a"},
+          {"id": 19, "choice": "a"}, {"id": 23, "choice": "a"}, {"id": 27, "choice": "a"}, {"id": 31, "choice": "a"},
+          {"id": 35, "choice": "a"}, {"id": 39, "choice": "a"}, {"id": 43, "choice": "a"}, {"id": 47, "choice": "a"},
+          {"id": 51, "choice": "a"}, {"id": 55, "choice": "a"}, {"id": 59, "choice": "a"}
+        ],
+        "F_questions": [
+          {"id": 3, "choice": "b"}, {"id": 7, "choice": "b"}, {"id": 11, "choice": "b"}, {"id": 15, "choice": "b"},
+          {"id": 19, "choice": "b"}, {"id": 23, "choice": "b"}, {"id": 27, "choice": "b"}, {"id": 31, "choice": "b"},
+          {"id": 35, "choice": "b"}, {"id": 39, "choice": "b"}, {"id": 43, "choice": "b"}, {"id": 47, "choice": "b"},
+          {"id": 51, "choice": "b"}, {"id": 55, "choice": "b"}, {"id": 59, "choice": "b"}
+        ]
+      },
+      "JP": {
+        "J_questions": [
+          {"id": 4, "choice": "b"}, {"id": 8, "choice": "b"}, {"id": 12, "choice": "b"}, {"id": 16, "choice": "b"},
+          {"id": 20, "choice": "b"}, {"id": 24, "choice": "b"}, {"id": 28, "choice": "b"}, {"id": 32, "choice": "b"},
+          {"id": 36, "choice": "b"}, {"id": 40, "choice": "b"}, {"id": 44, "choice": "b"}, {"id": 48, "choice": "b"},
+          {"id": 50, "choice": "b"}, {"id": 52, "choice": "b"}, {"id": 54, "choice": "b"}, {"id": 56, "choice": "b"},
+          {"id": 58, "choice": "b"}, {"id": 60, "choice": "b"}
+        ],
+        "P_questions": [
+          {"id": 4, "choice": "a"}, {"id": 8, "choice": "a"}, {"id": 12, "choice": "a"}, {"id": 16, "choice": "a"},
+          {"id": 20, "choice": "a"}, {"id": 24, "choice": "a"}, {"id": 28, "choice": "a"}, {"id": 32, "choice": "a"},
+          {"id": 36, "choice": "a"}, {"id": 40, "choice": "a"}, {"id": 44, "choice": "a"}, {"id": 48, "choice": "a"},
+          {"id": 50, "choice": "a"}, {"id": 52, "choice": "a"}, {"id": 54, "choice": "a"}, {"id": 56, "choice": "a"},
+          {"id": 58, "choice": "a"}, {"id": 60, "choice": "a"}
+        ]
+      }
+    },
+    "reverse_scoring_questions": [
+        {"id": 1, "original_type": "I", "new_type": "E"},
+        {"id": 3, "original_type": "S", "new_type": "N"},
+        {"id": 8, "original_type": "P", "new_type": "J"},
+        {"id": 9, "original_type": "I", "new_type": "E"},
+        {"id": 12, "original_type": "J", "new_type": "P"},
+        {"id": 14, "original_type": "S", "new_type": "N"},
+        {"id": 15, "original_type": "J", "new_type": "P"},
+        {"id": 18, "original_type": "S", "new_type": "N"},
+        {"id": 23, "original_type": "S", "new_type": "N"},
+        {"id": 24, "original_type": "I", "new_type": "E"},
+        {"id": 27, "original_type": "J", "new_type": "P"},
+        {"id": 29, "original_type": "J", "new_type": "P"},
+        {"id": 30, "original_type": "J", "new_type": "P"},
+        {"id": 33, "original_type": "S", "new_type": "N"},
+        {"id": 38, "original_type": "S", "new_type": "N"},
+        {"id": 39, "original_type": "I", "new_type": "E"},
+        {"id": 42, "original_type": "S", "new_type": "N"},
+        {"id": 44, "original_type": "S", "new_type": "N"},
+        {"id": 45, "original_type": "I", "new_type": "E"},
+        {"id": 46, "original_type": "S", "new_type": "N"},
+        {"id": 48, "original_type": "S", "new_type": "N"},
+        {"id": 54, "original_type": "I", "new_type": "E"},
+        {"id": 55, "original_type": "P", "new_type": "J"},
+        {"id": 57, "original_type": "I", "new_type": "E"}
+    ],
+    "thresholds": [
+      {"range": "0 تا 12", "interpretation": "کم"},
+      {"range": "12 تا 24", "interpretation": "متوسط"},
+      {"range": "24 تا 48", "interpretation": "زیاد"}
+    ],
+    "notes": "نمره‌گذاری معکوس برای برخی سوالات وجود دارد که در جدول `reverse_scoring_questions` مشخص شده‌اند. برای این سوالات، امتیازها باید برعکس محاسبه شوند. نمره هر بعد (حداکثر 48) و بالاترین نمره در هر دو قطبی (مثلا E در مقابل I) تیپ شخصیتی را تعیین می‌کند."
+  },
+  "interpretation": {
+    "overall_interpretation": "تفسیر تست نئو در دو بخش نمرات و نمودارها است. نمرات شدت رفتار را نشان می‌دهند و نمودارها سبک‌های شخصیتی را بررسی می‌کنند.",
+    "detailed_interpretations": [
+      {
+        "type_category": "گرایش‌های کلی (منبع انرژی)",
+        "types": [
+          {"name": "درون‌گرا (Introvert - I)", "description": "تمایل به تمرکز روی تجربیات و عقاید درونی، یادگیری با تأمل، علایق عمیق، تودار و کمرو."},
+          {"name": "برون‌گرا (Extravert - E)", "description": "تمایل به تمرکز روی دنیای بیرونی و افراد، یادگیری با کار عملی و گفتگو، گستردگی تعاملات اجتماعی، پرانرژی و قاطع."}
+        ]
+      },
+      {
+        "type_category": "کارکرد (نحوه کسب اطلاعات)",
+        "types": [
+          {"name": "حسی (Sensing - S)", "description": "تمرکز بر واقعیات، اعتماد به تجربه، گام به گام، توجه به زمان حال."},
+          {"name": "شهودی (Intuiting - N)", "description": "دیدگاه وسیع، اهمیت به بینش تخیلی، استدلال نظری، راهنمای آینده، شاخه به شاخه."}
+        ]
+      },
+      {
+        "type_category": "کارکرد (نحوه تصمیم‌گیری)",
+        "types": [
+          {"name": "تفکری (Thinking - T)", "description": "نگرش تحلیلی، حل منطقی مسائل، سرسختی، منطقی و منصف."},
+          {"name": "احساسی (Feeling - F)", "description": "توجه به احساسات دیگران، ملایم و مهربان، ارزیابی فشارهای وارد بر دیگران."}
+        ]
+      },
+      {
+        "type_category": "کارکرد (نحوه مواجهه با دنیای بیرون)",
+        "types": [
+          {"name": "منضبط (Judging - J)", "description": "برنامه‌ریزی دقیق، طرفدار قاعده و قانون، نظم و ترتیب."},
+          {"name": "ملاحظه‌کار (Perceiving - P)", "description": "انعطاف‌پذیر، عدم تعهد به زمان، سازگاری با شرایط، دوستدار آزادی."}
+        ]
+      }
+      
+    ]
+  },
+  "psychometric_properties": {
+    "validity": {
+      "info": "روایی آزمون خارجی ۷۵٪ و آزمون فعلی بالای ۸۰٪ است. همه عبارات با کل آزمون همبستگی معنی‌دار دارند و بررسی بالینی و مشاهدات روان‌شناختی نیز روایی این آزمون را تأیید کرده است."
+    },
+    "reliability": {
+      "info": "قابلیت اعتماد یا پایایی ابزار، درجه ثبات آن در اندازه‌گیری هر آنچه اندازه می‌گیرد را نشان می‌دهد."
+    }
+  },
+  "references": [
+    {"author": "آدرفر", "year": "۱۳۸۶", "title": "کتاب سنجش و کاربرد هوش‌های چندگانه در خانه و مدرسه", "source": "ناشر ذکر نشده"},
+    {"author": "شریفی، حسن پاشا", "year": "۱۳۸۴", "title": "مطالعه مقدماتی نظریه هوش چندگانه گاردنر در زمینه موضوع‌های درسی و سازگاری دانش آموزان", "source": "ناشر ذکر نشده"},
+    {"author": "مارنات، گری – گراث", "year": "۱۳۸۴", "title": "راهنمای سنجش روانی (جلد اول)", "source": "تهران: انتشارات سخن"},
+    {"author": "Gardner, Howard", "year": "2004", "title": "Frames of mind: The Theory of Multiple Intelligence", "source": "Newyork: Basic books"},
+    {"author": "Gardner, H. & Hatch, H.", "year": "1989", "title": "Multiple Intelligence go to Schools: Educational Implications of Theory of Multiple Intelligence", "source": "Educational Researcher, 18 (8), 4-9"}
   ]
 }

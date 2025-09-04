@@ -68,7 +68,7 @@ class User(AbstractUser):
         ('F', _('Female')),
         # ('O', _('Other')), # Add if needed based on prompt
     ]
-    gender = models.CharField(_("gender"), max_length=1, choices=GENDER_CHOICES, blank=True)
+    gender = models.CharField(_("gender"), max_length=1, choices=GENDER_CHOICES, blank=False)
 
     # --- Birth Date (Simplified and Gregorian Storage) ---
     # Store the primary date in Gregorian format for database integrity and querying.

@@ -74,7 +74,7 @@ class AssessmentListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['name', 'description']
-    filterset_fields = ['package'] # Allow filtering by package ID
+    filterset_fields = ['packages'] # Allow filtering by package ID
 
     def get_queryset(self):
         # This assumes the user has access to the package.
@@ -89,7 +89,7 @@ class AssessmentListView(generics.ListAPIView):
              ).values_list('id', flat=True)
 
              return Assessment.objects.filter(
-                 is_active=True, package__in=accessible_packages
+                 is_active=True, packages__in=accessible_packages
              )
         else:
             return Assessment.objects.none()
@@ -128,7 +128,7 @@ class UserAssessmentAttemptListView(generics.ListAPIView):
     filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['start_time', 'end_time', 'assessment__name']
     ordering = ['-start_time']
-    filterset_fields = ['assessment__package', 'assessment', 'is_completed']
+    filterset_fields = ['assessment__packages', 'assessment', 'is_completed']
 
     def get_queryset(self):
         return UserAssessmentAttempt.objects.filter(user=self.request.user)

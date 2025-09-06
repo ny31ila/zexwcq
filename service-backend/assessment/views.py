@@ -67,30 +67,30 @@ class TestPackageDetailView(generics.RetrieveAPIView):
 
 class AssessmentListView(generics.ListAPIView):
     """
-    List assessments within a specific package (assuming user has access to the package).
-    This view requires the package ID as a URL parameter or filter.
+    List assessments within packages accessible to the user (based on age).
     """
     serializer_class = AssessmentSerializer
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['name', 'description']
-    filterset_fields = ['packages'] # Allow filtering by package ID (M2M field)
+    # Allow filtering by packages (IDs) that contain the assessments the user can access
+    filterset_fields = ['packages'] # Filter by package ID (M2M field on Assessment)
 
     def get_queryset(self):
-        # This assumes the user has access to the package.
-        # The filtering by package ID should be handled by the filter_backends.
-        # We can add a check to ensure the package is one the user has access to.
         user = self.request.user
         user_age = user.calculate_age()
 
         if user_age is not None:
-             accessible_packages = TestPackage.objects.filter(
+             # Get IDs of packages accessible to the user based on age
+             accessible_package_ids = TestPackage.objects.filter(
                  is_active=True, min_age__lte=user_age, max_age__gte=user_age
              ).values_list('id', flat=True)
 
+             # Get assessments that belong to any of these accessible packages
+             # Use distinct() to avoid duplicates if an assessment is in multiple accessible packages
              return Assessment.objects.filter(
-                 is_active=True, packages__in=accessible_packages # Updated filter
-             )
+                 is_active=True, packages__in=accessible_package_ids
+             ).distinct()
         else:
             return Assessment.objects.none()
 
@@ -107,13 +107,15 @@ class AssessmentDetailView(generics.RetrieveAPIView):
         user_age = user.calculate_age()
 
         if user_age is not None:
-            accessible_packages = TestPackage.objects.filter(
+            # Get IDs of packages accessible to the user based on age
+            accessible_package_ids = TestPackage.objects.filter(
                 is_active=True, min_age__lte=user_age, max_age__gte=user_age
             ).values_list('id', flat=True)
 
+            # Get assessments that belong to any of these accessible packages
             return Assessment.objects.filter(
-                is_active=True, packages__in=accessible_packages # Updated filter
-            )
+                is_active=True, packages__in=accessible_package_ids # Updated filter using M2M
+            ).distinct() # Use distinct to prevent duplicates
         else:
             return Assessment.objects.none()
 
@@ -128,7 +130,8 @@ class UserAssessmentAttemptListView(generics.ListAPIView):
     filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['start_time', 'end_time', 'assessment__name']
     ordering = ['-start_time']
-    filterset_fields = ['assessment__packages', 'assessment', 'is_completed'] # Updated filter
+    # --- Updated filter reference to use 'assessment__packages' (the M2M field) ---
+    filterset_fields = ['assessment__packages', 'assessment', 'is_completed'] # Filter by package, assessment, status
 
     def get_queryset(self):
         return UserAssessmentAttempt.objects.filter(user=self.request.user)
@@ -144,17 +147,23 @@ class StartAssessmentAttemptView(APIView):
         if serializer.is_valid():
             assessment = serializer.validated_data['assessment']
 
-            # Check if user has access to the package this assessment belongs to
-            # based on age. This replicates logic from other views.
+            # Check if user has access to ANY package this assessment belongs to
+            # based on age.
             user = request.user
             user_age = user.calculate_age()
-            # Get packages this assessment belongs to
-            assessment_packages = assessment.packages.filter(is_active=True)
 
-            # Check if any of the assessment's packages are accessible to the user
-            accessible_package = assessment_packages.filter(
-                min_age__lte=user_age, max_age__gte=user_age
-            ).first() if user_age is not None else None
+            # Get packages this specific assessment belongs to
+            # assessment_packages = assessment.packages.filter(is_active=True) # Old way
+            # New way: Get the IDs of packages this assessment is in
+            assessment_package_ids = assessment.packages.filter(is_active=True).values_list('id', flat=True)
+
+            # Check if any of those package IDs are accessible to the user
+            accessible_package = TestPackage.objects.filter(
+                id__in=assessment_package_ids,
+                is_active=True,
+                min_age__lte=user_age,
+                max_age__gte=user_age
+            ).first() if user_age is not None and assessment_package_ids.exists() else None
 
             if not accessible_package:
                  return Response(

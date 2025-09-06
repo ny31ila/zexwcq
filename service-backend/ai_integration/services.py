@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 OPENROUTER_API_KEY = getattr(settings, 'OPENROUTER_API_KEY', None)
 # Default test model - can be changed later
-OPENROUTER_TEST_MODEL = getattr(settings, 'OPENROUTER_TEST_MODEL', "deepseek/deepseek-chat-v3.1:free")
+OPENROUTER_TEST_MODEL = getattr(settings, 'OPENROUTER_TEST_MODEL')
 # Optional headers for OpenRouter ranking
 OPENROUTER_SITE_URL = getattr(settings, 'OPENROUTER_SITE_URL', 'http://localhost:8000') # Default for local dev
 OPENROUTER_SITE_NAME = getattr(settings, 'OPENROUTER_SITE_NAME', 'NexaTalentDiscovery')

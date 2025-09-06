@@ -263,6 +263,7 @@ DEEPSEEK_API_URL = config('DEEPSEEK_API_URL', default='http://localhost:5000/api
 
 # --- OpenRouter API Settings (for testing Celery/Redis) ---
 OPENROUTER_API_KEY = config('OPENROUTER_API_KEY', default='')
+OPENROUTER_TEST_MODEL = config('OPENROUTER_TEST_MODEL', default='')
 
 # ZarinPal Payment Gateway Settings
 ZARINPAL_MERCHANT_ID = config('ZARINPAL_MERCHANT_ID', default='your-merchant-id-here')

@@ -7,29 +7,35 @@ User = settings.AUTH_USER_MODEL # We'll use this for type hinting if needed
 
 class TestPackageSerializer(serializers.ModelSerializer):
     """Serializer for TestPackage model."""
-    # You might want to include a field to show related assessments
-    # assessments = AssessmentSerializer(many=True, read_only=True)
+    # Include related assessments, showing just their names for brevity
+    # Using StringRelatedField with many=True for the M2M relationship
+    assessments = serializers.StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = TestPackage
-        fields = '__all__'
-        read_only_fields = ('created_at', 'updated_at')
+        fields = '__all__' # Or specify fields explicitly
+        read_only_fields = ('created_at', 'updated_at', 'assessments') # assessments are read-only here
 
 class AssessmentSerializer(serializers.ModelSerializer):
     """Serializer for Assessment model."""
-    # Include package name for easier reference
-    package_name = serializers.CharField(source='package.name', read_only=True)
+    # --- Updated to correctly reflect the M2M relationship ---
+    # Show the names of the packages this assessment belongs to
+    # Using StringRelatedField with many=True for the reverse M2M relationship via 'packages' related_name
+    package_names = serializers.StringRelatedField(source='packages', many=True, read_only=True)
 
     class Meta:
         model = Assessment
-        fields = '__all__'
-        read_only_fields = ('created_at', 'updated_at')
+        fields = '__all__' # Or specify fields explicitly
+        read_only_fields = ('created_at', 'updated_at', 'package_names') # package_names are read-only
 
 class UserAssessmentAttemptSerializer(serializers.ModelSerializer):
     """Serializer for UserAssessmentAttempt model."""
     user_national_code = serializers.CharField(source='user.national_code', read_only=True)
+    # --- Updated source for assessment name ---
     assessment_name = serializers.CharField(source='assessment.name', read_only=True)
-    package_name = serializers.CharField(source='assessment.package.name', read_only=True)
+    # --- Updated source for package names (accessing via the M2M relationship on Assessment) ---
+    package_names = serializers.StringRelatedField(source='assessment.packages', many=True, read_only=True)
+
     duration = serializers.DurationField(read_only=True) # Calculated property
 
     class Meta:
@@ -37,7 +43,7 @@ class UserAssessmentAttemptSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = (
             'user', 'start_time', 'end_time', 'created_at', 'updated_at',
-            'user_national_code', 'assessment_name', 'package_name', 'duration'
+            'user_national_code', 'assessment_name', 'package_names', 'duration'
         )
 
 class UserAssessmentAttemptCreateSerializer(serializers.ModelSerializer):

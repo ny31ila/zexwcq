@@ -1,4 +1,4 @@
-# project_root/service-backend/assessment/models.py
+# service-backend/assessment/models.py
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
@@ -27,6 +27,17 @@ class TestPackage(models.Model):
     is_active = models.BooleanField(_("is active"), default=True)
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
+    # --- Relationship: Many Assessments belong to One Package ---
+    # This defines the M2M relationship from the Package side.
+    # related_name='packages' on Assessment model allows reverse lookup: assessment.packages.all()
+    assessments = models.ManyToManyField(
+        'Assessment', # Use string name to avoid potential circular import issues
+        related_name='packages', # Access packages from an assessment via assessment.packages.all()
+        verbose_name=_("assessments"),
+        blank=True, # Allow packages to be created without assessments initially
+        help_text=_("The assessments included in this package.")
+    )
 
     class Meta:
         verbose_name = _("Test Package")
@@ -66,15 +77,8 @@ class Assessment(models.Model):
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
-    # --- Relationship: Many Assessments can belong to Many Packages ---
-    # This replaces the ForeignKey from Assessment to TestPackage
-    packages = models.ManyToManyField(
-        TestPackage,
-        related_name='assessments', # Access assessments from a package via package.assessments.all()
-        verbose_name=_("packages"),
-        blank=True, # Allow assessments not assigned to any package initially
-        help_text=_("The test packages this assessment belongs to.")
-    )
+    # --- NOTE: The M2M relationship is defined on TestPackage.assessments ---
+    # The 'packages' related_name is defined on the TestPackage.assessments field.
 
     class Meta:
         verbose_name = _("Assessment")
@@ -82,7 +86,8 @@ class Assessment(models.Model):
         ordering = ['name']
 
     def __str__(self):
-        package_names = ", ".join([p.name for p in self.packages.all()])
+        # Update string representation to reflect the new relationship
+        package_names = ", ".join([p.name for p in self.packages.all()]) # Use related_name 'packages'
         return f"{self.name} (in: {package_names})" if package_names else self.name
 
     def get_json_file_path(self):
@@ -95,19 +100,6 @@ class Assessment(models.Model):
         assessment_app_config = apps.get_app_config('assessment')
         app_path = assessment_app_config.path
         return os.path.join(app_path, 'data', self.json_filename)
-
-    # Consider adding a method to load and parse the JSON data if frequently accessed
-    # def load_json_data(self):
-    #     import json
-    #     try:
-    #         with open(self.get_json_file_path(), 'r', encoding='utf-8') as f:
-    #             return json.load(f)
-    #     except FileNotFoundError:
-    #         # Handle error appropriately
-    #         return None
-    #     except json.JSONDecodeError:
-    #         # Handle error appropriately
-    #         return None
 
 
 class UserAssessmentAttempt(models.Model):

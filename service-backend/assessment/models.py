@@ -1,4 +1,4 @@
-# service-backend/assessment/models.py
+# project_root/service-backend/assessment/models.py
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
@@ -28,17 +28,6 @@ class TestPackage(models.Model):
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
-    # --- Relationship: Many Assessments belong to One Package ---
-    # This defines the M2M relationship from the Package side.
-    # related_name='packages' on Assessment model allows reverse lookup: assessment.packages.all()
-    assessments = models.ManyToManyField(
-        'Assessment', # Use string name to avoid circular import issues if needed
-        related_name='packages', # Access packages from an assessment via assessment.packages.all()
-        verbose_name=_("assessments"),
-        blank=True, # Allow packages to be created without assessments initially
-        help_text=_("The assessments included in this package.")
-    )
-
     class Meta:
         verbose_name = _("Test Package")
         verbose_name_plural = _("Test Packages")
@@ -63,6 +52,9 @@ class Assessment(models.Model):
 
     # --- JSON File Storage ---
     # Store the path to the JSON file containing questions/answers
+    # This path is relative to MEDIA_ROOT or a specific directory within the app
+    # Based on our updated blueprint, it's relative to `assessment/data/`
+    # We'll store the filename, assuming it's in `assessment/data/`
     json_filename = models.CharField(
         _("JSON filename"),
         max_length=255,
@@ -74,8 +66,15 @@ class Assessment(models.Model):
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
-    # --- NOTE: The M2M relationship is now defined on TestPackage ---
-    # The 'packages' related_name is defined on the TestPackage.assessments field.
+    # --- Relationship: Many Assessments can belong to Many Packages ---
+    # This replaces the ForeignKey from Assessment to TestPackage
+    packages = models.ManyToManyField(
+        TestPackage,
+        related_name='assessments', # Access assessments from a package via package.assessments.all()
+        verbose_name=_("packages"),
+        blank=True, # Allow assessments not assigned to any package initially
+        help_text=_("The test packages this assessment belongs to.")
+    )
 
     class Meta:
         verbose_name = _("Assessment")
@@ -83,7 +82,6 @@ class Assessment(models.Model):
         ordering = ['name']
 
     def __str__(self):
-        # Update string representation to reflect the new relationship
         package_names = ", ".join([p.name for p in self.packages.all()])
         return f"{self.name} (in: {package_names})" if package_names else self.name
 
@@ -92,35 +90,57 @@ class Assessment(models.Model):
         Constructs the full path to the JSON file.
         This assumes files are stored in `assessment/data/` within the app directory.
         """
+        # This gets the path relative to the project root
         from django.apps import apps
         assessment_app_config = apps.get_app_config('assessment')
         app_path = assessment_app_config.path
         return os.path.join(app_path, 'data', self.json_filename)
 
+    # Consider adding a method to load and parse the JSON data if frequently accessed
+    # def load_json_data(self):
+    #     import json
+    #     try:
+    #         with open(self.get_json_file_path(), 'r', encoding='utf-8') as f:
+    #             return json.load(f)
+    #     except FileNotFoundError:
+    #         # Handle error appropriately
+    #         return None
+    #     except json.JSONDecodeError:
+    #         # Handle error appropriately
+    #         return None
 
-# UserAssessmentAttempt model remains the same as it links to a specific assessment instance
+
 class UserAssessmentAttempt(models.Model):
     """
     Tracks a user's attempt at completing an assessment.
     Stores start/end times, completion status, and results.
     """
     user = models.ForeignKey(User, related_name='assessment_attempts', on_delete=models.CASCADE, verbose_name=_("user"))
+    # --- Link to Assessment, not Package ---
+    # The attempt is for a specific assessment instance
     assessment = models.ForeignKey(Assessment, related_name='user_attempts', on_delete=models.CASCADE, verbose_name=_("assessment"))
+
     start_time = models.DateTimeField(_("start time"), auto_now_add=True)
     end_time = models.DateTimeField(_("end time"), blank=True, null=True)
     is_completed = models.BooleanField(_("is completed"), default=False)
+
+    # Raw results from the user's answers. Structure depends on the assessment.
     raw_results_json = models.JSONField(
         _("raw results JSON"),
         blank=True,
         null=True,
         help_text=_("Raw user answers and initial scoring results.")
     )
+
+    # Data formatted specifically for sending to the AI service.
+    # This might be a processed version of raw_results_json.
     deepseek_input_json = models.JSONField(
         _("deepseek input JSON"),
         blank=True,
         null=True,
         help_text=_("Processed data ready to be sent to the AI service.")
     )
+
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
@@ -128,6 +148,16 @@ class UserAssessmentAttempt(models.Model):
         verbose_name = _("User Assessment Attempt")
         verbose_name_plural = _("User Assessment Attempts")
         ordering = ['-start_time']
+        # Ensure a user can only have one *active/unfinished* attempt per assessment?
+        # Or allow multiple attempts? Document requirement is ambiguous.
+        # For now, allow multiple attempts.
+        # constraints = [
+        #     models.UniqueConstraint(
+        #         fields=['user', 'assessment', 'is_completed'],
+        #         condition=models.Q(is_completed=False),
+        #         name='unique_active_attempt_per_user_assessment'
+        #     )
+        # ]
 
     def __str__(self):
         status = "Completed" if self.is_completed else "In Progress"
@@ -139,3 +169,7 @@ class UserAssessmentAttempt(models.Model):
         if self.start_time and self.end_time:
             return self.end_time - self.start_time
         return None
+
+# Note: AIRecommendation model will be defined in the ai_integration app,
+# as it's the result of processing by that service.
+# It will likely have a ForeignKey to User.

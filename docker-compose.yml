@@ -1,0 +1,71 @@
+# project_root/docker-compose.yml
+
+services:
+  # --- Django Application Service ---
+  service-backend:
+    build:
+      context: ./service-backend
+      dockerfile: Dockerfile
+    container_name: nexa_service_backend
+    command: ./entrypoint.sh
+    volumes:
+      # Mount source code for development (changes reflect without rebuild)
+      - ./service-backend:/app
+      # Persist media files (if needed outside container)
+      # - ./service-backend/media:/app/media
+    ports:
+      - "8000:8000" # Expose Django development server port
+    environment:
+      - DEBUG=1
+      # Environment variables can be loaded from .env file
+      # Ensure .env file exists in service-backend/ or project root
+    env_file:
+      - .env # Load environment variables from project root .env
+    depends_on:
+      - service-redis
+    # networks:
+    #   - nexa-network
+
+  # --- Redis Service (Message Broker for Celery) ---
+  service-redis:
+    image: redis:7-alpine # Use a lightweight Redis image
+    container_name: nexa_service_redis
+    ports:
+      - "6379:6379" # Expose Redis port (optional for external access)
+    # volumes:
+    #   - redis_data:/data # Persist Redis data (optional)
+    # networks:
+    #   - nexa-network
+    # command: redis-server --appendonly yes # Enable AOF persistence if needed
+
+  # --- Celery Worker Service ---
+  service-celery:
+    build:
+      context: ./service-backend
+      dockerfile: Dockerfile
+    container_name: nexa_service_celery
+    command: celery -A core worker --loglevel=info
+    volumes:
+      # Mount source code for development (task code changes reflect)
+      - ./service-backend:/app
+    environment:
+      - DEBUG=1
+    env_file:
+      - .env
+    depends_on:
+      - service-redis
+      - service-backend # Ensure DB migrations happen in backend first (implicitly)
+    # networks:
+    #   - nexa-network
+
+# Volumes for data persistence (if needed)
+# volumes:
+#   redis_data:
+#     driver: local
+#   postgres_data: # If/when adding PostgreSQL
+#     driver: local
+
+# Networks for service communication (optional, default bridge is usually fine)
+# networks:
+#   nexa-network:
+#     driver: bridge

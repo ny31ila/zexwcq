@@ -1,4 +1,4 @@
-# service-backend/assessment/views.py
+# project_root/service-backend/assessment/views.py
 from rest_framework import generics, status, permissions, filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -74,7 +74,7 @@ class AssessmentListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['name', 'description']
-    filterset_fields = ['packages'] # Allow filtering by package ID
+    filterset_fields = ['packages'] # Allow filtering by package ID (M2M field)
 
     def get_queryset(self):
         # This assumes the user has access to the package.
@@ -89,7 +89,7 @@ class AssessmentListView(generics.ListAPIView):
              ).values_list('id', flat=True)
 
              return Assessment.objects.filter(
-                 is_active=True, packages__in=accessible_packages
+                 is_active=True, packages__in=accessible_packages # Updated filter
              )
         else:
             return Assessment.objects.none()
@@ -112,7 +112,7 @@ class AssessmentDetailView(generics.RetrieveAPIView):
             ).values_list('id', flat=True)
 
             return Assessment.objects.filter(
-                is_active=True, package__in=accessible_packages
+                is_active=True, packages__in=accessible_packages # Updated filter
             )
         else:
             return Assessment.objects.none()
@@ -128,7 +128,7 @@ class UserAssessmentAttemptListView(generics.ListAPIView):
     filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
     ordering_fields = ['start_time', 'end_time', 'assessment__name']
     ordering = ['-start_time']
-    filterset_fields = ['assessment__packages', 'assessment', 'is_completed']
+    filterset_fields = ['assessment__packages', 'assessment', 'is_completed'] # Updated filter
 
     def get_queryset(self):
         return UserAssessmentAttempt.objects.filter(user=self.request.user)
@@ -148,11 +148,17 @@ class StartAssessmentAttemptView(APIView):
             # based on age. This replicates logic from other views.
             user = request.user
             user_age = user.calculate_age()
-            package = assessment.package
+            # Get packages this assessment belongs to
+            assessment_packages = assessment.packages.filter(is_active=True)
 
-            if user_age is None or not (package.min_age <= user_age <= package.max_age):
+            # Check if any of the assessment's packages are accessible to the user
+            accessible_package = assessment_packages.filter(
+                min_age__lte=user_age, max_age__gte=user_age
+            ).first() if user_age is not None else None
+
+            if not accessible_package:
                  return Response(
-                     {"detail": "You do not have access to this assessment based on your age."},
+                     {"detail": "You do not have access to this assessment based on your age or package."},
                      status=status.HTTP_403_FORBIDDEN
                  )
 

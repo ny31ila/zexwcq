@@ -1,17 +1,26 @@
+# project_root/service-backend/requirements.txt
 Django>=4.2,<5.0
 djangorestframework>=3.14,<4.0
 django-filter>=23.2
 Pillow>=10.0.0
-jdatetime>=4.1.0
+jdatetime>=4.1.0 # For Jalali date calculations
 python-decouple>=3.8
 drf-yasg>=1.21.0
 django-simple-captcha>=0.5.0
 requests>=2.31.0
 reportlab>=4.0.0 # For PDF generation in resume app
 # WeasyPrint is another option for PDF generation
-# redis>=4.6.0 # If using Redis
-# celery>=5.3.0 # If using Celery
-# psycopg2-binary>=2.9.0 # If using PostgreSQL
-# gunicorn>=21.2.0 # For production WSGI server
-# drf-simplejwt>=5.2.0 # For JWT Authentication
+
+# --- Celery and Redis for Background Tasks ---
+redis>=4.6.0 # Redis client for Python
+celery>=5.3.0 # Celery distributed task queue
+# billiard # Often included with Celery, specify if needed for specific version
+
+# --- JWT Authentication ---
 djangorestframework-simplejwt>=5.2.0
+
+# --- WSGI Server (for production, Gunicorn is common) ---
+# gunicorn>=21.2.0 # Uncomment for production WSGI server
+
+# --- Database Adapter (if using PostgreSQL) ---
+# psycopg2-binary>=2.9.0 # Uncomment for PostgreSQL

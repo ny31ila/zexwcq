@@ -1,3 +1,4 @@
+# project_root/service-backend/core/settings.py
 """
 Django settings for core project.
 
@@ -128,11 +129,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-# TIME_ZONE = 'UTC'
+# Set the timezone to Iran/Tehran
 TIME_ZONE = 'Asia/Tehran'
 
+# Disable timezone awareness as per our agreement for simplicity
 USE_I18N = True
-
 USE_TZ = False
 
 
@@ -152,8 +153,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User Model
-# As we are using National Code as username, we'll likely need a custom user model.
-# We'll define it in the `account` app.
+# As we are using National Code as username, we'll need a custom user model.
 AUTH_USER_MODEL = 'account.User' # Points to our custom User model
 
 # Django REST Framework Settings
@@ -172,6 +172,8 @@ REST_FRAMEWORK = {
     ],
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination', # Optional global pagination
     # 'PAGE_SIZE': 20
+    # --- Optional: Global DateTime format (removes timezone offset) ---
+    # 'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
 }
 
 # Simple JWT Settings
@@ -233,6 +235,19 @@ CAPTCHA_FONT_SIZE = 30
 # CAPTCHA_TIMEOUT = 5 # Minutes
 
 
+# --- Celery Configuration ---
+# These settings are read by the Celery app instance in core/celery.py
+# Values are typically loaded from environment variables (e.g., via docker-compose.yml or .env)
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
+
+# Optional Celery settings for task serialization, acceptance, etc.
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_TIMEZONE = 'Asia/Tehran' # Aligns with Django's TIME_ZONE
+# CELERY_ENABLE_UTC = False # Aligns with Django's USE_TZ=False
+
 
 # --- External Service Configurations ---
 
@@ -245,6 +260,9 @@ CAPTCHA_FONT_SIZE = 30
 DEEPSEEK_API_URL = config('DEEPSEEK_API_URL', default='http://localhost:5000/api/v1/chat/completions')
 # If the local API requires an API key or specific headers, configure them here.
 # DEEPSEEK_API_KEY = config('DEEPSEEK_API_KEY', default='') # Example if needed
+
+# --- OpenRouter API Settings (for testing Celery/Redis) ---
+OPENROUTER_API_KEY = config('OPENROUTER_API_KEY', default='')
 
 # ZarinPal Payment Gateway Settings
 ZARINPAL_MERCHANT_ID = config('ZARINPAL_MERCHANT_ID', default='your-merchant-id-here')
@@ -261,47 +279,41 @@ SMS_API_URL = config('SMS_API_URL', default='https://api.sms-provider.com/send')
 SMS_API_KEY = config('SMS_API_KEY', default='your-sms-api-key-here')
 SMS_DEFAULT_SENDER = config('SMS_DEFAULT_SENDER', default='NexaPlatform') # Your approved sender number/ID
 
-# --- Logging Configuration (Enhanced) ---
-# ... (previous logging config remains the same, or can be expanded) ...
-# Example: Add specific loggers for your apps or external service interactions
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#         # 'file': { # Example file handler
-#         #     'level': 'INFO',
-#         #     'class': 'logging.FileHandler',
-#         #     'filename': 'django_info.log',
-#         # },
-#     },
-#     'root': {
-#         'handlers': ['console'],
-#         'level': 'DEBUG' if DEBUG else 'INFO',
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'INFO',
-#             'propagate': False,
-#         },
-#         'account': { # Logger for the account app
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#             'propagate': False,
-#         },
-#         'assessment': { # Logger for the assessment app
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#             'propagate': False,
-#         },
-#         # Add loggers for other apps as needed
-#         # 'util.tasks': { # Logger for Celery tasks in util app
-#         #     'handlers': ['console'],
-#         #     'level': 'INFO',
-#         #     'propagate': False,
-#         # },
-#     },
-# }
+
+# --- Logging Configuration ---
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG' if DEBUG else 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'celery': { # Add Celery logging
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # Add loggers for your apps if needed
+        # 'account': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        #     'propagate': False,
+        # },
+        # 'assessment': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        #     'propagate': False,
+        # },
+    },
+}

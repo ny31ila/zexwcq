@@ -35,7 +35,6 @@ class UserAssessmentAttemptSerializer(serializers.ModelSerializer):
     assessment_name = serializers.CharField(source='assessment.name', read_only=True)
     # --- Updated source for package names (accessing via the M2M relationship on Assessment) ---
     package_names = serializers.StringRelatedField(source='assessment.packages', many=True, read_only=True)
-
     duration = serializers.DurationField(read_only=True) # Calculated property
 
     class Meta:
@@ -43,7 +42,9 @@ class UserAssessmentAttemptSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = (
             'user', 'start_time', 'end_time', 'created_at', 'updated_at',
-            'user_national_code', 'assessment_name', 'package_names', 'duration'
+            'user_national_code', 'assessment_name', 'package_names', 'duration',
+            # These fields should not be modified via standard API update
+            'is_completed', 'raw_results_json', 'processed_results_json' # Add processed_results_json
         )
 
 class UserAssessmentAttemptCreateSerializer(serializers.ModelSerializer):
@@ -59,21 +60,57 @@ class UserAssessmentAttemptCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This assessment is not currently available.")
         return value
 
-# Serializer for submitting answers/results
+# --- UPDATED SERIALIZER FOR INCREMENTAL RESPONSE SAVING ---
+class SaveAssessmentResponseSerializer(serializers.Serializer):
+    """
+    Serializer for saving a user response incrementally.
+    Expects the raw response data for one or more questions.
+    The structure is: {"response_data": {"question_id_1": {...}, "question_id_2": {...}}}
+    The key of the `response_data` dict is the `question_id`.
+    The value is the response details (e.g., {"response": true, "time_spent_ms": 1200}).
+    """
+    # The structure of responses for one or more questions.
+    # The key is the question_id, the value is the response details.
+    response_data = serializers.DictField(
+        child=serializers.DictField(), # Value is a dict of response details
+        required=True,
+        help_text=(
+            "Dictionary where the key is the 'question_id' and the value is a dictionary "
+            "containing the response details (e.g., {'response': true, 'time_spent_ms': 1200})."
+        )
+    )
+
+    def validate_response_data(self, value):
+        """Validate that response_data is a non-empty dictionary and keys are strings."""
+        if not isinstance(value, dict) or not value:
+            raise serializers.ValidationError(
+                "response_data must be a non-empty JSON object."
+            )
+        # Further validation that keys are strings happens implicitly by DictField key type.
+        # The actual content of each question's response value (dict) is validated by the view
+        # logic or the service function based on the specific assessment/question schema.
+        return value
+
+# --- SERIALIZER FOR STARTING AN ATTEMPT ---
+# This can be kept simple, potentially reusing or aliasing UserAssessmentAttemptCreateSerializer
+# Or creating a specific one if start logic needs unique validation.
+# For now, UserAssessmentAttemptCreateSerializer is sufficient for starting.
+
+# --- SERIALIZER FOR SUBMITTING AN ATTEMPT ---
 class UserAssessmentAttemptSubmitSerializer(serializers.ModelSerializer):
-    """Serializer for submitting results to a UserAssessmentAttempt."""
-    # Expect raw_results_json to be provided in the request data
-    # It's a JSONField, so DRF will handle parsing if content-type is application/json
-    raw_results_json = serializers.JSONField(required=True)
-    # deepseek_input_json might be processed on the backend, or also submitted
-    # For now, let's assume it's processed, so we don't require it in submission
+    """
+    Serializer for submitting/finalizing an assessment attempt.
+    Marks the attempt as completed. Does NOT handle incremental saves.
+    """
+    # No specific fields are required in the request body for final submission
+    # other than the action itself (handled by the view).
 
     class Meta:
         model = UserAssessmentAttempt
-        fields = ('raw_results_json',) # Only update these fields
+        fields = () # No fields to update directly in this serializer for submission
 
     def validate(self, data):
-        """Add custom validation if needed."""
+        """Add custom validation if needed before final submission."""
         # Example: Ensure the attempt belongs to the requesting user
         # This check should ideally be done in the view logic based on the request user
         # and the attempt instance, not just the data being submitted.
@@ -81,7 +118,7 @@ class UserAssessmentAttemptSubmitSerializer(serializers.ModelSerializer):
         # if request and self.instance and self.instance.user != request.user:
         #     raise serializers.ValidationError("You do not have permission to update this attempt.")
 
-        # Example: Ensure the attempt is not already completed
+        # Example: Ensure the attempt is not already completed (redundant check, view also does this)
         if self.instance and self.instance.is_completed:
              raise serializers.ValidationError("This assessment attempt is already completed.")
 
@@ -89,20 +126,28 @@ class UserAssessmentAttemptSubmitSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Custom update logic to finalize the attempt."""
-        instance.raw_results_json = validated_data.get('raw_results_json', instance.raw_results_json)
-        # Here you would typically process raw_results_json to create deepseek_input_json
-        # instance.deepseek_input_json = process_results_for_ai(instance.raw_results_json)
-        # For now, let's just copy it or leave it as None to be processed later/by Celery
-        # instance.deepseek_input_json = instance.raw_results_json # Placeholder
-
+        # --- Finalize the attempt ---
         instance.is_completed = True
-        instance.end_time = serializers.DateTimeField().to_representation(serializers.DateTimeField().to_internal_value(None)) # Set end time
         # Correct way to set end_time to now
         from django.utils import timezone
         instance.end_time = timezone.now()
 
+        # --- Important: Do NOT modify raw_results_json here ---
+        # raw_results_json is already populated incrementally by the save-response endpoint.
+        # This serializer/view is only responsible for marking it complete.
+
+        # --- Important: Do NOT populate processed_results_json here ---
+        # processed_results_json should be populated by a background task (e.g., Celery)
+        # that reads raw_results_json, performs calculations, and saves the result.
+        # This keeps the submission endpoint fast and defers heavy processing.
+        # instance.processed_results_json = process_raw_results_to_ai_format(instance.raw_results_json)
+        # The line above is conceptual. The actual processing happens elsewhere.
+
         instance.save()
-        # Trigger Celery task to send results to AI
-        # from .tasks import send_results_to_ai
-        # send_results_to_ai.delay(instance.id)
+        # --- Trigger Celery task to process results and send to AI ---
+        # This is conceptual. The actual task definition will be in assessment/tasks.py
+        # and will be triggered here.
+        # from .tasks import process_assessment_and_send_to_ai
+        # process_assessment_and_send_to_ai.delay(instance.id)
+
         return instance

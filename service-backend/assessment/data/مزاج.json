@@ -1,212 +1,210 @@
 {
-  "questionnaire": {
-    "title": "پرسشنامه تشخیص مزاج (طب سنتی)",
-    "description": "این پرسشنامه بر اساس اصول طب سنتی ایرانی و برای کمک به خودشناسی و تشخیص مزاج غالب افراد طراحی شده است. مزاج به ترکیب خاصی از چهار خلط (دم، صفرا، بلغم، سودا) در بدن اشاره دارد که بر خصوصیات فیزیکی، روانی، عاطفی و رفتاری فرد تأثیر می‌گذارد. هدف این پرسشنامه کمک به شما برای شناخت مزاج خود و انتخاب سبک زندگی، تغذیه و توصیه‌های متناسب با آن است.",
-    "temperaments": [
-      {
-        "id": "damavi",
-        "name": "دموی (گرم و تر)",
-        "qualities": ["گرم", "تر"],
-        "description": "مزاج دموی نشان‌دهنده گرمی و رطوبت بالا در بدن است. افراد با این مزاج معمولاً قوی، شاداب، اجتماعی، پرانرژی، خوش‌بین و سخاوتمند هستند. از نظر جسمی، دارای پوست گرم و مرطوب، بدنی متناسب، عضلانی و موهای پرپشت هستند."
-      },
-      {
-        "id": "safravi",
-        "name": "صفراوی (گرم و خشک)",
-        "qualities": ["گرم", "خشک"],
-        "description": "مزاج صفراوی نشان‌دهنده گرمی و خشکی در بدن است. افراد با این مزاج غالباً تیزهوش، فعال، سریع در تصمیم‌گیری، باهوش و گاهی تندمزاج و پرخاشگر هستند. از نظر جسمی، لاغر و عضلانی، پوست گرم و خشک، موهای مجعد و پرپشت و رگ‌های برجسته دارند."
-      },
-      {
-        "id": "balghami",
-        "name": "بلغمی (سرد و تر)",
-        "qualities": ["سرد", "تر"],
-        "description": "مزاج بلغمی نشان‌دهنده سردی و رطوبت بالا در بدن است. افراد با این مزاج معمولاً آرام، صبور، انعطاف‌پذیر، مهربان و کمی کند هستند. از نظر جسمی، دارای پوست سرد و مرطوب، بدنی نرم و چاق، و موهای کم‌پشت و روشن هستند."
-      },
-      {
-        "id": "sodavi",
-        "name": "سوداوی (سرد و خشک)",
-        "qualities": ["سرد", "خشک"],
-        "description": "مزاج سوداوی نشان‌دهنده سردی و خشکی در بدن است. افراد با این مزاج غالباً دقیق، منطقی، درون‌گرا، محتاط، فکور و گاهی بدبین، مضطرب یا وسواسی هستند. از نظر جسمی، لاغر و خشک، پوست سرد و خشک، موهای مجعد و خشک و صورت استخوانی دارند."
-      }
-    ],
-    "sections": [
-      { "id": "physical_characteristics", "name": "خصوصیات فیزیکی" },
-      { "id": "mental_emotional_traits", "name": "ویژگی‌های روانی و عاطفی" },
-      { "id": "physiological_functions", "name": "عملکرد اندام‌ها و سیستم‌های بدن" }
-    ],
-    "questions": [
-      {
-        "id": 1,
-        "text": "رنگ و وضعیت پوست شما چگونه است؟",
-        "section_id": "physical_characteristics",
-        "options": [
-          { "id": "1a", "text": "قرمز، گلگون، نرم و گرم", "temperament_points": { "damavi": 1 } },
-          { "id": "1b", "text": "زرد، مایل به قهوه‌ای، گرم و خشک", "temperament_points": { "safravi": 1 } },
-          { "id": "1c", "text": "سفید، سرد و مرطوب", "temperament_points": { "balghami": 1 } },
-          { "id": "1d", "text": "تیره، کدر، سرد و خشک", "temperament_points": { "sodavi": 1 } }
-        ]
-      },
-      {
-        "id": 2,
-        "text": "اندازه و نوع استخوان‌بندی و عضلات شما چگونه است؟",
-        "section_id": "physical_characteristics",
-        "options": [
-          { "id": "2a", "text": "بزرگ، تنومند و عضلانی (متناسب)", "temperament_points": { "damavi": 1 } },
-          { "id": "2b", "text": "متوسط، لاغر و عضلانی", "temperament_points": { "safravi": 1 } },
-          { "id": "2c", "text": "بزرگ، نرم و چاق", "temperament_points": { "balghami": 1 } },
-          { "id": "2d", "text": "لاغر، استخوانی و خشک", "temperament_points": { "sodavi": 1 } }
-        ]
-      },
-      {
-        "id": 3,
-        "text": "گرمی و سردی بدن شما معمولا چطور است؟",
-        "section_id": "physical_characteristics",
-        "options": [
-          { "id": "3a", "text": "گرم، تمایل به تحمل هوای سرد", "temperament_points": { "damavi": 1 } },
-          { "id": "3b", "text": "بسیار گرم، تمایل شدید به هوای سرد", "temperament_points": { "safravi": 1 } },
-          { "id": "3c", "text": "سرد، تمایل به تحمل هوای گرم", "temperament_points": { "balghami": 1 } },
-          { "id": "3d", "text": "سرد و خشک، تمایل به هوای گرم و مرطوب", "temperament_points": { "sodavi": 1 } }
-        ]
-      },
-      {
-        "id": 4,
-        "text": "نوع مو و میزان رشد آن چگونه است؟",
-        "section_id": "physical_characteristics",
-        "options": [
-          { "id": "4a", "text": "پرپشت، ضخیم و سریع‌الرشد", "temperament_points": { "damavi": 1 } },
-          { "id": "4b", "text": "پرپشت، مجعد، خشک و سریع‌الرشد (تمایل به ریزش از جلوی سر)", "temperament_points": { "safravi": 1 } },
-          { "id": "4c", "text": "کم‌پشت، نازک، روشن و دیررشد", "temperament_points": { "balghami": 1 } },
-          { "id": "4d", "text": "خشک، مجعد، تیره و کم‌پشت (تمایل به ریزش)", "temperament_points": { "sodavi": 1 } }
-        ]
-      },
-      {
-        "id": 5,
-        "text": "میزان خواب و کیفیت آن چطور است؟",
-        "section_id": "physiological_functions",
-        "options": [
-          { "id": "5a", "text": "خواب متعادل و عمیق (حدود ۸ ساعت)", "temperament_points": { "damavi": 1 } },
-          { "id": "5b", "text": "خواب سبک و کم (کمتر از ۶ ساعت)", "temperament_points": { "safravi": 1 } },
-          { "id": "5c", "text": "خواب زیاد و سنگین (بیش از ۸ ساعت)", "temperament_points": { "balghami": 1 } },
-          { "id": "5d", "text": "خواب کم و همراه با کابوس و افکار مزاحم", "temperament_points": { "sodavi": 1 } }
-        ]
-      },
-      {
-        "id": 6,
-        "text": "میزان تشنگی و میل به آب سرد شما چگونه است؟",
-        "section_id": "physiological_functions",
-        "options": [
-          { "id": "6a", "text": "زیاد و میل به آب سرد", "temperament_points": { "damavi": 1 } },
-          { "id": "6b", "text": "خیلی زیاد و تمایل شدید به آب خنک", "temperament_points": { "safravi": 1 } },
-          { "id": "6c", "text": "کم و بی‌میل به آب سرد", "temperament_points": { "balghami": 1 } },
-          { "id": "6d", "text": "کم و خشکی دهان، میل به آب گرم", "temperament_points": { "sodavi": 1 } }
-        ]
-      },
-      {
-        "id": 7,
-        "text": "عملکرد دستگاه گوارش و دفع شما چگونه است؟",
-        "section_id": "physiological_functions",
-        "options": [
-          { "id": "7a", "text": "هضم خوب و معمولا یبوست ندارم", "temperament_points": { "damavi": 1 } },
-          { "id": "7b", "text": "هضم سریع، تمایل به اسهال یا یبوست با خشکی", "temperament_points": { "safravi": 1 } },
-          { "id": "7c", "text": "هضم کند و تمایل به یبوست و نفخ", "temperament_points": { "balghami": 1 } },
-          { "id": "7d", "text": "هضم ضعیف، تمایل به یبوست شدید و دفع خشک", "temperament_points": { "sodavi": 1 } }
-        ]
-      },
-      {
-        "id": 8,
-        "text": "میزان تعریق شما چقدر است؟",
-        "section_id": "physiological_functions",
-        "options": [
-          { "id": "8a", "text": "متوسط تا زیاد", "temperament_points": { "damavi": 1 } },
-          { "id": "8b", "text": "زیاد، بخصوص در گرما", "temperament_points": { "safravi": 1 } },
-          { "id": "8c", "text": "کم", "temperament_points": { "balghami": 1 } },
-          { "id": "8d", "text": "بسیار کم و پوست خشک", "temperament_points": { "sodavi": 1 } }
-        ]
-      },
-      {
-        "id": 9,
-        "text": "میزان عصبانیت و واکنش‌های شما در برابر استرس چگونه است؟",
-        "section_id": "mental_emotional_traits",
-        "options": [
-          { "id": "9a", "text": "سریع عصبانی می‌شوم اما زود فروکش می‌کند", "temperament_points": { "damavi": 1 } },
-          { "id": "9b", "text": "سریع عصبانی می‌شوم، تند و پرخاشگر، زود پشیمان می‌شوم", "temperament_points": { "safravi": 1 } },
-          { "id": "9c", "text": "دیر عصبانی می‌شوم، آرام و صبور هستم", "temperament_points": { "balghami": 1 } },
-          { "id": "9d", "text": "دیر عصبانی می‌شوم، اما کینه‌توز و طولانی مدت", "temperament_points": { "sodavi": 1 } }
-        ]
-      },
-      {
-        "id": 10,
-        "text": "میزان انرژی، نشاط و خستگی شما چگونه است؟",
-        "section_id": "mental_emotional_traits",
-        "options": [
-          { "id": "10a", "text": "پرانرژی و شاداب", "temperament_points": { "damavi": 1 } },
-          { "id": "10b", "text": "فعال و پرتحرک، گاهی خستگی ناگهانی", "temperament_points": { "safravi": 1 } },
-          { "id": "10c", "text": "کم‌انرژی، زود خسته می‌شوم و تمایل به سستی دارم", "temperament_points": { "balghami": 1 } },
-          { "id": "10d", "text": "انرژی کم، خستگی مزمن، دلتنگی و بی‌حوصلگی", "temperament_points": { "sodavi": 1 } }
-        ]
-      },
-      {
-        "id": 11,
-        "text": "عملکرد حافظه و قدرت یادگیری شما چگونه است؟",
-        "section_id": "mental_emotional_traits",
-        "options": [
-          { "id": "11a", "text": "حافظه و یادگیری خوب", "temperament_points": { "damavi": 1 } },
-          { "id": "11b", "text": "حافظه قوی، یادگیری سریع و فرار", "temperament_points": { "safravi": 1 } },
-          { "id": "11c", "text": "حافظه ضعیف و کندی در یادگیری", "temperament_points": { "balghami": 1 } },
-          { "id": "11d", "text": "حافظه قوی اما وسواس فکری و کندی در تصمیم", "temperament_points": { "sodavi": 1 } }
-        ]
-      },
-      {
-        "id": 12,
-        "text": "نوع نگاه شما به آینده و میزان خوش‌بینی یا بدبینی‌تان چطور است؟",
-        "section_id": "mental_emotional_traits",
-        "options": [
-          { "id": "12a", "text": "خوش‌بین و امیدوار", "temperament_points": { "damavi": 1 } },
-          { "id": "12b", "text": "باهوش و آینده‌نگر، گاهی نگران", "temperament_points": { "safravi": 1 } },
-          { "id": "12c", "text": "بی‌خیال و قانع", "temperament_points": { "balghami": 1 } },
-          { "id": "12d", "text": "دقیق و نکته‌بین، گاهی بدبین و وسواسی", "temperament_points": { "sodavi": 1 } }
-        ]
-      },
-      {
-        "id": 13,
-        "text": "میزان رطوبت یا خشکی دهان، بینی و چشم‌ها چگونه است؟",
-        "section_id": "physiological_functions",
-        "options": [
-          { "id": "13a", "text": "رطوبت طبیعی، خشکی کم", "temperament_points": { "damavi": 1 } },
-          { "id": "13b", "text": "خشکی دهان و بینی و چشم‌ها", "temperament_points": { "safravi": 1 } },
-          { "id": "13c", "text": "ترشحات زیاد دهان، آبریزش بینی و چشم", "temperament_points": { "balghami": 1 } },
-          { "id": "13d", "text": "خشکی شدید دهان، بینی و چشم‌ها", "temperament_points": { "sodavi": 1 } }
-        ]
-      },
-      {
-        "id": 14,
-        "text": "میزان اشتهای شما برای غذا خوردن چطور است؟",
-        "section_id": "physiological_functions",
-        "options": [
-          { "id": "14a", "text": "اشتهای خوب و متعادل", "temperament_points": { "damavi": 1 } },
-          { "id": "14b", "text": "اشتهای زیاد و میل به شیرینی‌جات", "temperament_points": { "safravi": 1 } },
-          { "id": "14c", "text": "اشتهای کم یا نامنظم و میل به ترشی", "temperament_points": { "balghami": 1 } },
-          { "id": "14d", "text": "اشتهای کم یا زیاد کاذب و میل به سردی‌جات", "temperament_points": { "sodavi": 1 } }
-        ]
-      },
-      {
-        "id": 15,
-        "text": "میزان تعاملات اجتماعی و تمایل شما به جمع چگونه است؟",
-        "section_id": "mental_emotional_traits",
-        "options": [
-          { "id": "15a", "text": "اجتماعی، خونگرم و اهل معاشرت", "temperament_points": { "damavi": 1 } },
-          { "id": "15b", "text": "اجتماعی، فعال و گاهی عجول", "temperament_points": { "safravi": 1 } },
-          { "id": "15c", "text": "کم‌حرف، محتاط و تمایل به تنهایی", "temperament_points": { "balghami": 1 } },
-          { "id": "15d", "text": "درون‌گرا، دقیق و اهل فکر، گاهی بدبین به دیگران", "temperament_points": { "sodavi": 1 } }
-        ]
-      }
-    ],
-    "scoring_and_interpretation": {
-      "scoring_method": "برای هر سوال، پاسخی که بیشتر به خصوصیات شما نزدیک است را انتخاب کنید. هر گزینه به یک مزاج خاص اشاره دارد و با انتخاب آن، یک امتیاز به آن مزاج اضافه می‌شود. در پایان، امتیازات مربوط به هر مزاج (دموی، صفراوی، بلغمی، سوداوی) جمع‌آوری می‌شود.",
-      "interpretation": "مزاجی که بالاترین امتیاز را کسب کند، مزاج غالب شماست. در صورت برابری امتیازات دو مزاج، ممکن است مزاج شما ترکیبی (مثلاً گرم و خشک) یا معتدل باشد که نیاز به بررسی دقیق‌تر و مشاوره با متخصص دارد. به یاد داشته باشید که این پرسشنامه یک ابزار خودارزیابی اولیه است و نباید جایگزین تشخیص پزشک متخصص طب سنتی شود.",
-      "note_on_self_diagnosis": "این پرسشنامه صرفاً جهت خودشناسی اولیه و آشنایی با مفاهیم طب سنتی است. برای تشخیص دقیق مزاج، تغییرات در سبک زندگی، رژیم غذایی و درمان‌های احتمالی، مشاوره با پزشک متخصص طب سنتی الزامی است. سلامت شما اولویت است."
+  "title": "پرسشنامه تشخیص مزاج (طب سنتی)",
+  "description": "این پرسشنامه بر اساس اصول طب سنتی ایرانی و برای کمک به خودشناسی و تشخیص مزاج غالب افراد طراحی شده است. مزاج به ترکیب خاصی از چهار خلط (دم، صفرا، بلغم، سودا) در بدن اشاره دارد که بر خصوصیات فیزیکی، روانی، عاطفی و رفتاری فرد تأثیر می‌گذارد. هدف این پرسشنامه کمک به شما برای شناخت مزاج خود و انتخاب سبک زندگی، تغذیه و توصیه‌های متناسب با آن است.",
+  "temperaments": [
+    {
+      "id": "damavi",
+      "name": "دموی (گرم و تر)",
+      "qualities": ["گرم", "تر"],
+      "description": "مزاج دموی نشان‌دهنده گرمی و رطوبت بالا در بدن است. افراد با این مزاج معمولاً قوی، شاداب، اجتماعی، پرانرژی، خوش‌بین و سخاوتمند هستند. از نظر جسمی، دارای پوست گرم و مرطوب، بدنی متناسب، عضلانی و موهای پرپشت هستند."
     },
-    "validity_reliability": {
-      "note": "پرسشنامه‌های تشخیص مزاج در طب سنتی بر اساس متون کهن و تجربیات بالینی تدوین می‌شوند و ممکن است فاقد روایی و پایایی آماری به معنای مدرن باشند. اعتبار آنها بیشتر بر اساس توافق متخصصین و انطباق با مشاهدات بالینی در افراد با مزاج‌های شناخته شده است."
+    {
+      "id": "safravi",
+      "name": "صفراوی (گرم و خشک)",
+      "qualities": ["گرم", "خشک"],
+      "description": "مزاج صفراوی نشان‌دهنده گرمی و خشکی در بدن است. افراد با این مزاج غالباً تیزهوش، فعال، سریع در تصمیم‌گیری، باهوش و گاهی تندمزاج و پرخاشگر هستند. از نظر جسمی، لاغر و عضلانی، پوست گرم و خشک، موهای مجعد و پرپشت و رگ‌های برجسته دارند."
+    },
+    {
+      "id": "balghami",
+      "name": "بلغمی (سرد و تر)",
+      "qualities": ["سرد", "تر"],
+      "description": "مزاج بلغمی نشان‌دهنده سردی و رطوبت بالا در بدن است. افراد با این مزاج معمولاً آرام، صبور، انعطاف‌پذیر، مهربان و کمی کند هستند. از نظر جسمی، دارای پوست سرد و مرطوب، بدنی نرم و چاق، و موهای کم‌پشت و روشن هستند."
+    },
+    {
+      "id": "sodavi",
+      "name": "سوداوی (سرد و خشک)",
+      "qualities": ["سرد", "خشک"],
+      "description": "مزاج سوداوی نشان‌دهنده سردی و خشکی در بدن است. افراد با این مزاج غالباً دقیق، منطقی، درون‌گرا، محتاط، فکور و گاهی بدبین، مضطرب یا وسواسی هستند. از نظر جسمی، لاغر و خشک، پوست سرد و خشک، موهای مجعد و خشک و صورت استخوانی دارند."
     }
+  ],
+  "sections": [
+    { "id": "physical_characteristics", "name": "خصوصیات فیزیکی" },
+    { "id": "mental_emotional_traits", "name": "ویژگی‌های روانی و عاطفی" },
+    { "id": "physiological_functions", "name": "عملکرد اندام‌ها و سیستم‌های بدن" }
+  ],
+  "questions": [
+    {
+      "id": 1,
+      "text": "رنگ و وضعیت پوست شما چگونه است؟",
+      "section_id": "physical_characteristics",
+      "options": [
+        { "id": "1a", "text": "قرمز، گلگون، نرم و گرم", "temperament_points": { "damavi": 1 } },
+        { "id": "1b", "text": "زرد، مایل به قهوه‌ای، گرم و خشک", "temperament_points": { "safravi": 1 } },
+        { "id": "1c", "text": "سفید، سرد و مرطوب", "temperament_points": { "balghami": 1 } },
+        { "id": "1d", "text": "تیره، کدر، سرد و خشک", "temperament_points": { "sodavi": 1 } }
+      ]
+    },
+    {
+      "id": 2,
+      "text": "اندازه و نوع استخوان‌بندی و عضلات شما چگونه است؟",
+      "section_id": "physical_characteristics",
+      "options": [
+        { "id": "2a", "text": "بزرگ، تنومند و عضلانی (متناسب)", "temperament_points": { "damavi": 1 } },
+        { "id": "2b", "text": "متوسط، لاغر و عضلانی", "temperament_points": { "safravi": 1 } },
+        { "id": "2c", "text": "بزرگ، نرم و چاق", "temperament_points": { "balghami": 1 } },
+        { "id": "2d", "text": "لاغر، استخوانی و خشک", "temperament_points": { "sodavi": 1 } }
+      ]
+    },
+    {
+      "id": 3,
+      "text": "گرمی و سردی بدن شما معمولا چطور است؟",
+      "section_id": "physical_characteristics",
+      "options": [
+        { "id": "3a", "text": "گرم، تمایل به تحمل هوای سرد", "temperament_points": { "damavi": 1 } },
+        { "id": "3b", "text": "بسیار گرم، تمایل شدید به هوای سرد", "temperament_points": { "safravi": 1 } },
+        { "id": "3c", "text": "سرد، تمایل به تحمل هوای گرم", "temperament_points": { "balghami": 1 } },
+        { "id": "3d", "text": "سرد و خشک، تمایل به هوای گرم و مرطوب", "temperament_points": { "sodavi": 1 } }
+      ]
+    },
+    {
+      "id": 4,
+      "text": "نوع مو و میزان رشد آن چگونه است؟",
+      "section_id": "physical_characteristics",
+      "options": [
+        { "id": "4a", "text": "پرپشت، ضخیم و سریع‌الرشد", "temperament_points": { "damavi": 1 } },
+        { "id": "4b", "text": "پرپشت، مجعد، خشک و سریع‌الرشد (تمایل به ریزش از جلوی سر)", "temperament_points": { "safravi": 1 } },
+        { "id": "4c", "text": "کم‌پشت، نازک، روشن و دیررشد", "temperament_points": { "balghami": 1 } },
+        { "id": "4d", "text": "خشک، مجعد، تیره و کم‌پشت (تمایل به ریزش)", "temperament_points": { "sodavi": 1 } }
+      ]
+    },
+    {
+      "id": 5,
+      "text": "میزان خواب و کیفیت آن چطور است؟",
+      "section_id": "physiological_functions",
+      "options": [
+        { "id": "5a", "text": "خواب متعادل و عمیق (حدود ۸ ساعت)", "temperament_points": { "damavi": 1 } },
+        { "id": "5b", "text": "خواب سبک و کم (کمتر از ۶ ساعت)", "temperament_points": { "safravi": 1 } },
+        { "id": "5c", "text": "خواب زیاد و سنگین (بیش از ۸ ساعت)", "temperament_points": { "balghami": 1 } },
+        { "id": "5d", "text": "خواب کم و همراه با کابوس و افکار مزاحم", "temperament_points": { "sodavi": 1 } }
+      ]
+    },
+    {
+      "id": 6,
+      "text": "میزان تشنگی و میل به آب سرد شما چگونه است؟",
+      "section_id": "physiological_functions",
+      "options": [
+        { "id": "6a", "text": "زیاد و میل به آب سرد", "temperament_points": { "damavi": 1 } },
+        { "id": "6b", "text": "خیلی زیاد و تمایل شدید به آب خنک", "temperament_points": { "safravi": 1 } },
+        { "id": "6c", "text": "کم و بی‌میل به آب سرد", "temperament_points": { "balghami": 1 } },
+        { "id": "6d", "text": "کم و خشکی دهان، میل به آب گرم", "temperament_points": { "sodavi": 1 } }
+      ]
+    },
+    {
+      "id": 7,
+      "text": "عملکرد دستگاه گوارش و دفع شما چگونه است؟",
+      "section_id": "physiological_functions",
+      "options": [
+        { "id": "7a", "text": "هضم خوب و معمولا یبوست ندارم", "temperament_points": { "damavi": 1 } },
+        { "id": "7b", "text": "هضم سریع، تمایل به اسهال یا یبوست با خشکی", "temperament_points": { "safravi": 1 } },
+        { "id": "7c", "text": "هضم کند و تمایل به یبوست و نفخ", "temperament_points": { "balghami": 1 } },
+        { "id": "7d", "text": "هضم ضعیف، تمایل به یبوست شدید و دفع خشک", "temperament_points": { "sodavi": 1 } }
+      ]
+    },
+    {
+      "id": 8,
+      "text": "میزان تعریق شما چقدر است؟",
+      "section_id": "physiological_functions",
+      "options": [
+        { "id": "8a", "text": "متوسط تا زیاد", "temperament_points": { "damavi": 1 } },
+        { "id": "8b", "text": "زیاد، بخصوص در گرما", "temperament_points": { "safravi": 1 } },
+        { "id": "8c", "text": "کم", "temperament_points": { "balghami": 1 } },
+        { "id": "8d", "text": "بسیار کم و پوست خشک", "temperament_points": { "sodavi": 1 } }
+      ]
+    },
+    {
+      "id": 9,
+      "text": "میزان عصبانیت و واکنش‌های شما در برابر استرس چگونه است؟",
+      "section_id": "mental_emotional_traits",
+      "options": [
+        { "id": "9a", "text": "سریع عصبانی می‌شوم اما زود فروکش می‌کند", "temperament_points": { "damavi": 1 } },
+        { "id": "9b", "text": "سریع عصبانی می‌شوم، تند و پرخاشگر، زود پشیمان می‌شوم", "temperament_points": { "safravi": 1 } },
+        { "id": "9c", "text": "دیر عصبانی می‌شوم، آرام و صبور هستم", "temperament_points": { "balghami": 1 } },
+        { "id": "9d", "text": "دیر عصبانی می‌شوم، اما کینه‌توز و طولانی مدت", "temperament_points": { "sodavi": 1 } }
+      ]
+    },
+    {
+      "id": 10,
+      "text": "میزان انرژی، نشاط و خستگی شما چگونه است؟",
+      "section_id": "mental_emotional_traits",
+      "options": [
+        { "id": "10a", "text": "پرانرژی و شاداب", "temperament_points": { "damavi": 1 } },
+        { "id": "10b", "text": "فعال و پرتحرک، گاهی خستگی ناگهانی", "temperament_points": { "safravi": 1 } },
+        { "id": "10c", "text": "کم‌انرژی، زود خسته می‌شوم و تمایل به سستی دارم", "temperament_points": { "balghami": 1 } },
+        { "id": "10d", "text": "انرژی کم، خستگی مزمن، دلتنگی و بی‌حوصلگی", "temperament_points": { "sodavi": 1 } }
+      ]
+    },
+    {
+      "id": 11,
+      "text": "عملکرد حافظه و قدرت یادگیری شما چگونه است؟",
+      "section_id": "mental_emotional_traits",
+      "options": [
+        { "id": "11a", "text": "حافظه و یادگیری خوب", "temperament_points": { "damavi": 1 } },
+        { "id": "11b", "text": "حافظه قوی، یادگیری سریع و فرار", "temperament_points": { "safravi": 1 } },
+        { "id": "11c", "text": "حافظه ضعیف و کندی در یادگیری", "temperament_points": { "balghami": 1 } },
+        { "id": "11d", "text": "حافظه قوی اما وسواس فکری و کندی در تصمیم", "temperament_points": { "sodavi": 1 } }
+      ]
+    },
+    {
+      "id": 12,
+      "text": "نوع نگاه شما به آینده و میزان خوش‌بینی یا بدبینی‌تان چطور است؟",
+      "section_id": "mental_emotional_traits",
+      "options": [
+        { "id": "12a", "text": "خوش‌بین و امیدوار", "temperament_points": { "damavi": 1 } },
+        { "id": "12b", "text": "باهوش و آینده‌نگر، گاهی نگران", "temperament_points": { "safravi": 1 } },
+        { "id": "12c", "text": "بی‌خیال و قانع", "temperament_points": { "balghami": 1 } },
+        { "id": "12d", "text": "دقیق و نکته‌بین، گاهی بدبین و وسواسی", "temperament_points": { "sodavi": 1 } }
+      ]
+    },
+    {
+      "id": 13,
+      "text": "میزان رطوبت یا خشکی دهان، بینی و چشم‌ها چگونه است؟",
+      "section_id": "physiological_functions",
+      "options": [
+        { "id": "13a", "text": "رطوبت طبیعی، خشکی کم", "temperament_points": { "damavi": 1 } },
+        { "id": "13b", "text": "خشکی دهان و بینی و چشم‌ها", "temperament_points": { "safravi": 1 } },
+        { "id": "13c", "text": "ترشحات زیاد دهان، آبریزش بینی و چشم", "temperament_points": { "balghami": 1 } },
+        { "id": "13d", "text": "خشکی شدید دهان، بینی و چشم‌ها", "temperament_points": { "sodavi": 1 } }
+      ]
+    },
+    {
+      "id": 14,
+      "text": "میزان اشتهای شما برای غذا خوردن چطور است؟",
+      "section_id": "physiological_functions",
+      "options": [
+        { "id": "14a", "text": "اشتهای خوب و متعادل", "temperament_points": { "damavi": 1 } },
+        { "id": "14b", "text": "اشتهای زیاد و میل به شیرینی‌جات", "temperament_points": { "safravi": 1 } },
+        { "id": "14c", "text": "اشتهای کم یا نامنظم و میل به ترشی", "temperament_points": { "balghami": 1 } },
+        { "id": "14d", "text": "اشتهای کم یا زیاد کاذب و میل به سردی‌جات", "temperament_points": { "sodavi": 1 } }
+      ]
+    },
+    {
+      "id": 15,
+      "text": "میزان تعاملات اجتماعی و تمایل شما به جمع چگونه است؟",
+      "section_id": "mental_emotional_traits",
+      "options": [
+        { "id": "15a", "text": "اجتماعی، خونگرم و اهل معاشرت", "temperament_points": { "damavi": 1 } },
+        { "id": "15b", "text": "اجتماعی، فعال و گاهی عجول", "temperament_points": { "safravi": 1 } },
+        { "id": "15c", "text": "کم‌حرف، محتاط و تمایل به تنهایی", "temperament_points": { "balghami": 1 } },
+        { "id": "15d", "text": "درون‌گرا، دقیق و اهل فکر، گاهی بدبین به دیگران", "temperament_points": { "sodavi": 1 } }
+      ]
+    }
+  ],
+  "scoring_and_interpretation": {
+    "scoring_method": "برای هر سوال، پاسخی که بیشتر به خصوصیات شما نزدیک است را انتخاب کنید. هر گزینه به یک مزاج خاص اشاره دارد و با انتخاب آن، یک امتیاز به آن مزاج اضافه می‌شود. در پایان، امتیازات مربوط به هر مزاج (دموی، صفراوی، بلغمی، سوداوی) جمع‌آوری می‌شود.",
+    "interpretation": "مزاجی که بالاترین امتیاز را کسب کند، مزاج غالب شماست. در صورت برابری امتیازات دو مزاج، ممکن است مزاج شما ترکیبی (مثلاً گرم و خشک) یا معتدل باشد که نیاز به بررسی دقیق‌تر و مشاوره با متخصص دارد. به یاد داشته باشید که این پرسشنامه یک ابزار خودارزیابی اولیه است و نباید جایگزین تشخیص پزشک متخصص طب سنتی شود.",
+    "note_on_self_diagnosis": "این پرسشنامه صرفاً جهت خودشناسی اولیه و آشنایی با مفاهیم طب سنتی است. برای تشخیص دقیق مزاج، تغییرات در سبک زندگی، رژیم غذایی و درمان‌های احتمالی، مشاوره با پزشک متخصص طب سنتی الزامی است. سلامت شما اولویت است."
+  },
+  "validity_reliability": {
+    "note": "پرسشنامه‌های تشخیص مزاج در طب سنتی بر اساس متون کهن و تجربیات بالینی تدوین می‌شوند و ممکن است فاقد روایی و پایایی آماری به معنای مدرن باشند. اعتبار آنها بیشتر بر اساس توافق متخصصین و انطباق با مشاهدات بالینی در افراد با مزاج‌های شناخته شده است."
   }
 }

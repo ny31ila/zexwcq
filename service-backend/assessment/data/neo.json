@@ -1,109 +1,259 @@
 {
-  "title": "پرسشنامه تست تشخیص مزاج (بر اساس طب سنتی ایرانی)",
-  "short_name": "Mezaj Test",
+  "title": "پرسشنامه شخصیت پنج عاملی نئو (NEO-FFI)",
+  "short_name": "NEO-FFI",
   "description": {
-    "overall": "این پرسشنامه بر اساس اصول طب سنتی ایرانی طراحی شده است تا به شما در شناخت مزاج غالب خود (صفراوی، دموی، بلغمی، یا سوداوی) کمک کند. شناخت مزاج می‌تواند راهنمایی برای بهبود سبک زندگی، تغذیه و حفظ سلامت باشد.",
-    "purpose": "تشخیص مزاج غالب فرد بر اساس ویژگی‌های جسمی، روانی و رفتاری مرتبط با مزاج‌های چهارگانه طب سنتی ایرانی.",
-    "target_audience": "عموم افراد علاقه‌مند به شناخت مزاج خود."
+    "overall": "این پرسشنامه برای سنجش پنج عامل اصلی شخصیت بر اساس نظریه پنج عاملی شخصیت (Big Five) توسط کاستا و مک‌کری طراحی شده است.",
+    "purpose": "سنجش صفات شخصیتی پنج‌گانه: تجربه‌پذیری، وظیفه‌شناسی، برون‌گرایی، سازگاری و روان‌رنجوری",
+    "number_of_questions": 60
   },
   "response_scale": {
     "type": "لیکرت 5 گزینه‌ای",
     "options": [
-      {"label": "اصلاً", "value": 0},
-      {"label": "کم", "value": 1},
-      {"label": "متوسط", "value": 2},
-      {"label": "زیاد", "value": 3},
-      {"label": "بسیار زیاد", "value": 4}
+      {"label": "کاملاً مخالفم", "value": 0},
+      {"label": "مخالفم", "value": 1},
+      {"label": "نظری ندارم", "value": 2},
+      {"label": "موافقم", "value": 3},
+      {"label": "کاملاً موافقم", "value": 4}
     ],
-    "instructions": "برای هر عبارت، گزینه‌ای را انتخاب کنید که میزان انطباق آن با وضعیت شما را بهتر نشان می‌دهد. لطفا با صداقت کامل پاسخ دهید."
+    "instructions": "برای هر گویه، یکی از گزینه‌های ۰ تا ۴ را انتخاب کنید. برخی سوالات معکوس نمره‌گذاری می‌شوند."
   },
   "dimensions": [
     {
-      "id": "safravi",
-      "name": "صفراوی (گرم و خشک)",
-      "description": "مزاج صفراوی با ویژگی‌های گرم و خشک شناخته می‌شود. افراد با این مزاج معمولاً سریع‌الانتقال، پرانرژی، و گاهی زودعصبانی هستند.",
-      "questions_ids": [1, 5, 9, 13, 17]
+      "id": "openness",
+      "name": "تجربه‌پذیری (Openness)",
+      "questions_ids": [3, 8, 13, 18, 23, 28, 33, 38, 43, 48, 53, 58],
+      "description": "میزان گشودگی ذهن، علاقه به تجربه‌های جدید، خلاقیت و تفکر انتزاعی."
     },
     {
-      "id": "damavi",
-      "name": "دموی (گرم و تر)",
-      "description": "مزاج دموی با ویژگی‌های گرم و تر شناخته می‌شود. افراد دموی معمولاً خونگرم، پرنشاط، خوش‌رو و فعال هستند.",
-      "questions_ids": [2, 6, 10, 14, 18]
+      "id": "conscientiousness",
+      "name": "وظیفه‌شناسی (Conscientiousness)",
+      "questions_ids": [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60],
+      "description": "میزان نظم، برنامه‌ریزی، پشتکار و مسئولیت‌پذیری در انجام وظایف."
     },
     {
-      "id": "balghami",
-      "name": "بلغمی (سرد و تر)",
-      "description": "مزاج بلغمی با ویژگی‌های سرد و تر شناخته می‌شود. افراد بلغمی معمولاً آرام، صبور، کم‌انرژی و گاهی فراموشکار هستند.",
-      "questions_ids": [3, 7, 11, 15, 19]
+      "id": "extraversion",
+      "name": "برون‌گرایی (Extraversion)",
+      "questions_ids": [2, 7, 12, 17, 22, 27, 32, 37, 42, 47, 52, 57],
+      "description": "میزان انرژی اجتماعی، تمایل به تعامل با دیگران و واکنش به محرک‌های خارجی."
     },
     {
-      "id": "sodavi",
-      "name": "سوداوی (سرد و خشک)",
-      "description": "مزاج سوداوی با ویژگی‌های سرد و خشک شناخته می‌شود. افراد سوداوی معمولاً درون‌گرا، دقیق، وسواسی و گاهی مستعد اضطراب هستند.",
-      "questions_ids": [4, 8, 12, 16, 20]
+      "id": "agreeableness",
+      "name": "سازگاری (Agreeableness)",
+      "questions_ids": [4, 9, 14, 19, 24, 29, 34, 39, 44, 49, 54, 59],
+      "description": "میزان مهربانی، همکاری، اعتماد و تمایل به اجتناب از تعارض."
+    },
+    {
+      "id": "neuroticism",
+      "name": "روان‌رنجوری (Neuroticism)",
+      "questions_ids": [1, 6, 11, 16, 21, 26, 31, 36, 41, 46, 51, 56],
+      "description": "میزان حساسیت به استرس، اضطراب، نگرانی و نوسانات خلقی."
     }
   ],
   "questions": [
-    {"id": 1, "text": "احساس گرمای زیادی در بدن خود دارید و ممکن است به راحتی دچار گرگرفتگی شوید؟", "dimension_id": "safravi", "is_reverse_scored": false},
-    {"id": 2, "text": "پوست شما معمولاً نرم و مرطوب است و رنگ صورت شما به سرخی یا گلگونی تمایل دارد؟", "dimension_id": "damavi", "is_reverse_scored": false},
-    {"id": 3, "text": "احساس سنگینی و رخوت می‌کنید، به خصوص بعد از غذا؟", "dimension_id": "balghami", "is_reverse_scored": false},
-    {"id": 4, "text": "تمایل زیادی به فکر و خیال و درون‌گرایی دارید و گاهی دچار وسواس فکری می‌شوید؟", "dimension_id": "sodavi", "is_reverse_scored": false},
-    {"id": 5, "text": "زود عصبانی می‌شوید اما خشم شما به سرعت فروکش می‌کند؟", "dimension_id": "safravi", "is_reverse_scored": false},
-    {"id": 6, "text": "معمولاً از نظر جسمی قوی و عضلانی هستید و به راحتی چاق می‌شوید؟", "dimension_id": "damavi", "is_reverse_scored": false},
-    {"id": 7, "text": "حافظه شما نسبتاً ضعیف است و ممکن است جزئیات را زود فراموش کنید؟", "dimension_id": "balghami", "is_reverse_scored": false},
-    {"id": 8, "text": "پوست شما خشک و خشن است و ممکن است دچار اگزما یا خشکی زیاد شود؟", "dimension_id": "sodavi", "is_reverse_scored": false},
-    {"id": 9, "text": "کم‌خواب هستید و خواب‌های آشفته یا کوتاه دارید؟", "dimension_id": "safravi", "is_reverse_scored": false},
-    {"id": 10, "text": "به غذاهای شیرین و گرم (مثل خرما و عسل) علاقه زیادی دارید؟", "dimension_id": "damavi", "is_reverse_scored": false},
-    {"id": 11, "text": "زیاد عرق نمی‌کنید و بدن شما کمتر دچار بوی عرق می‌شود؟", "dimension_id": "balghami", "is_reverse_scored": false},
-    {"id": 12, "text": "تمایل به گوشه‌گیری و خلوت دارید و کمتر اهل معاشرت‌های زیاد هستید؟", "dimension_id": "sodavi", "is_reverse_scored": false},
-    {"id": 13, "text": "حرکات شما تند و سریع است و معمولاً عجول هستید؟", "dimension_id": "safravi", "is_reverse_scored": false},
-    {"id": 14, "text": "پرانرژی و فعال هستید و به راحتی خسته نمی‌شوید؟", "dimension_id": "damavi", "is_reverse_scored": false},
-    {"id": 15, "text": "به غذاهای سرد و تر (مثل ماست و خیار) علاقه زیادی دارید و مصرف آن‌ها حال شما را بدتر می‌کند؟", "dimension_id": "balghami", "is_reverse_scored": false},
-    {"id": 16, "text": "معمولاً دچار خشکی دهان، خشکی بینی یا یبوست هستید؟", "dimension_id": "sodavi", "is_reverse_scored": false},
-    {"id": 17, "text": "طعم دهان شما صبح‌ها تلخ است و زبان شما زرد رنگ می‌شود؟", "dimension_id": "safravi", "is_reverse_scored": false},
-    {"id": 18, "text": "معمولاً خوش‌بین و امیدوار هستید و از زندگی لذت می‌برید؟", "dimension_id": "damavi", "is_reverse_scored": false},
-    {"id": 19, "text": "خواب شما سنگین و طولانی است و بیدار شدن برایتان دشوار است؟", "dimension_id": "balghami", "is_reverse_scored": false},
-    {"id": 20, "text": "نگرانی و اضطراب بخشی از زندگی شماست و ممکن است دچار افکار منفی شوید؟", "dimension_id": "sodavi", "is_reverse_scored": false}
+    {"id": 1, "text": "به طور کل من فرد نگرانی نیستم.", "dimension_id": "neuroticism", "is_reverse_scored": false},
+    {"id": 2, "text": "من دوست دارم افراد زیادی اطرافم باشند.", "dimension_id": "extraversion", "is_reverse_scored": false},
+    {"id": 3, "text": "دوست ندارم زمانم را با خیال‌پردازی هدر کنم.", "dimension_id": "openness", "is_reverse_scored": true},
+    {"id": 4, "text": "تلاش می‌کنم در برابر هر کسی که ملاقات می‌کنم، مؤدب باشم.", "dimension_id": "agreeableness", "is_reverse_scored": false},
+    {"id": 5, "text": "من وسایلم را تمیز و مرتب نگه می‌دارم.", "dimension_id": "conscientiousness", "is_reverse_scored": false},
+    {"id": 6, "text": "اغلب خودم را پایین‌تر از دیگران می‌دانم.", "dimension_id": "neuroticism", "is_reverse_scored": false},
+    {"id": 7, "text": "من به‌آسانی می‌خندم.", "dimension_id": "extraversion", "is_reverse_scored": false},
+    {"id": 8, "text": "وقتی راه درست انجام کاری را پیدا کنم، همواره از همان راه استفاده می‌کنم.", "dimension_id": "openness", "is_reverse_scored": true},
+    {"id": 9, "text": "معمولا با اقوام و همکارانم بحث می‌کنم.", "dimension_id": "agreeableness", "is_reverse_scored": false},
+    {"id": 10, "text": "می‌توانم کارها را طوری مدیریت کنم که به موقع انجام دهم.", "dimension_id": "conscientiousness", "is_reverse_scored": false},
+    {"id": 11, "text": "وقتی تحت استرس زیادی هستم، گاه احساس می‌کنم دارم فرو می‌پاشم.", "dimension_id": "neuroticism", "is_reverse_scored": false},
+    {"id": 12, "text": "من خودم را فرد بی‌نشاط و سرزنده‌ای به حساب نمی‌آورم.", "dimension_id": "extraversion", "is_reverse_scored": true},
+    {"id": 13, "text": "نقش‌ونگارهای موجود در پدیده‌های هنری و طبیعت، مرا مجذوب خود می‌کند.", "dimension_id": "openness", "is_reverse_scored": false},
+    {"id": 14, "text": "برخی مردم فکر می‌کنند من فردی خودخواه و خودمحور هستم.", "dimension_id": "agreeableness", "is_reverse_scored": true},
+    {"id": 15, "text": "من فرد خیلی منظم و ساختارگرایی نیستم.", "dimension_id": "conscientiousness", "is_reverse_scored": true},
+    {"id": 16, "text": "من به‌ندرت احساس تنهايی و غم می‌کنم.", "dimension_id": "neuroticism", "is_reverse_scored": true},
+    {"id": 17, "text": "من واقعا از صحبت کردن با دیگران لذت می‌برم.", "dimension_id": "extraversion", "is_reverse_scored": false},
+    {"id": 18, "text": "فکر می‌کنم اگر اجازه دهیم دانشجویان به سخنرانی‌های بحث‌برانگیز گوش دهند، تنها باعث گمراهی آن‌ها خواهد شد.", "dimension_id": "openness", "is_reverse_scored": true},
+    {"id": 19, "text": "ترجیح می‌دهم با دیگران همکاری کنم تا با آن‌ها رقابت کنم.", "dimension_id": "agreeableness", "is_reverse_scored": false},
+    {"id": 20, "text": "سعی می‌کنم همه وظایفم را با احساس مسئولیت انجام دهم.", "dimension_id": "conscientiousness", "is_reverse_scored": false},
+    {"id": 21, "text": "اغلب احساس تنش و پریشانی می‌کنم.", "dimension_id": "neuroticism", "is_reverse_scored": false},
+    {"id": 22, "text": "من همواره آماده انجام کارها هستم.", "dimension_id": "extraversion", "is_reverse_scored": false},
+    {"id": 23, "text": "شعرهای چه اثری روی من ندارد یا اثر بسیار کمی دارد.", "dimension_id": "openness", "is_reverse_scored": true},
+    {"id": 24, "text": "نسبت به مقاصد دیگران شکاک و حساس هستم.", "dimension_id": "agreeableness", "is_reverse_scored": true},
+    {"id": 25, "text": "من اهداف روشنی دارم و برای رسیدن به آن‌ها با برنامه‌ریزی کار می‌کنم.", "dimension_id": "conscientiousness", "is_reverse_scored": false},
+    {"id": 26, "text": "بعضی وقت‌ها کاملا احساس بی‌ارزشی می‌کنم.", "dimension_id": "neuroticism", "is_reverse_scored": false},
+    {"id": 27, "text": "اغلب ترجیح می‌دهم کارها را تنهایی انجام دهم.", "dimension_id": "extraversion", "is_reverse_scored": true},
+    {"id": 28, "text": "اغلب غذاهای جدید و خارجی را امتحان می‌کنم.", "dimension_id": "openness", "is_reverse_scored": false},
+    {"id": 29, "text": "باور دارم که اگر اجازه دهید، اکثر مردم از شما سوءاستفاده خواهند کرد.", "dimension_id": "agreeableness", "is_reverse_scored": true},
+    {"id": 30, "text": "پیش از انجام کارها وقت زیادی تلف می‌کنم.", "dimension_id": "conscientiousness", "is_reverse_scored": true},
+    {"id": 31, "text": "به ندرت احساس ترس یا اضطراب می‌کنم.", "dimension_id": "neuroticism", "is_reverse_scored": true},
+    {"id": 32, "text": "اغلب احساس می‌کنم که مملو از انرژی هستم.", "dimension_id": "extraversion", "is_reverse_scored": false},
+    {"id": 33, "text": "به‌ندرت به احساسات یا خلق‌هایی که محیط‌های مختلف به‌وجود می‌آورند، توجه می‌کنم.", "dimension_id": "openness", "is_reverse_scored": true},
+    {"id": 34, "text": "اکثر کسانی که می‌شناسم، مرا دوست دارند.", "dimension_id": "agreeableness", "is_reverse_scored": false},
+    {"id": 35, "text": "برای رسیدن به اهدافم سخت تلاش می‌کنم.", "dimension_id": "conscientiousness", "is_reverse_scored": false},
+    {"id": 36, "text": "اغلب از طرز رفتار دیگران با خودم عصبانی می‌شوم.", "dimension_id": "neuroticism", "is_reverse_scored": false},
+    {"id": 37, "text": "من فرد بشاشی هستم و روحیه بالایی دارم.", "dimension_id": "extraversion", "is_reverse_scored": false},
+    {"id": 38, "text": "من اعتقاد دارم که برای تصمیم‌گیری‌های اخلاقی، باید به دستورات مذهبی خود رجوع کنم.", "dimension_id": "openness", "is_reverse_scored": false},
+    {"id": 39, "text": "برخی مردم فکر می‌کنند من فردی سرد و حسابگر هستم.", "dimension_id": "agreeableness", "is_reverse_scored": true},
+    {"id": 40, "text": "وقتی تعهدی می‌دهم، می‌توانید روی من حساب کنید.", "dimension_id": "conscientiousness", "is_reverse_scored": false},
+    {"id": 41, "text": "اغب وقتی کارها درست پیش نمی‌روند، دلسرد می‌شوم و از ادامه کار دست می‌کشم.", "dimension_id": "neuroticism", "is_reverse_scored": false},
+    {"id": 42, "text": "من فرد سرزنده و خوشبینی نیستم.", "dimension_id": "extraversion", "is_reverse_scored": true},
+    {"id": 43, "text": "برخی اوقات وقتی در حال خواندن شعری هستم یا به یک اثر هنری نگاه می‌کنم، موجی از هیجان بدنم را فرا می‌گیرد.", "dimension_id": "openness", "is_reverse_scored": false},
+    {"id": 44, "text": "من نسبت به نگرش خود سرسخت و یک‌دنده هستم.", "dimension_id": "agreeableness", "is_reverse_scored": true},
+    {"id": 45, "text": "گاهی اوقات به میزانی که با یک قابل‌تکیه و مورد اعتماد نیستم.", "dimension_id": "conscientiousness", "is_reverse_scored": true},
+    {"id": 46, "text": "به ندرت غمگین و افسرده می‌شوم.", "dimension_id": "neuroticism", "is_reverse_scored": true},
+    {"id": 47, "text": "زندگی من سریع می‌گذرد.", "dimension_id": "extraversion", "is_reverse_scored": false},
+    {"id": 48, "text": "من به تفکر درباره ماهیت جهان یا شرایط انسان‌ها، علاقه‌ای ندارم.", "dimension_id": "openness", "is_reverse_scored": true},
+    {"id": 49, "text": "من معمولا سعی می‌کنم باملاحظه و منطقی باشم.", "dimension_id": "agreeableness", "is_reverse_scored": false},
+    {"id": 50, "text": "من فرد مولدی هستم که همواره کارها را به اتمام می‌رسانم.", "dimension_id": "conscientiousness", "is_reverse_scored": false},
+    {"id": 51, "text": "اغلب احساس درماندگی می‌کنم و می‌خواهم کسی دیگری مشکلاتم را حل کند.", "dimension_id": "neuroticism", "is_reverse_scored": false},
+    {"id": 52, "text": "من فرد خیلی فعالی هستم.", "dimension_id": "extraversion", "is_reverse_scored": false},
+    {"id": 53, "text": "من کنجکاوی‌های ذهنی فراوانی دارم.", "dimension_id": "openness", "is_reverse_scored": false},
+    {"id": 54, "text": "اگر از کسی خوشم نیاید، اجازه می‌دهم متوجه احساسام شود.", "dimension_id": "agreeableness", "is_reverse_scored": true},
+    {"id": 55, "text": "به نظر نمی‌رسد بتوانم هرگز فرد منظمی باشم.", "dimension_id": "conscientiousness", "is_reverse_scored": true},
+    {"id": 56, "text": "گاهی اوقات آنقدر خجالت‌زده شده‌ام که فقط می‌خواستم خودم را قایم کنم.", "dimension_id": "neuroticism", "is_reverse_scored": false},
+    {"id": 57, "text": "ترجیح می‌دهم کارها را خودم انجام دهم تا اینکه رهبر دیگران باشم.", "dimension_id": "extraversion", "is_reverse_scored": true},
+    {"id": 58, "text": "معمولا از کلنجار رفتن با نظریه‌ها و ایده‌های انتزاعی خوشم می‌آید.", "dimension_id": "openness", "is_reverse_scored": false},
+    {"id": 59, "text": "اگر نیاز باشد، برای رسیدن به اهدافم دیگران را بازی می‌دهم.", "dimension_id": "agreeableness", "is_reverse_scored": true},
+    {"id": 60, "text": "تلاش می‌کنم هرکاری که انجام می‌دهم، به بهترین شکل انجام دهم.", "dimension_id": "conscientiousness", "is_reverse_scored": false}
   ],
   "scoring": {
-    "method": "جمع نمرات برای هر مزاج",
-    "instructions": "برای هر یک از چهار مزاج (صفراوی، دموی، بلغمی، سوداوی)، نمرات مربوط به سوالات آن مزاج را با هم جمع کنید. بالاترین نمره در میان این چهار مزاج، مزاج غالب شما را نشان می‌دهد. اگر دو مزاج نمره‌ مشابه و بالایی داشتند، ممکن است شما دارای مزاج ترکیبی باشید.",
-    "notes": "حداقل نمره برای هر مزاج ۰ و حداکثر نمره ۲۰ خواهد بود. (۵ سوال × ۴ امتیاز)"
+    "method": "جمع نمرات برای هر بعد با توجه به معکوس‌بودن برخی سوالات",
+    "instructions": "برای سوالات عادی: کاملاً مخالفم=0، مخالفم=1، نظری ندارم=2، موافقم=3، کاملاً موافقم=4.\nبرای سوالات معکوس (is_reverse_scored=true): کاملاً مخالفم=4، مخالفم=3، نظری ندارم=2، موافقم=1، کاملاً موافقم=0.\nنمره هر بعد = جمع نمرات ۱۲ سوال مربوطه. محدوده نمره هر بعد: ۰ تا ۴۸.",
+    "thresholds": [
+      {"range": "0 تا 12", "interpretation": "کم"},
+      {"range": "12 تا 24", "interpretation": "متوسط"},
+      {"range": "24 تا 48", "interpretation": "زیاد"}
+    ],
+    "notes": "نمره بالاتر در هر عامل نشان‌دهنده سطح بالاتر آن صفت شخصیتی است."
   },
   "interpretation": {
-    "overall_interpretation": "پس از محاسبه نمرات، بالاترین نمره نشان‌دهنده مزاج غالب شماست. شناخت مزاج می‌تواند در انتخاب رژیم غذایی مناسب، شیوه زندگی و حتی بهبود روابط و سلامت روانی به شما کمک کند.",
-    "detailed_interpretations": [
-      {
-        "mezaj": "صفراوی (گرم و خشک)",
-        "characteristics": "افرادی پرانرژی، فعال، باهوش و سریع‌الانتقال. ممکن است زود عصبانی شوند اما کینه‌ای نیستند. فیزیک بدنی لاغر و خشک با رگ‌های برجسته. پوست گرم و خشک، موهای پرپشت و تیره. تحمل گرما را ندارند و ممکن است دچار بی‌خوابی شوند.",
-        "recommendations": "مصرف خنکی‌جات (مثل آب زرشک، خیار، کاهو)، کاهش مصرف گرمی‌جات (مثل فلفل، زنجبیل)، مصرف غذاهای لطیف و مرطوب. پرهیز از بی‌خوابی و استرس."
-      },
-      {
-        "mezaj": "دموی (گرم و تر)",
-        "characteristics": "افرادی خونگرم، مهربان، اجتماعی، پرنشاط و بخشنده. فیزیک بدنی درشت و قوی، پوست سرخ و مرطوب، موهای پرپشت. تحمل گرما و شرجی را ندارند و خوب می‌خوابند. هضم غذای خوبی دارند.",
-        "recommendations": "مصرف متعادل همه گروه‌های غذایی با تاکید بر غذاهای معتدل. کاهش مصرف غذاهای بسیار گرم و تر (مثل چربی زیاد، شیرینی مصنوعی). ورزش منظم و حجامت یا فصد (با مشورت متخصص)."
-      },
-      {
-        "mezaj": "بلغمی (سرد و تر)",
-        "characteristics": "افرادی آرام، صبور، مهربان و کم‌تحرک. ممکن است فراموشکار، کم‌حافظه و مستعد اضافه‌وزن باشند. پوست سرد، سفید و مرطوب، موهای کم‌پشت و روشن. تحمل سرما و رطوبت را ندارند و به غذاهای گرم علاقه دارند. خواب زیاد و سنگین.",
-        "recommendations": "مصرف گرمی‌جات و خشکی‌جات (مثل زنجبیل، دارچین، سیر، فلفل سیاه)، کاهش مصرف لبنیات، آب یخ، ترشی‌جات و غذاهای سرد. ورزش منظم و پرهیز از بی‌تحرکی."
-      },
-      {
-        "mezaj": "سوداوی (سرد و خشک)",
-        "characteristics": "افرادی درون‌گرا، متفکر، دقیق و آینده‌نگر. ممکن است مستعد اضطراب، افسردگی، وسواس و بدبینی باشند. فیزیک بدنی لاغر و خشک با پوست تیره و کدر. تحمل سرما و خشکی را ندارند. خواب سبک و کم‌عمق.",
-        "recommendations": "مصرف غذاهای گرم و تر (مثل عسل، خرما، انجیر، روغن زیتون)، کاهش مصرف غذاهای سرد و خشک (مثل بادمجان، عدس، غذاهای کنسروی). دوری از تنهایی، معاشرت با افراد پرنشاط، فعالیت‌های آرامش‌بخش (مانند یوگا)."
-      }
-    ]
+    "overall_interpretation": "نمره هر فرد در هر یک از پنج عامل شخصیت، میزان شدت آن صفت در او را نشان می‌دهد. این پرسشنامه برای شناخت سبک‌های شخصیتی، ارزیابی استخدامی، مشاوره شغلی، و تطبیق زناشویی کاربرد دارد."
   },
+  "personality_styles": [
+    {
+      "id": "well_being",
+      "name": "سبک بهزیستی",
+      "factors": ["neuroticism", "extraversion"],
+      "types": [
+        {"name": "غمگین و بدbyn", "desc": "روان‌رنجوری بالا و برون‌گرایی پایین"},
+        {"name": "شاد و خوشبین", "desc": "روان‌رنجوری پایین و برون‌گرایی بالا"},
+        {"name": "بسیار هیجانی", "desc": "روان‌رنجوری بالا و برون‌گرایی بالا"},
+        {"name": "کم‌هیجان", "desc": "روان‌رنجوری پایین و برون‌گرایی پایین"}
+      ]
+    },
+    {
+      "id": "defense_style",
+      "name": "سبک دفاعی",
+      "factors": ["neuroticism", "openness"],
+      "types": [
+        {"name": "ناسازگار", "desc": "روان‌رنجوری بالا و تجربه‌پذیری پایین"},
+        {"name": "سازگار", "desc": "روان‌رنجوری پایین و تجربه‌پذیری بالا"},
+        {"name": "بیش‌حساس", "desc": "روان‌رنجوری بالا و تجربه‌پذیری بالا"},
+        {"name": "غیرحساس", "desc": "روان‌رنجوری پایین و تجربه‌پذیری پایین"}
+      ]
+    },
+    {
+      "id": "anger_control",
+      "name": "سبک مدیریت خشم",
+      "factors": ["neuroticism", "agreeableness"],
+      "types": [
+        {"name": "تندخو", "desc": "روان‌رنجوری بالا و سازگاری پایین"},
+        {"name": "آسان‌گیر", "desc": "روان‌رنجوری پایین و سازگاری بالا"},
+        {"name": "محجوب", "desc": "روان‌رنجوری بالا و سازگاری بالا"},
+        {"name": "خونسرد", "desc": "روان‌رنجوری پایین و سازگاری پایین"}
+      ]
+    },
+    {
+      "id": "impulse_control",
+      "name": "سبک مدیریت تکانه",
+      "factors": ["neuroticism", "conscientiousness"],
+      "types": [
+        {"name": "مهارنشده", "desc": "روان‌رنجوری بالا و وظیفه‌شناسی پایین"},
+        {"name": "جهت‌مند", "desc": "روان‌رنجوری پایین و وظیفه‌شناسی بالا"},
+        {"name": "بیش‌ازحد مهارشده", "desc": "روان‌رنجوری بالا و وظیفه‌شناسی بالا"},
+        {"name": "آرام", "desc": "روان‌رنجوری پایین و وظیفه‌شناسی پایین"}
+      ]
+    },
+    {
+      "id": "interests",
+      "name": "سبک علاقه‌ها",
+      "factors": ["extraversion", "openness"],
+      "types": [
+        {"name": "مصرف‌کنندگان اصلی", "desc": "برون‌گرایی بالا و تجربه‌پذیری پایین"},
+        {"name": "درون‌نگرها", "desc": "برون‌گرایی پایین و تجربه‌پذیری بالا"},
+        {"name": "تعامل‌کنندگان خلاق", "desc": "برون‌گرایی بالا و تجربه‌پذیری بالا"},
+        {"name": "خانه‌نشین‌ها", "desc": "برون‌گرایی پایین و تجربه‌پذیری پایین"}
+      ]
+    },
+    {
+      "id": "interaction_style",
+      "name": "سبک تعامل",
+      "factors": ["extraversion", "agreeableness"],
+      "types": [
+        {"name": "رهبرها", "desc": "برون‌گرایی بالا و سازگاری پایین"},
+        {"name": "بی‌تکلف‌ها", "desc": "برون‌گرایی پایین و سازگاری بالا"},
+        {"name": "استقبال‌کنندگان", "desc": "برون‌گرایی بالا و سازگاری بالا"},
+        {"name": "رقابت‌کنندگان", "desc": "برون‌گرایی پایین و سازگاری پایین"}
+      ]
+    },
+    {
+      "id": "activity_style",
+      "name": "سبک فعالیت",
+      "factors": ["extraversion", "conscientiousness"],
+      "types": [
+        {"name": "عاشقان سرگرمی", "desc": "برون‌گرایی بالا و وظیفه‌شناسی پایین"},
+        {"name": "زحمت‌کش‌ها", "desc": "برون‌گرایی پایین و وظیفه‌شناسی بالا"},
+        {"name": "به‌دست‌آورندگان", "desc": "برون‌گرایی بالا و وظیفه‌شناسی بالا"},
+        {"name": "کم‌کارها", "desc": "برون‌گرایی پایین و وظیفه‌شناسی پایین"}
+      ]
+    },
+    {
+      "id": "attitude_style",
+      "name": "سبک نگرش",
+      "factors": ["openness", "agreeableness"],
+      "types": [
+        {"name": "آزاداندیشان", "desc": "تجربه‌پذیری بالا و سازگاری پایین"},
+        {"name": "سنت‌گراها", "desc": "تجربه‌پذیری پایین و سازگاری بالا"},
+        {"name": "پیشرفت‌گراها", "desc": "تجربه‌پذیری بالا و سازگاری بالا"},
+        {"name": "باثبات و مصمم", "desc": "تجربه‌پذیری پایین و سازگاری پایین"}
+      ]
+    },
+    {
+      "id": "learning_style",
+      "name": "سبک یادگیری",
+      "factors": ["openness", "conscientiousness"],
+      "types": [
+        {"name": "رویاپردازان", "desc": "تجربه‌پذیری بالا و وظیفه‌شناسی پایین"},
+        {"name": "بخشنامه‌ای‌ها", "desc": "تجربه‌پذیری پایین و وظیفه‌شناسی بالا"},
+        {"name": "دانش‌آموزان خوب", "desc": "تجربه‌پذیری بالا و وظیفه‌شناسی بالا"},
+        {"name": "پژوهشگران بی‌میل", "desc": "تجربه‌پذیری پایین و وظیفه‌شناسی پایین"}
+      ]
+    },
+    {
+      "id": "character_style",
+      "name": "سبک شخصیت",
+      "factors": ["agreeableness", "conscientiousness"],
+      "types": [
+        {"name": "خوش‌نیت‌ها", "desc": "سازگاری بالا و وظیفه‌شناسی پایین"},
+        {"name": "خود-پیش‌برندگان", "desc": "سازگاری پایین و وظیفه‌شناسی بالا"},
+        {"name": "نوع‌دوستان موثر", "desc": "سازگاری بالا و وظیفه‌شناسی بالا"},
+        {"name": "نامشخص", "desc": "سازگاری پایین و وظیفه‌شناسی پایین"}
+      ]
+    }
+  ],
   "psychometric_properties": {
     "validity": {
-      "info": "این آزمون بر اساس مفاهیم و توصیفات رایج مزاج‌شناسی در طب سنتی ایرانی تدوین شده است. اعتبار آن بیشتر بر پایه تطابق با این متون سنتی و مشاهدات بالینی در طب سنتی است تا روایی علمی مدرن. لذا نتایج آن صرفاً جهت خودشناسی و راهنمایی اولیه است و جایگزین تشخیص پزشک متخصص نمی‌باشد."
+      "info": "پرسشنامه NEO-FFI بر اساس نظریه پنج عاملی شخصیت توسط کاستا و مک‌کری توسعه یافته و روایی علمی گسترده‌ای دارد."
     },
     "reliability": {
-      "info": "پایایی این گونه آزمون‌ها در چارچوب متون طب سنتی مطرح می‌شود و مانند آزمون‌های روان‌سنجی مدرن، دارای ضرایب پایایی (مانند آلفای کرونباخ) نیست. این پرسشنامه یک ابزار تشخیصی رسمی نیست و صرفاً یک راهنمای خودشناسی است."
+      "alpha_cronbach": {
+        "openness": "0.80",
+        "conscientiousness": "0.84",
+        "extraversion": "0.87",
+        "agreeableness": "0.82",
+        "neuroticism": "0.89"
+      },
+      "info": "ضرایب آلفای کرونباخ برای فرم کوتاه (NEO-FFI) در مطالعات بین‌المللی بین 0.80 تا 0.89 متغیر است."
     }
   },
   "references": [
-    {"author": "متون و کتب طب سنتی ایرانی", "year": "مختلف", "title": "مفاهیم مزاج‌شناسی", "source": "دانش جمعی طب سنتی"}
+    {"author": "Costa, Paul T. & McCrae, Robert R.", "year": "1992", "title": "NEO Personality Inventory-Revised (NEO-PI-R) and NEO Five-Factor Inventory (NEO-FFI)", "source": "Professional Manual, Psychological Assessment Resources"},
+    {"author": "پائول کاستا و رابرت مک‌کری", "year": "۱۳۹۰", "title": "نظریه پنج عاملی شخصیت و پرسشنامه NEO-FFI", "source": "ترجمه فارسی توسط انتشارات دانشگاهی"},
+    {"author": "Rammstedt, B. & John, O. P.", "year": "2007", "title": "Measuring personality in one minute or less: A 10-item version of the Big Five Inventory in English and German", "source": "Journal of Research in Personality"}
   ]
 }

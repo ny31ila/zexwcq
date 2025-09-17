@@ -77,9 +77,6 @@ class Assessment(models.Model):
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
-    # --- NOTE: The M2M relationship is defined on TestPackage.assessments ---
-    # The 'packages' related_name is defined on the TestPackage.assessments field.
-
     class Meta:
         verbose_name = _("Assessment")
         verbose_name_plural = _("Assessments")
@@ -116,21 +113,25 @@ class UserAssessmentAttempt(models.Model):
     end_time = models.DateTimeField(_("end time"), blank=True, null=True)
     is_completed = models.BooleanField(_("is completed"), default=False)
 
+    # --- Updated Comments ---
     # Raw results from the user's answers. Structure depends on the assessment.
+    # This field is updated incrementally as the user submits responses.
     raw_results_json = models.JSONField(
         _("raw results JSON"),
         blank=True,
         null=True,
-        help_text=_("Raw user answers and initial scoring results.")
+        help_text=_("Raw user answers and initial scoring results, updated incrementally.")
     )
 
+    # --- Renamed Field ---
     # Data formatted specifically for sending to the AI service.
-    # This might be a processed version of raw_results_json.
-    deepseek_input_json = models.JSONField(
-        _("deepseek input JSON"),
+    # This is populated by a background task AFTER the attempt is completed,
+    # by processing the data in raw_results_json.
+    processed_results_json = models.JSONField( # Renamed from deepseek_input_json
+        _("processed results JSON"),
         blank=True,
         null=True,
-        help_text=_("Processed data ready to be sent to the AI service.")
+        help_text=_("Processed/calculated data derived from raw results, ready for AI service.")
     )
 
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)

@@ -1,0 +1,9 @@
+disc: 24
+gardner: 80
+holland: 168
+mbti: 60
+neo: 60
+pvq: 40
+swanson: 18
+
+total: 450

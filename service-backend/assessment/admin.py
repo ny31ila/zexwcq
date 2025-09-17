@@ -18,10 +18,13 @@ class AssessmentAdmin(admin.ModelAdmin):
     # --- Simplified list_display for Assessment ---
     list_display = ('name', 'json_filename', 'is_active')
     # Removed 'packages' from list_filter as it's managed from TestPackage admin
-    list_filter = ('is_active', 'created_at')
+    # If you still want to filter assessments by packages in the assessment admin list,
+    # you can add it back, but it's primarily managed from the package side.
+    list_filter = ('is_active', 'created_at', 'packages') # Optional: filter by packages
     search_fields = ('name', 'description', 'json_filename')
     ordering = ['name']
     # Removed get_packages_list method from here as the relationship is managed from TestPackage
+    # If needed for quick reference in the list view, it can be re-added carefully.
 
 @admin.register(UserAssessmentAttempt)
 class UserAssessmentAttemptAdmin(admin.ModelAdmin):
@@ -30,3 +33,17 @@ class UserAssessmentAttemptAdmin(admin.ModelAdmin):
     list_filter = ('is_completed', 'start_time', 'assessment__packages') # Filter by packages
     search_fields = ('user__national_code', 'user__first_name', 'user__last_name', 'assessment__name')
     readonly_fields = ('start_time', 'created_at', 'updated_at') # These shouldn't be editable
+    # Consider adding 'end_time', 'is_completed' to readonly_fields if you want to prevent
+    # admins from accidentally modifying completion status directly in the admin.
+    # readonly_fields = ('start_time', 'end_time', 'is_completed', 'created_at', 'updated_at')
+
+    # If you want to display related package names in the list view for quick reference:
+    # def get_queryset(self, request):
+    #     qs = super().get_queryset(request)
+    #     return qs.select_related('user', 'assessment').prefetch_related('assessment__packages')
+    #
+    # def get_packages(self, obj):
+    #     """Custom method to display packages in list_display."""
+    #     return ", ".join([p.name for p in obj.assessment.packages.all()[:3]]) # Show first 3
+    # get_packages.short_description = 'Packages'
+    # Add 'get_packages' to list_display if needed.

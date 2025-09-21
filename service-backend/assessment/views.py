@@ -317,9 +317,14 @@ class SaveAssessmentResponseView(views.APIView):
         # The key is the question_id, the value is the response details.
         for question_id, response_details in response_data.items():
             if not question_id:
-                 continue # Skip if somehow question_id is falsy
-            # Update/Add the response for this question_id in the main raw_results object
-            current_raw_results[question_id] = response_details
+                continue # Skip if somehow question_id is falsy
+
+            # If the question_id already exists and its value is a dictionary, merge the new response_details
+            if question_id in current_raw_results and isinstance(current_raw_results[question_id], dict):
+                current_raw_results[question_id].update(response_details)
+            else:
+                # Otherwise, just set it (this handles both new questions and cases where the existing value is not a dict)
+                current_raw_results[question_id] = response_details
 
         # 4. Save the updated JSON back to the model instance
         attempt.raw_results_json = current_raw_results

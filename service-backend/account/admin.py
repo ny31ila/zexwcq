@@ -39,7 +39,7 @@ class UserAdmin(BaseUserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': (
-                'national_code', 'phone_number', 'password1', 'password2'
+                'national_code', 'phone_number', 'email', 'password1', 'password2', 'is_superuser', 'is_staff'
             ),
         }),
     )

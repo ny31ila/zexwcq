@@ -86,8 +86,8 @@ def calculate_assessment_scores(attempt_id):
         #     calculated_results = _calculate_adhd_scores(attempt.raw_results_json)
         # elif assessment.name.lower() == "neo":
         #     calculated_results = _calculate_neo_scores(attempt.raw_results_json)
-        # elif assessment.name.lower() == "disc":
-        #     calculated_results = _calculate_disc_scores(attempt.raw_results_json)
+        elif assessment.name.lower() == "disc":
+             calculated_results = _calculate_disc_scores(attempt.raw_results_json)
         # elif assessment.name.lower() == "pvq":
         #     calculated_results = _calculate_pvq_scores(attempt.raw_results_json)
         # elif assessment.name.lower() == "schwartz values":
@@ -199,9 +199,143 @@ def _calculate_gardner_scores(raw_data):
 #     """Logic for NEO Personality Inventory."""
 #     pass
 
-# def _calculate_disc_scores(raw_data):
-#     """Logic for DISC assessment."""
-#     pass
+def _calculate_disc_scores(responses):
+    """
+    Calculate DISC scores based on test responses.
+    This function is designed to be called by the main calculate_assessment_scores service.
+    It will raise exceptions on failure, which should be caught by the caller.
+    """
+    # Expected number of questions (hardcoded as per user agreement)
+    EXPECTED_QUESTIONS = 24
+
+    # Validate input format and completeness
+    if not isinstance(responses, dict):
+        return {"success": False, "error": "INVALID_FORMAT", "message": "Responses must be a dictionary."}
+
+    if len(responses) != EXPECTED_QUESTIONS:
+        return {
+            "success": False, "error": "INCOMPLETE_RESPONSES",
+            "message": f"Expected {EXPECTED_QUESTIONS} responses, but received {len(responses)}.",
+            "expected_total": EXPECTED_QUESTIONS, "provided_total": len(responses)
+        }
+
+    # Initialize counters and valid types
+    most_like_counts = {"D": 0, "I": 0, "S": 0, "C": 0}
+    least_like_counts = {"D": 0, "I": 0, "S": 0, "C": 0}
+    valid_types = {"D", "I", "S", "C"}
+
+    # Process each response, performing detailed validation
+    for q_id, resp_data in responses.items():
+        if not all(k in resp_data for k in ["most_like_me", "least_like_me"]):
+            return {"success": False, "error": "MISSING_RESPONSE_KEYS", "message": f"Question {q_id} is missing keys."}
+
+        most_like, least_like = resp_data["most_like_me"], resp_data["least_like_me"]
+        if most_like not in valid_types or least_like not in valid_types or most_like == least_like:
+            return {"success": False, "error": "INVALID_DISC_VALUE", "message": f"Invalid values for question {q_id}."}
+
+        most_like_counts[most_like] += 1
+        least_like_counts[least_like] += 1
+
+    # Calculate the three DISC profiles
+    adaptive_scores = most_like_counts
+    natural_scores = least_like_counts
+    perceived_scores = {dim: most_like_counts[dim] - least_like_counts[dim] for dim in valid_types}
+
+    # Determine dominant types for each profile
+    adaptive_dominant = [dim for dim, score in adaptive_scores.items() if score == max(adaptive_scores.values())]
+    natural_dominant = [dim for dim, score in natural_scores.items() if score == max(natural_scores.values())]
+    perceived_dominant = [dim for dim, score in perceived_scores.items() if score == max(perceived_scores.values())]
+
+    # Generate profile interpretations
+    adaptive_profile = _determine_disc_profile_type(adaptive_scores, adaptive_dominant, "adaptive")
+    natural_profile = _determine_disc_profile_type(natural_scores, natural_dominant, "natural")
+    perceived_profile = _determine_disc_profile_type(perceived_scores, perceived_dominant, "perceived")
+
+    # Analyze profile differences for stress indicators
+    stress_analysis = _analyze_disc_profile_differences(adaptive_scores, natural_scores)
+
+    return {
+        "success": True,
+        "raw_scores": {"most_like_counts": most_like_counts, "least_like_counts": least_like_counts},
+        "profiles": {
+            "adaptive": {"name": "پروفایل تطبیقی (خود عمومی)", "scores": adaptive_scores, "dominant_types": adaptive_dominant, "interpretation": adaptive_profile},
+            "natural": {"name": "پروفایل طبیعی (خود غریزی)", "scores": natural_scores, "dominant_types": natural_dominant, "interpretation": natural_profile},
+            "perceived": {"name": "خود ادراک‌شده (آیینه)", "scores": perceived_scores, "dominant_types": perceived_dominant, "interpretation": perceived_profile}
+        },
+        "stress_analysis": stress_analysis,
+        "final_behavioral_style": perceived_profile
+    }
+
+def _determine_disc_profile_type(scores, dominant_types, profile_type="perceived"):
+    """Determines the DISC profile type based on scores."""
+    sorted_dims = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    primary = sorted_dims[0][0]
+    secondary = sorted_dims[1][0] if len(sorted_dims) > 1 else None
+
+    profile_mappings = {
+        "D": {"name": "پیروز (Winner)", "description": "قاطع، ریسک‌پذیر، تمرکز بر نتیجه"},
+        "I": {"name": "مشتاق (Enthusiast)", "description": "تمایل به صحبت و شنیدن، خلاق و پویا"},
+        "S": {"name": "صلح‌بان (Peacekeeper)", "description": "حفظ ثبات در شرایط سخت، شنونده عالی"},
+        "C": {"name": "تحلیل‌گر (Analyst)", "description": "انگیزه بر درستی کارها، تحلیل‌گر، دقیق"},
+        "DC": {"name": "چالش‌گر (Challenger)", "description": "تمایل به نتیجه‌گرایی و دقت بالا، خلاق و پرشور"},
+        "Di": {"name": "جستجوگر (Seeker)", "description": "پرهیجان، علاقه‌مند به شکستن مرزها"},
+        "iD": {"name": "ریسک‌پذیر (Risk Taker)", "description": "معتقد به ریسک کردن، با اعتماد به نفس و حمایت‌گر"},
+        "iS": {"name": "رفیق (Buddy)", "description": "صلح‌جو، بخشنده، با اعتماد به نفس"},
+        "Si": {"name": "همکار (Collaborator)", "description": "مهارت در تیم‌سازی، محبوب"},
+        "SC": {"name": "کاردان (Technician)", "description": "قابل اعتماد و توانا، نیاز به محیط آرام"},
+        "CS": {"name": "پایه (Bedrock)", "description": "باثبات و متواضع، تمرکز بر پیش‌بینی اتفاقات"},
+        "CD": {"name": "کمال‌گرا (Perfectionist)", "description": "تمایل به بهترین بودن، ذهنیتی روشن و تحلیلی"}
+    }
+
+    profile_key = primary
+    if len(dominant_types) > 1 and secondary:
+        if abs(scores[primary] - scores[secondary]) <= 2:
+            combo_key = "".join(sorted([primary, secondary]))
+            profile_key = combo_key if combo_key in profile_mappings else primary
+
+    profile_info = profile_mappings.get(profile_key, {"name": f"غالب {primary}", "description": "پروفایل ترکیبی"})
+
+    return {
+        "type": profile_key, "name": profile_info["name"], "description": profile_info["description"],
+        "primary_dimension": primary, "secondary_dimension": secondary, "profile_context": profile_type
+    }
+
+def _analyze_disc_profile_differences(adaptive_scores, natural_scores):
+    """Analyzes differences between adaptive and natural profiles for stress."""
+    differences = {dim: abs(adaptive_scores[dim] - natural_scores[dim]) for dim in adaptive_scores}
+    total_difference = sum(differences.values())
+    significant_differences = [
+        {"dimension": dim, "difference": diff, "adaptive_score": adaptive_scores[dim], "natural_score": natural_scores[dim]}
+        for dim, diff in differences.items() if diff >= 3
+    ]
+
+    if total_difference <= 8: stress_level = "کم"
+    elif total_difference <= 16: stress_level = "متوسط"
+    else: stress_level = "بالا"
+
+    return {
+        "total_difference": total_difference, "dimension_differences": differences,
+        "significant_differences": significant_differences, "stress_level": stress_level,
+        "recommendations": _generate_disc_stress_recommendations(stress_level, significant_differences)
+    }
+
+def _generate_disc_stress_recommendations(stress_level, significant_differences):
+    """Generates recommendations based on stress analysis."""
+    recommendations = []
+    if stress_level == "کم":
+        recommendations.append("رفتار شما در اکثر موقعیت‌ها طبیعی و مؤثر است.")
+    elif stress_level == "متوسط":
+        recommendations.append("توجه به تعادل بین نیازهای شخصی و انتظارات محیطی.")
+        for diff in significant_differences:
+            dim = diff["dimension"]
+            if dim == "D": recommendations.append("توجه به تعادل بین رهبری و همکاری.")
+            elif dim == "I": recommendations.append("مدیریت انرژی اجتماعی و زمان‌های تنهایی.")
+            elif dim == "S": recommendations.append("یافتن تعادل بین ثبات و انطباق با تغییرات.")
+            elif dim == "C": recommendations.append("تعادل بین کمال‌گرایی و عملکرد مؤثر.")
+    else:  # بالا
+        recommendations.append("بررسی محیط کاری و شناسایی منابع فشار.")
+        recommendations.append("مشاوره با متخصص برای مدیریت استرس.")
+    return recommendations
 
 # def _calculate_pvq_scores(raw_data):
 #     """Logic for Portrait Values Questionnaire."""

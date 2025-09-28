@@ -4,120 +4,563 @@
   "description": {
     "overall": "این پرسشنامه برای سنجش هر یک از مولفه های هشت گانه هوش بر اساس نظریه هوش‌های چندگانه گاردنر طراحی شده است.",
     "purpose": "سنجش هوش‌های چندگانه",
-    "number_of_questions": 80
+    "number_of_questions": 80,
+    "conceptual_definition": "از نظر گاردنر هوش عبارت است از استعداد حل کردن مسائل یا تولید محصولاتی که در یک یا چند فرهنگ با ارزش شمرده می شوند.",
+    "operational_definition": "در این پژوهش منظور از نمره استاندارد هوش چندگانه، نمره‌ای است که فرد به سوالات 80 ماده ای پرسشنامة هوش چندگانه گاردنر میدهد."
   },
   "response_scale": {
     "type": "لیکرت 5 گزینه‌ای",
     "options": [
-      {"label": "خیلی کم", "value": 1},
-      {"label": "کم", "value": 2},
-      {"label": "متوسط", "value": 3},
-      {"label": "زیاد", "value": 4},
-      {"label": "خیلی زیاد", "value": 5}
+      { "label": "خیلی کم شبیه من است", "value": 1 },
+      { "label": "کمی شبیه من است", "value": 2 },
+      { "label": "تاحدی شبیه من است", "value": 3 },
+      { "label": "شبیه من است", "value": 4 },
+      { "label": "خیلی شبیه من است", "value": 5 }
     ],
     "instructions": "برای هر گویه، یکی از گزینه‌های ۱ تا ۵ را انتخاب کنید."
   },
   "dimensions": [
-    {"id": "linguistic_verbal", "name": "زبانی-کلامی", "questions_ids": [1, 9, 17, 25, 33, 41, 49, 57, 65, 73]},
-    {"id": "logical_mathematical", "name": "منطقی-ریاضی", "questions_ids": [2, 10, 18, 26, 34, 42, 50, 58, 66, 74]},
-    {"id": "visual_spatial", "name": "دیداری-فضایی", "questions_ids": [3, 11, 19, 27, 35, 43, 51, 59, 67, 75]},
-    {"id": "bodily_kinesthetic", "name": "بدنی-جنبشی", "questions_ids": [4, 12, 20, 28, 36, 44, 52, 60, 68, 76]},
-    {"id": "interpersonal", "name": "میان فردی", "questions_ids": [5, 13, 21, 29, 37, 45, 53, 61, 69, 77]},
-    {"id": "intrapersonal", "name": "درون فردی", "questions_ids": [6, 14, 22, 30, 38, 46, 54, 62, 70, 78]},
-    {"id": "musical", "name": "موسیقیایی", "questions_ids": [7, 15, 23, 31, 39, 47, 55, 63, 71, 79]},
-    {"id": "naturalist", "name": "طبیعت گرا", "questions_ids": [8, 16, 24, 32, 40, 48, 56, 64, 72, 80]}
+    {
+      "id": "linguistic_verbal",
+      "name": "زبانی-کلامی",
+      "questions_ids": [1, 9, 17, 25, 33, 41, 49, 57, 65, 73]
+    },
+    {
+      "id": "logical_mathematical",
+      "name": "منطقی-ریاضی",
+      "questions_ids": [2, 10, 18, 26, 34, 42, 50, 58, 66, 74]
+    },
+    {
+      "id": "visual_spatial",
+      "name": "دیداری-فضایی",
+      "questions_ids": [3, 11, 19, 27, 35, 43, 51, 59, 67, 75]
+    },
+    {
+      "id": "bodily_kinesthetic",
+      "name": "بدنی-جنبشی",
+      "questions_ids": [4, 12, 20, 28, 36, 44, 52, 60, 68, 76]
+    },
+    {
+      "id": "interpersonal",
+      "name": "میان فردی",
+      "questions_ids": [5, 13, 21, 29, 37, 45, 53, 61, 69, 77]
+    },
+    {
+      "id": "intrapersonal",
+      "name": "درون فردی",
+      "questions_ids": [6, 14, 22, 30, 38, 46, 54, 62, 70, 78]
+    },
+    {
+      "id": "musical",
+      "name": "موسیقیایی",
+      "questions_ids": [7, 15, 23, 31, 39, 47, 55, 63, 71, 79]
+    },
+    {
+      "id": "naturalist",
+      "name": "طبیعت گرا",
+      "questions_ids": [8, 16, 24, 32, 40, 48, 56, 64, 72, 80]
+    }
   ],
   "questions": [
-    {"id": 1, "text": "به کتاب و کتابخوانی علاقه ی فراوانی دارم.", "dimension_id": "linguistic_verbal", "is_reverse_scored": false},
-    {"id": 2, "text": "می توانم به سرعت و آسانی اعداد را در ذهنم حساب کنم.", "dimension_id": "logical_mathematical", "is_reverse_scored": false},
-    {"id": 3, "text": "وقتی چشمانم را می بندم می توانم تصاویر واضحی را ببینم.", "dimension_id": "visual_spatial", "is_reverse_scored": false},
-    {"id": 4, "text": "من به طور منظم حداقل در یک ورزش با فعالیت های بدنی شرکت دارم.", "dimension_id": "bodily_kinesthetic", "is_reverse_scored": false},
-    {"id": 5, "text": "افراد اغلب برای مشورت یا راهنمایی گرفتن نزد من می آیند.", "dimension_id": "interpersonal", "is_reverse_scored": false},
-    {"id": 6, "text": "من معمولا زمانی را در تنهایی صرف تفکر، مراقبه و اندیشیدن در مورد سوالات مهم زندگی می کنم.", "dimension_id": "intrapersonal", "is_reverse_scored": false},
-    {"id": 7, "text": "من از صدای دلنشینی برای خواندن برخوردارم.", "dimension_id": "musical", "is_reverse_scored": false},
-    {"id": 8, "text": "من همه ی انواع حیوانات را دوست دارم.", "dimension_id": "naturalist", "is_reverse_scored": false},
-    {"id": 9, "text": "قبل از نوشتن یا گفتن یا خواندن کلمات، آن ها را در ذهنم می شنوم.", "dimension_id": "linguistic_verbal", "is_reverse_scored": false},
-    {"id": 10, "text": "در مدرسه از درس هایی چون ریاضیات و علوم لذت می برم.", "dimension_id": "logical_mathematical", "is_reverse_scored": false},
-    {"id": 11, "text": "من نسبت به رنگ ها علاقمند و حساسم.", "dimension_id": "visual_spatial", "is_reverse_scored": false},
-    {"id": 12, "text": "خیلی مشکل است که برای مدت طولانی آرام در جایی بنشینم.", "dimension_id": "bodily_kinesthetic", "is_reverse_scored": false},
-    {"id": 13, "text": "ورزش های گروهی را بیشتر از ورزش های انفرادی ترجیح می دهم.", "dimension_id": "interpersonal", "is_reverse_scored": false},
-    {"id": 14, "text": "در جلساتی که با رشد و آگاهی های فردی افزوده می شود شرکت می کنم.", "dimension_id": "intrapersonal", "is_reverse_scored": false},
-    {"id": 15, "text": "آهنگ های ناموزون و سازمان های خارج از ریتم را تشخیص می دهم.", "dimension_id": "musical", "is_reverse_scored": false},
-    {"id": 16, "text": "دوست دارم چیزهایی را سازمان بندی یا مرتب کنم.", "dimension_id": "naturalist", "is_reverse_scored": false},
-    {"id": 17, "text": "گوش کردن به رادیو و نوار صوتی بیشتر از تلویزیون یا فیلم به من آموزش می دهد.", "dimension_id": "linguistic_verbal", "is_reverse_scored": false},
-    {"id": 18, "text": "از بازی های منطقی معماها و سایر بازی های فکری (از قبیل شطرنج) لذت می برم.", "dimension_id": "logical_mathematical", "is_reverse_scored": false},
-    {"id": 19, "text": "اغلب برای ضبط محیط اطرافم (در صورت امکان) از دوربین فیلمبرداری استفاده می کنم.", "dimension_id": "visual_spatial", "is_reverse_scored": false},
-    {"id": 20, "text": "به کارهایی که با دست انجام می شود مانند دوختن، بافتن، نجاری، مدل سازی، حکاکی علاقمندم.", "dimension_id": "bodily_kinesthetic", "is_reverse_scored": false},
-    {"id": 21, "text": "وقتی مشکل دارم ترجیح می دهم از کسی کمک بگیرم تا اینکه تنهایی روی آن کار کنم.", "dimension_id": "interpersonal", "is_reverse_scored": false},
-    {"id": 22, "text": "قادرم با شکست ها و مشکلاتم با حالتی انعطاف پذیر مواجه شوم.", "dimension_id": "intrapersonal", "is_reverse_scored": false},
-    {"id": 23, "text": "اغلب به موزیک هایی از رادیو یا ضبط صوت یا سی دی و غیره گوش می دهم.", "dimension_id": "musical", "is_reverse_scored": false},
-    {"id": 24, "text": "من از طبیعت لذت می برم.", "dimension_id": "naturalist", "is_reverse_scored": false},
-    {"id": 25, "text": "من از بازی با کلمات مانند جدول کلمات متقاطع، جملات درهم ریخته یا اسم رمز ها لذت می برم.", "dimension_id": "linguistic_verbal", "is_reverse_scored": false},
-    {"id": 26, "text": "دوست دارم آزمایش هایی (اگر... آنگاه) ترتیب دهم (مثلا اگر به گیاهانم دوبرابر کود دهم چه اتفاقی می افتد؟).", "dimension_id": "logical_mathematical", "is_reverse_scored": false},
-    {"id": 27, "text": "من از معماهای دیداری مانند پازل ها و تصاویر سه بعدی لذت می برم.", "dimension_id": "visual_spatial", "is_reverse_scored": false},
-    {"id": 28, "text": "بهترین افکار وقتی به سراغ من می آیند که مشغول یک فعالیت جسمی (از قبیل پیاده روی، دو، شنا و...) هستم.", "dimension_id": "bodily_kinesthetic", "is_reverse_scored": false},
-    {"id": 29, "text": "من حداقل سه دوست نزدیک دارم.", "dimension_id": "interpersonal", "is_reverse_scored": false},
-    {"id": 30, "text": "یک سرگرمی یا مشغولیت و فعالیت ویژه ای دارم که به تنهایی انجام می دهم.", "dimension_id": "intrapersonal", "is_reverse_scored": false},
-    {"id": 31, "text": "یکی از آلات موسیقی را می نوازم.", "dimension_id": "musical", "is_reverse_scored": false},
-    {"id": 32, "text": "من کلکسیونی از قبیل سنگ ها، صدف ها، برگ ها، حشرات، تمبر، کارت های ورزشی... را جمع می کنم.", "dimension_id": "naturalist", "is_reverse_scored": false},
-    {"id": 33, "text": "من اغراق های زبانی، ایهام، آهنگ های بی معنی و کلمات دو پهلو را دوست دارم.", "dimension_id": "linguistic_verbal", "is_reverse_scored": false},
-    {"id": 34, "text": "من در جستجوی الگوها، توالی یا نظم و سازمان چیزها هستم.", "dimension_id": "logical_mathematical", "is_reverse_scored": false},
-    {"id": 35, "text": "در خواب رویاهای روشنی می بینم.", "dimension_id": "visual_spatial", "is_reverse_scored": false},
-    {"id": 36, "text": "اغلب دوست دارم اوقات فراغت خود را بیرون خانه سپری کنم.", "dimension_id": "bodily_kinesthetic", "is_reverse_scored": false},
-    {"id": 37, "text": "من از سرگرمی های جمعی مانند منچ بیشتر از سرگرمی های فردی مانند بازی های رایانه ای خوشم می آید.", "dimension_id": "interpersonal", "is_reverse_scored": false},
-    {"id": 38, "text": "اهداف ویژه ای در زندگی دارم که مرتب به آن ها فکر کنم.", "dimension_id": "intrapersonal", "is_reverse_scored": false},
-    {"id": 39, "text": "زندگی من بدون موسیقی بسیار یکنواخت و بی هیجان خواهد بود.", "dimension_id": "musical", "is_reverse_scored": false},
-    {"id": 40, "text": "من مرتبا گزارش تغییرات هوایی را کنترل می کنم.", "dimension_id": "naturalist", "is_reverse_scored": false},
-    {"id": 41, "text": "دروس ادبیات و اجتماعی از ریاضی و علوم برایم آسان تر هستند.", "dimension_id": "linguistic_verbal", "is_reverse_scored": false},
-    {"id": 42, "text": "درباره چگونگی کارکرد چیزها علاقمندم و در مورد پیشرفت های علمی و کشفیات جدید علم خود را به روز نگه می دارم.", "dimension_id": "logical_mathematical", "is_reverse_scored": false},
-    {"id": 43, "text": "معمولا قادرم مسیر در یک محل نا آشنا پیدا کنم.", "dimension_id": "visual_spatial", "is_reverse_scored": false},
-    {"id": 44, "text": "هنگام صحبت تمایل دارم دست های خود را تکان دهم و از ژست ها مانند تغییر چهره استفاده کنم.", "dimension_id": "bodily_kinesthetic", "is_reverse_scored": false},
-    {"id": 45, "text": "از آموزش دادن دانسته هایم به دیگران لذت می برم.", "dimension_id": "interpersonal", "is_reverse_scored": false},
-    {"id": 46, "text": "من از طریق عکس العمل دیگران، دیدگاه واقع بینانه ای نسبت به نقاط قوت و ضعف خود دارم.", "dimension_id": "intrapersonal", "is_reverse_scored": false},
-    {"id": 47, "text": "اغلب در طی روز مدام یک آهنگ در ذهنم اجرا می شود.", "dimension_id": "musical", "is_reverse_scored": false},
-    {"id": 48, "text": "تفاوت های موجود میان انواع درختان، سنگ ها، پرندگان یا سایر گیاهان و جانوران را به خوبی بیان می کنم.", "dimension_id": "naturalist", "is_reverse_scored": false},
-    {"id": 49, "text": "وقتی در ماشین هستم دوست دارم علایم و تابلوهای تبلیغاتی را بخوانم و به آن ها بیشتر از مناظر اطراف توجه کنم.", "dimension_id": "linguistic_verbal", "is_reverse_scored": false},
-    {"id": 50, "text": "باور دارم تقریبا برای هر چیزی یک تفسیر منطقی وجود دارد.", "dimension_id": "logical_mathematical", "is_reverse_scored": false},
-    {"id": 51, "text": "من اغلب طراحی می کنم.", "dimension_id": "visual_spatial", "is_reverse_scored": false},
-    {"id": 52, "text": "من نیاز دارم چیزها را لمس کرده یا نگه دارم تا بتوانم بیشتر درباره آن ها یاد بگیرم.", "dimension_id": "bodily_kinesthetic", "is_reverse_scored": false},
-    {"id": 53, "text": "من رهبر نامیده می شوم و خودم را چنان تصور می کنم.", "dimension_id": "interpersonal", "is_reverse_scored": false},
-    {"id": 54, "text": "من ترجیح می دهم تعطیلات آخر هفته را در یک اتاق یا مکان خلوت سپری کنم تا اینکه در یک جای عمومی و شلوغ باشم.", "dimension_id": "intrapersonal", "is_reverse_scored": false},
-    {"id": 55, "text": "با استفاده از یک ابزار موسیقی ساده و یا نواهای مذهبی به راحتی می توانم اوقات فراغت خود را سپری کنم.", "dimension_id": "musical", "is_reverse_scored": false},
-    {"id": 56, "text": "من از ماهیگیری، باغبانی، کاشتن گیاهان و آشپزی لذت می برم.", "dimension_id": "naturalist", "is_reverse_scored": false},
-    {"id": 57, "text": "اغلب در مکالماتم به چیزهایی اشاره می کنم که قبلا خوانده یا شنیده ام.", "dimension_id": "linguistic_verbal", "is_reverse_scored": false},
-    {"id": 58, "text": "من می توانم به صورت واضح به مفاهیم غیر ملموس و خیالی فکر کنم.", "dimension_id": "logical_mathematical", "is_reverse_scored": false},
-    {"id": 59, "text": "جغرافیا از ریاضی برایم آسان تر است.", "dimension_id": "visual_spatial", "is_reverse_scored": false},
-    {"id": 60, "text": "من از بازی های پر هیجان (از قبیل پینت بال و رانندگی پر هیجان) لذت می برم.", "dimension_id": "bodily_kinesthetic", "is_reverse_scored": false},
-    {"id": 61, "text": "من در میان جمع احساس راحتی می کنم.", "dimension_id": "interpersonal", "is_reverse_scored": false},
-    {"id": 62, "text": "من با اراده و مستقل هستم.", "dimension_id": "intrapersonal", "is_reverse_scored": false},
-    {"id": 63, "text": "آهنگ های بسیاری از آوازها یا قطعات موسیقی را می دانم.", "dimension_id": "musical", "is_reverse_scored": false},
-    {"id": 64, "text": "از مشاهده رویدادهای طبیعی (مانند ستاره ها، ماه، جزر و مد) لذت برده و دوست دارم جزییات اطلاعات درباره آن ها را بدست آورم.", "dimension_id": "naturalist", "is_reverse_scored": false},
-    {"id": 65, "text": "اغلب افراد معنی کلمات را از من می پرسند.", "dimension_id": "linguistic_verbal", "is_reverse_scored": false},
-    {"id": 66, "text": "به کشف عیوب منطقی کارهایی که به مردم در خانه و محل کار خود انجام می دهند یا در مورد آن ها صحبت می کنند، علاقه دارم.", "dimension_id": "logical_mathematical", "is_reverse_scored": false},
-    {"id": 67, "text": "می توانم تصور کنم (از نگاه یک پرنده) اجسام از بالا چگونه به نظر می رسند.", "dimension_id": "visual_spatial", "is_reverse_scored": false},
-    {"id": 68, "text": "من از نظر جسمی و اندازه اندام های بدنی کاملا متناسبم.", "dimension_id": "bodily_kinesthetic", "is_reverse_scored": false},
-    {"id": 69, "text": "من در فعالیت های مدرسه، مسجد، همسایگان و فعالیت های اجتماعی درگیر می شوم.", "dimension_id": "interpersonal", "is_reverse_scored": false},
-    {"id": 70, "text": "من یک دفتر خاطرات روزانه دارم تا اتفاقات زندگی ام را یادداشت کنم.", "dimension_id": "intrapersonal", "is_reverse_scored": false},
-    {"id": 71, "text": "اگر یک قطعه موزیک را یک یا دوبار بشنوم می توانم به آسانی آن را تکرار کنم.", "dimension_id": "musical", "is_reverse_scored": false},
-    {"id": 72, "text": "دوست دارم کتاب ها یا محلاتی را بخوانم یا برنامه های تلویزیونی را ببینم که به طبیعت مربوط می شود.", "dimension_id": "naturalist", "is_reverse_scored": false},
-    {"id": 73, "text": "اخیرا چیزی نوشته ام که به آن افتخار می کنم.", "dimension_id": "linguistic_verbal", "is_reverse_scored": false},
-    {"id": 74, "text": "وقتی چیزی به روش خاصی اندازه گیری، طبقه بندی، تجزیه یا کمیت گذاری می شود احساس خوبی دارم.", "dimension_id": "logical_mathematical", "is_reverse_scored": false},
-    {"id": 75, "text": "من ترجیح می دهم کتاب، مجلات، روزنامه هایی را بخوانم که تصاویر زیادی دارد.", "dimension_id": "visual_spatial", "is_reverse_scored": false},
-    {"id": 76, "text": "برای یادگیری مهارت های جدید نیاز دارم تا تمرین انجام دهم، به جای اینکه درباره آن بخوانم یا فیلمی را تماشا کنم.", "dimension_id": "bodily_kinesthetic", "is_reverse_scored": false},
-    {"id": 77, "text": "من ترجیح می دهم شب تعطیل را در یک میهمانی تا تنها در خانه بمانم.", "dimension_id": "interpersonal", "is_reverse_scored": false},
-    {"id": 78, "text": "من ترجیح می دهم یک شغل مستقل داشته باشم تا برای دیگران کار کنم.", "dimension_id": "intrapersonal", "is_reverse_scored": false},
-    {"id": 79, "text": "اغلب هنگام کار کردن آواز می خوانم یا زمزمه می کنم یا ضربه می زنم.", "dimension_id": "musical", "is_reverse_scored": false},
-    {"id": 80, "text": "در تعطیلات خود ترجیح می دهم به مکان های طبیعی مانند پارک یا جنگل بروم تا به یک هتل مجلل و پر از رفت و آمد.", "dimension_id": "naturalist", "is_reverse_scored": false}
+    {
+      "id": 1,
+      "text": "به کتاب و کتابخوانی علاقه ی فراوانی دارم.",
+      "dimension_id": "linguistic_verbal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 2,
+      "text": "می توانم به سرعت و آسانی اعداد را در ذهنم حساب کنم.",
+      "dimension_id": "logical_mathematical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 3,
+      "text": "وقتی چشمانم را می بندم می توانم تصاویر واضحی را ببینم.",
+      "dimension_id": "visual_spatial",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 4,
+      "text": "من به طور منظم حداقل در یک ورزش با فعالیت های بدنی شرکت دارم.",
+      "dimension_id": "bodily_kinesthetic",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 5,
+      "text": "افراد اغلب برای مشورت یا راهنمایی گرفتن نزد من می آیند.",
+      "dimension_id": "interpersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 6,
+      "text": "من معمولا زمانی را در تنهایی صرف تفکر، مراقبه و اندیشیدن در مورد سوالات مهم زندگی می کنم.",
+      "dimension_id": "intrapersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 7,
+      "text": "من از صدای دلنشینی برای خواندن برخوردارم.",
+      "dimension_id": "musical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 8,
+      "text": "من همه ی انواع حیوانات را دوست دارم.",
+      "dimension_id": "naturalist",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 9,
+      "text": "قبل از نوشتن یا گفتن یا خواندن کلمات، آن ها را در ذهنم می شنوم.",
+      "dimension_id": "linguistic_verbal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 10,
+      "text": "در مدرسه از درس هایی چون ریاضیات و علوم لذت می برم.",
+      "dimension_id": "logical_mathematical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 11,
+      "text": "من نسبت به رنگ ها علاقمند و حساسم.",
+      "dimension_id": "visual_spatial",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 12,
+      "text": "خیلی مشکل است که برای مدت طولانی آرام در جایی بنشینم.",
+      "dimension_id": "bodily_kinesthetic",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 13,
+      "text": "ورزش های گروهی را بیشتر از ورزش های انفرادی ترجیح می دهم.",
+      "dimension_id": "interpersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 14,
+      "text": "در جلساتی که با رشد و آگاهی های فردی افزوده می شود شرکت می کنم.",
+      "dimension_id": "intrapersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 15,
+      "text": "آهنگ های ناموزون و سازمان های خارج از ریتم را تشخیص می دهم.",
+      "dimension_id": "musical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 16,
+      "text": "دوست دارم چیزهایی را سازمان بندی یا مرتب کنم.",
+      "dimension_id": "naturalist",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 17,
+      "text": "گوش کردن به رادیو و نوار صوتی بیشتر از تلویزیون یا فیلم به من آموزش می دهد.",
+      "dimension_id": "linguistic_verbal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 18,
+      "text": "از بازی های منطقی معماها و سایر بازی های فکری (از قبیل شطرنج) لذت می برم.",
+      "dimension_id": "logical_mathematical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 19,
+      "text": "اغلب برای ضبط محیط اطرافم (در صورت امکان) از دوربین فیلمبرداری استفاده می کنم.",
+      "dimension_id": "visual_spatial",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 20,
+      "text": "به کارهایی که با دست انجام می شود مانند دوختن، بافتن، نجاری، مدل سازی، حکاکی علاقمندم.",
+      "dimension_id": "bodily_kinesthetic",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 21,
+      "text": "وقتی مشکل دارم ترجیح می دهم از کسی کمک بگیرم تا اینکه تنهایی روی آن کار کنم.",
+      "dimension_id": "interpersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 22,
+      "text": "قادرم با شکست ها و مشکلاتم با حالتی انعطاف پذیر مواجه شوم.",
+      "dimension_id": "intrapersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 23,
+      "text": "اغلب به موزیک هایی از رادیو یا ضبط صوت یا سی دی و غیره گوش می دهم.",
+      "dimension_id": "musical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 24,
+      "text": "من از طبیعت لذت می برم.",
+      "dimension_id": "naturalist",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 25,
+      "text": "من از بازی با کلمات مانند جدول کلمات متقاطع، جملات درهم ریخته یا اسم رمز ها لذت می برم.",
+      "dimension_id": "linguistic_verbal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 26,
+      "text": "دوست دارم آزمایش هایی (اگر... آنگاه) ترتیب دهم (مثلا اگر به گیاهانم دوبرابر کود دهم چه اتفاقی می افتد؟).",
+      "dimension_id": "logical_mathematical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 27,
+      "text": "من از معماهای دیداری مانند پازل ها و تصاویر سه بعدی لذت می برم.",
+      "dimension_id": "visual_spatial",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 28,
+      "text": "بهترین افکار وقتی به سراغ من می آیند که مشغول یک فعالیت جسمی (از قبیل پیاده روی، دو، شنا و...) هستم.",
+      "dimension_id": "bodily_kinesthetic",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 29,
+      "text": "من حداقل سه دوست نزدیک دارم.",
+      "dimension_id": "interpersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 30,
+      "text": "یک سرگرمی یا مشغولیت و فعالیت ویژه ای دارم که به تنهایی انجام می دهم.",
+      "dimension_id": "intrapersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 31,
+      "text": "یکی از آلات موسیقی را می نوازم.",
+      "dimension_id": "musical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 32,
+      "text": "من کلکسیونی از قبیل سنگ ها، صدف ها، برگ ها، حشرات، تمبر، کارت های ورزشی... را جمع می کنم.",
+      "dimension_id": "naturalist",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 33,
+      "text": "من اغراق های زبانی، ایهام، آهنگ های بی معنی و کلمات دو پهلو را دوست دارم.",
+      "dimension_id": "linguistic_verbal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 34,
+      "text": "من در جستجوی الگوها، توالی یا نظم و سازمان چیزها هستم.",
+      "dimension_id": "logical_mathematical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 35,
+      "text": "در خواب رویاهای روشنی می بینم.",
+      "dimension_id": "visual_spatial",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 36,
+      "text": "اغلب دوست دارم اوقات فراغت خود را بیرون خانه سپری کنم.",
+      "dimension_id": "bodily_kinesthetic",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 37,
+      "text": "من از سرگرمی های جمعی مانند منچ بیشتر از سرگرمی های فردی مانند بازی های رایانه ای خوشم می آید.",
+      "dimension_id": "interpersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 38,
+      "text": "اهداف ویژه ای در زندگی دارم که مرتب به آن ها فکر کنم.",
+      "dimension_id": "intrapersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 39,
+      "text": "زندگی من بدون موسیقی بسیار یکنواخت و بی هیجان خواهد بود.",
+      "dimension_id": "musical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 40,
+      "text": "من مرتبا گزارش تغییرات هوایی را کنترل می کنم.",
+      "dimension_id": "naturalist",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 41,
+      "text": "دروس ادبیات و اجتماعی از ریاضی و علوم برایم آسان تر هستند.",
+      "dimension_id": "linguistic_verbal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 42,
+      "text": "درباره چگونگی کارکرد چیزها علاقمندم و در مورد پیشرفت های علمی و کشفیات جدید علم خود را به روز نگه می دارم.",
+      "dimension_id": "logical_mathematical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 43,
+      "text": "معمولا قادرم مسیر در یک محل نا آشنا پیدا کنم.",
+      "dimension_id": "visual_spatial",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 44,
+      "text": "هنگام صحبت تمایل دارم دست های خود را تکان دهم و از ژست ها مانند تغییر چهره استفاده کنم.",
+      "dimension_id": "bodily_kinesthetic",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 45,
+      "text": "از آموزش دادن دانسته هایم به دیگران لذت می برم.",
+      "dimension_id": "interpersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 46,
+      "text": "من از طریق عکس العمل دیگران، دیدگاه واقع بینانه ای نسبت به نقاط قوت و ضعف خود دارم.",
+      "dimension_id": "intrapersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 47,
+      "text": "اغلب در طی روز مدام یک آهنگ در ذهنم اجرا می شود.",
+      "dimension_id": "musical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 48,
+      "text": "تفاوت های موجود میان انواع درختان، سنگ ها، پرندگان یا سایر گیاهان و جانوران را به خوبی بیان می کنم.",
+      "dimension_id": "naturalist",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 49,
+      "text": "وقتی در ماشین هستم دوست دارم علایم و تابلوهای تبلیغاتی را بخوانم و به آن ها بیشتر از مناظر اطراف توجه کنم.",
+      "dimension_id": "linguistic_verbal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 50,
+      "text": "باور دارم تقریبا برای هر چیزی یک تفسیر منطقی وجود دارد.",
+      "dimension_id": "logical_mathematical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 51,
+      "text": "من اغلب طراحی می کنم.",
+      "dimension_id": "visual_spatial",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 52,
+      "text": "من نیاز دارم چیزها را لمس کرده یا نگه دارم تا بتوانم بیشتر درباره آن ها یاد بگیرم.",
+      "dimension_id": "bodily_kinesthetic",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 53,
+      "text": "من رهبر نامیده می شوم و خودم را چنان تصور می کنم.",
+      "dimension_id": "interpersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 54,
+      "text": "من ترجیح می دهم تعطیلات آخر هفته را در یک اتاق یا مکان خلوت سپری کنم تا اینکه در یک جای عمومی و شلوغ باشم.",
+      "dimension_id": "intrapersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 55,
+      "text": "با استفاده از یک ابزار موسیقی ساده و یا نواهای مذهبی به راحتی می توانم اوقات فراغت خود را سپری کنم.",
+      "dimension_id": "musical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 56,
+      "text": "من از ماهیگیری، باغبانی، کاشتن گیاهان و آشپزی لذت می برم.",
+      "dimension_id": "naturalist",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 57,
+      "text": "اغلب در مکالماتم به چیزهایی اشاره می کنم که قبلا خوانده یا شنیده ام.",
+      "dimension_id": "linguistic_verbal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 58,
+      "text": "من می توانم به صورت واضح به مفاهیم غیر ملموس و خیالی فکر کنم.",
+      "dimension_id": "logical_mathematical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 59,
+      "text": "جغرافیا از ریاضی برایم آسان تر است.",
+      "dimension_id": "visual_spatial",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 60,
+      "text": "من از بازی های پر هیجان (از قبیل پینت بال و رانندگی پر هیجان) لذت می برم.",
+      "dimension_id": "bodily_kinesthetic",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 61,
+      "text": "من در میان جمع احساس راحتی می کنم.",
+      "dimension_id": "interpersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 62,
+      "text": "من با اراده و مستقل هستم.",
+      "dimension_id": "intrapersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 63,
+      "text": "آهنگ های بسیاری از آوازها یا قطعات موسیقی را می دانم.",
+      "dimension_id": "musical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 64,
+      "text": "از مشاهده رویدادهای طبیعی (مانند ستاره ها، ماه، جزر و مد) لذت برده و دوست دارم جزییات اطلاعات درباره آن ها را بدست آورم.",
+      "dimension_id": "naturalist",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 65,
+      "text": "اغلب افراد معنی کلمات را از من می پرسند.",
+      "dimension_id": "linguistic_verbal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 66,
+      "text": "به کشف عیوب منطقی کارهایی که به مردم در خانه و محل کار خود انجام می دهند یا در مورد آن ها صحبت می کنند، علاقه دارم.",
+      "dimension_id": "logical_mathematical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 67,
+      "text": "می توانم تصور کنم (از نگاه یک پرنده) اجسام از بالا چگونه به نظر می رسند.",
+      "dimension_id": "visual_spatial",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 68,
+      "text": "من از نظر جسمی و اندازه اندام های بدنی کاملا متناسبم.",
+      "dimension_id": "bodily_kinesthetic",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 69,
+      "text": "من در فعالیت های مدرسه، مسجد، همسایگان و فعالیت های اجتماعی درگیر می شوم.",
+      "dimension_id": "interpersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 70,
+      "text": "من یک دفتر خاطرات روزانه دارم تا اتفاقات زندگی ام را یادداشت کنم.",
+      "dimension_id": "intrapersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 71,
+      "text": "اگر یک قطعه موزیک را یک یا دوبار بشنوم می توانم به آسانی آن را تکرار کنم.",
+      "dimension_id": "musical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 72,
+      "text": "دوست دارم کتاب ها یا محلاتی را بخوانم یا برنامه های تلویزیونی را ببینم که به طبیعت مربوط می شود.",
+      "dimension_id": "naturalist",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 73,
+      "text": "اخیرا چیزی نوشته ام که به آن افتخار می کنم.",
+      "dimension_id": "linguistic_verbal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 74,
+      "text": "وقتی چیزی به روش خاصی اندازه گیری، طبقه بندی، تجزیه یا کمیت گذاری می شود احساس خوبی دارم.",
+      "dimension_id": "logical_mathematical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 75,
+      "text": "من ترجیح می دهم کتاب، مجلات، روزنامه هایی را بخوانم که تصاویر زیادی دارد.",
+      "dimension_id": "visual_spatial",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 76,
+      "text": "برای یادگیری مهارت های جدید نیاز دارم تا تمرین انجام دهم، به جای اینکه درباره آن بخوانم یا فیلمی را تماشا کنم.",
+      "dimension_id": "bodily_kinesthetic",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 77,
+      "text": "من ترجیح می دهم شب تعطیل را در یک میهمانی تا تنها در خانه بمانم.",
+      "dimension_id": "interpersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 78,
+      "text": "من ترجیح می دهم یک شغل مستقل داشته باشم تا برای دیگران کار کنم.",
+      "dimension_id": "intrapersonal",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 79,
+      "text": "اغلب هنگام کار کردن آواز می خوانم یا زمزمه می کنم یا ضربه می زنم.",
+      "dimension_id": "musical",
+      "is_reverse_scored": false
+    },
+    {
+      "id": 80,
+      "text": "در تعطیلات خود ترجیح می دهم به مکان های طبیعی مانند پارک یا جنگل بروم تا به یک هتل مجلل و پر از رفت و آمد.",
+      "dimension_id": "naturalist",
+      "is_reverse_scored": false
+    }
   ],
   "scoring": {
-    "method": "جمع نمرات برای هر بعد",
-    "instructions": "نمرات هر گویه را بر اساس مقیاس لیکرت (۱ تا ۵) جمع کنید. نمرات هر بعد را که شامل ۱۰ گویه است، جمع بزنید. نمره هر بعد می‌تواند بین ۱۰ (حداقل) تا ۵۰ (حداکثر) باشد.",
-    "thresholds": [
-      {"range": "0 تا 12", "interpretation": "هوش چندگانه فرد ضعیف است."},
-      {"range": "12 تا 24", "interpretation": "هوش چندگانه فرد متوسط است."},
-      {"range": "بالاتر از 24", "interpretation": "هوش چندگانه فرد بالا است."}
+    "method": "امتیازات خود را از 80 عبارت فوق با یکدیگر جمع نمایید[cite: 20]. حداقل امتیاز ممکن 80 و حداکثر 400 خواهد بود.",
+    "example_calculation": "حد پایین نمرات پرسشنامه به طریق زیر بدست آمده است: تعداد سوالات پرسشنامه * 1 = حد پایین نمره.",
+    "total_score_thresholds": [
+      {
+        "range": "80 تا 160",
+        "interpretation": "هوش چندگانه فرد ضعیف است."
+      },
+      {
+        "range": "160 تا 240",
+        "interpretation": "هوش چندگانه فرد متوسط است."
+      },
+      {
+        "range": "بالاتر از 240",
+        "interpretation": "هوش چندگانه فرد بالا است."
+      }
     ],
-    "notes": "این نمرات مربوط به هر یک از ابعاد هوش چندگانه به صورت جداگانه است."
+    "notes": "بر اساس این روش از تحلیل شما نمره های به دست آمده را جمع کرده و سپس بر اساس جدول بالا قضاوت کنید."
   },
   "interpretation": {
     "overall_interpretation": "نمره هر فرد در هر یک از ابعاد هوش چندگانه، میزان قوت او را در آن حوزه نشان می‌دهد. بالاترین نمره‌ها نشان‌دهنده نقاط قوت و پایین‌ترین نمره‌ها نشان‌دهنده نقاط ضعف در انواع هوش گاردنر است."
@@ -141,11 +584,41 @@
     }
   },
   "references": [
-    {"author": "سرمد، زهره؛ حجازی، الهه و بازرگان، عباس", "year": "۱۳۹۰", "title": "روش تحقیق در علوم رفتاری", "source": "ناشر ذکر نشده"},
-    {"author": "آدرفر", "year": "۱۳۸۶", "title": "کتاب سنجش و کاربرد هوش‌های چندگانه در خانه و مدرسه", "source": "ناشر ذکر نشده"},
-    {"author": "شریفی، حسن پاشا", "year": "۱۳۸۴", "title": "مطالعه مقدماتی نظریه هوش چندگانه گاردنر در زمینه موضوع‌های درسی و سازگاری دانش آموزان", "source": "ناشر ذکر نشده"},
-    {"author": "مارنات، گری – گراث", "year": "۱۳۸۴", "title": "راهنمای سنجش روانی (جلد اول)", "source": "تهران: انتشارات سخن"},
-    {"author": "Gardner, Howard", "year": "2004", "title": "Frames of mind: The Theory of Multiple Intelligence", "source": "Newyork: Basic books"},
-    {"author": "Gardner, H. & Hatch, H.", "year": "1989", "title": "Multiple Intelligence go to Schools: Educational Implications of Theory of Multiple Intelligence", "source": "Educational Researcher, 18 (8), 4-9"}
+    {
+      "author": "سرمد، زهره؛ حجازی، الهه و بازرگان، عباس",
+      "year": "۱۳۹۰",
+      "title": "روش تحقیق در علوم رفتاری",
+      "source": "ناشر ذکر نشده"
+    },
+    {
+      "author": "آدرفر",
+      "year": "۱۳۸۶",
+      "title": "کتاب سنجش و کاربرد هوش‌های چندگانه در خانه و مدرسه",
+      "source": "ناشر ذکر نشده"
+    },
+    {
+      "author": "شریفی، حسن پاشا",
+      "year": "۱۳۸۴",
+      "title": "مطالعه مقدماتی نظریه هوش چندگانه گاردنر در زمینه موضوع‌های درسی و سازگاری دانش آموزان",
+      "source": "ناشر ذکر نشده"
+    },
+    {
+      "author": "مارنات، گری – گراث",
+      "year": "۱۳۸۴",
+      "title": "راهنمای سنجش روانی (جلد اول)",
+      "source": "تهران: انتشارات سخن"
+    },
+    {
+      "author": "Gardner, Howard",
+      "year": "2004",
+      "title": "Frames of mind: The Theory of Multiple Intelligence",
+      "source": "Newyork: Basic books"
+    },
+    {
+      "author": "Gardner, H. & Hatch, H.",
+      "year": "1989",
+      "title": "Multiple Intelligence go to Schools: Educational Implications of Theory of Multiple Intelligence",
+      "source": "Educational Researcher, 18 (8), 4-9"
+    }
   ]
 }

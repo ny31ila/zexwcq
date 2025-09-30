@@ -10,25 +10,25 @@
     "type": "انتخاب از میان گزینه‌ها (بیشترین و کمترین شباهت)",
     "instructions": "در هر گروه از چهار جمله توصیفی، یکی را که 'بیشتر از همه شبیه شما' است و یکی را که 'کمتر از همه شبیه شما' است علامت بزنید."
   },
-  "dimensions": [
+  "main_dimensions": [
     {
       "id": "D",
-      "name": "تسلط‌گرا (Dominance)",
+      "name": "تسلط‌گرایی (Dominance)",
       "characteristics": "قاطع، صریح، نیرومند، با اراده، مدیر، پیشگام، سریع و با اعتماد به نفس."
     },
     {
       "id": "I",
-      "name": "تأثیرگذار (Influence)",
+      "name": "تأثیرگذاری (Influence)",
       "characteristics": "پیشگام، متقاعدکننده، پرشور، خوش‌بین، خونگرم و قابل اعتماد."
     },
     {
       "id": "S",
-      "name": "باثبات (Steadiness)",
+      "name": "ثبات (Steadiness)",
       "characteristics": "آرام، صبور، سازگار، حمایت‌کننده و مدیرهایی فروتن."
     },
     {
       "id": "C",
-      "name": "وظیفه‌شناس (Conscientiousness)",
+      "name": "وظیفه‌شناسی (Conscientiousness)",
       "characteristics": "مستقل، تحلیل‌گر، دقیق، محافظه‌کار، ساختارگرا، سیاست‌مدار و بادرایت."
     }
   ],
@@ -539,61 +539,56 @@
     }
   ],
   "scoring": {
-    "method": "Calculates three distinct behavioral profiles based on user selections.",
+    "method": "Calculates three distinct behavioral profiles based on user responses.",
     "profiles": [
       {
         "id": "adaptive",
-        "name": "پروفایل تطبیقی (خود عمومی)",
+        "name": "پروفایل تطبیقی (خود عمومی)(نقاب)",
         "calculation": "Count the total number of times each dimension (D, I, S, C) is selected as 'Most Like Me'.",
         "interpretation": "Represents the individual's behavior and attitudes in social or professional environments where there are external expectations."
       },
       {
         "id": "natural",
-        "name": "پروفایل طبیعی (خود غریزی)",
+        "name": "پروفایل طبیعی (خود غریزی)(ذات)",
         "calculation": "Count the total number of times each dimension (D, I, S, C) is selected as 'Least Like Me'.",
         "interpretation": "Reflects the individual's instinctive behavior, especially under pressure. Tends to be the most stable profile over time."
       },
       {
         "id": "perceived",
-        "name": "خود ادراک‌شده (آیینه)",
+        "name": "خود ادراک‌شده (آیینه)(برآیند نقاب و ذات)",
         "calculation": "For each dimension, calculate the difference between the 'Most Like Me' score and the 'Least Like Me' score.",
         "interpretation": "A composite profile. Significant differences between the Adaptive and Natural profiles can indicate stress or the need to constantly adapt one's natural behavior."
       }
     ],
-    "final_style_determination": "The final behavioral style (e.g., DC, iS) is determined by the dominant dimension(s) as visualized on the DISC circle diagram, based on the calculated scores."
+    "final_style_determination": "The final behavioral style (e.g., DC, iS) is determined by the dominant dimension(s) as visualized on the DISC circle diagram (the 12 detailed interpretations coming in the following), based on the calculated scores."
   },
   "interpretation": {
     "overall_interpretation": "نتایج DISC چهار بعد رفتاری اصلی (D, I, S, C) را نشان می‌دهد که هر فرد درصدی از هر کدام را دارد و یک یا دو بعد در او غالب است. این ابعاد متمرکز بر هدف (D, C) یا متمرکز بر افراد (I, S) و برون‌گرا (D, I) یا درون‌گرا (S, C) هستند.",
     "detailed_interpretations": [
       {
         "id": "D",
-        "name": "تسلط‌گرا (Dominance)",
+        "name": "تسلط‌گرا (Dominant) یا برتری‌طلب (پیروز)",
         "description": "غلبه بر چالش‌ها، تمرکز بر نتیجه، قاطع و صریح، اعتماد به نفس بالا. نیاز به یادگیری صبر و توجه به جزئیات."
       },
       {
-        "id": "I",
-        "name": "تأثیرگذار (Influence)",
-        "description": "پیشگام، متقاعدکننده، پرشور، خوش‌بین، تمایل به گروه. نیاز به تقویت توانایی تحقیق و پیگیری."
+        "id": "i",
+        "name": "تأثیرگذار (Influent, Enthusiast) یا متقاعدکننده (مشتاق)",
+        "description": "پیشگام، متقاعدکننده، پرشور، خوش‌بین، خلاق، پویا، تمایل به بودن با گروه. نیاز به تقویت توانایی تحقیق و پیگیری و همچنین کنترل شور و هیجان."
       },
       {
         "id": "S",
-        "name": "باثبات (Steadiness)",
+        "name": "باثبات (Steady, Peacemaker) یا حامی (صلح‌بان)",
         "description": "آرام، صبور، سازگار، حمایت‌کننده. تمایل به حفظ وضعیت موجود. نیاز به انطباق با تغییرات و چندکارگی."
       },
       {
         "id": "C",
-        "name": "وظیفه‌شناس (Conscientiousness)",
-        "description": "کار با کیفیت و دقت بالا، مستقل، تحلیل‌گر، محافظه‌کار. نیاز به قدرت سازش و تصمیم‌گیری سریع."
+        "name": "وظیفه‌شناس (Conscientious) یا تحلیل‌گر",
+        "description": "کار با کیفیت و دقت بالا، مستقل، محافظه‌کار. نیاز به قدرت سازش و تصمیم‌گیری سریع."
       },
       {
         "id": "DC",
         "name": "چالش‌گر (Challenger)",
-        "description": "ترکیبی از تسلط و وظیفه‌شناسی. تمایل به نتیجه‌گرایی و دقت بالا، خلاق و پرشور، نیاز به توجه بیشتر به روابط."
-      },
-      {
-        "id": "D_Winner",
-        "name": "پیروز (Winner)",
-        "description": "بعد تسلط‌گرایی بسیار غالب. قاطع، ریسک‌پذیر، تمرکز بر نتیجه. نیاز به توجه بیشتر به روابط و جزئیات."
+        "description": "ترکیبی از تسلط و وظیفه‌شناسی. تمایل به نتیجه‌گرایی و دقت بالا، خلاق و پرشور، نیاز به توجه بیشتر به روابط. "
       },
       {
         "id": "Di",
@@ -606,11 +601,6 @@
         "description": "ترکیب تأثیرگذار و تسلط‌گرا. معتقد به ریسک کردن، با اعتماد به نفس و حمایت‌گر. نیاز به مدیریت ناامیدی."
       },
       {
-        "id": "i",
-        "name": "مشتاق (Enthusiast)",
-        "description": "تمایل به صحبت و شنیدن، خلاق و پویا. نیاز به کنترل شور و هیجان."
-      },
-      {
         "id": "iS",
         "name": "رفیق (Buddy)",
         "description": "ترکیب تأثیرگذار و باثبات. صلح‌جو، بخشنده، با اعتماد به نفس. نیاز به قاطعیت و عدم سلطه‌پذیری."
@@ -621,11 +611,6 @@
         "description": "ترکیب باثبات و تأثیرگذار. مهارت در تیم‌سازی، محبوب. نیاز به حفظ تمرکز."
       },
       {
-        "id": "S_Peacekeeper",
-        "name": "صلح‌بان (Peacekeeper)",
-        "description": "باثبات‌ترین بعد. حفظ ثبات در شرایط سخت، شنونده عالی. نیاز به غلبه بر احتیاط بیش از حد."
-      },
-      {
         "id": "SC",
         "name": "کاردان (Technician)",
         "description": "ترکیب باثبات و وظیفه‌شناس. قابل اعتماد و توانا، نیاز به محیط آرام. ممکن است گوشه‌گیر."
@@ -634,11 +619,6 @@
         "id": "CS",
         "name": "پایه (Bedrock)",
         "description": "ترکیب وظیفه‌شناس و باثبات. باثبات و متواضع، تمرکز بر پیش‌بینی اتفاقات. نیاز به دایره ارتباطی گسترده."
-      },
-      {
-        "id": "C",
-        "name": "تحلیل‌گر (Analyst)",
-        "description": "وظیفه‌شناس‌ترین بعد. انگیزه بر درستی کارها، تحلیل‌گر، دقیق. نیاز به تعاملات اجتماعی بیشتر."
       },
       {
         "id": "CD",

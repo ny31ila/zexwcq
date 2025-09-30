@@ -222,7 +222,7 @@ def _calculate_gardner_scores(user_responses):
     # --- 3. Interpret Scores ---
     interpretations = {}
     for dim_id, score in scores.items():
-        if score <= 20: # Adjusted based on 10 questions per dimension (10-50 range)
+        if score <= 20:
             interpretations[dim_id] = "ضعیف"
         elif score <= 35:
             interpretations[dim_id] = "متوسط"
@@ -292,99 +292,76 @@ def _calculate_gardner_scores(user_responses):
 
 def _calculate_disc_scores(responses):
     """
-    Calculate DISC scores from responses and provide a comprehensive analysis.
-    This function is self-contained and consolidates all DISC-related logic.
+    Calculate DISC scores from responses, providing detailed behavioral patterns
+    and a simplified stress analysis, structured for frontend consumption.
     """
 
-    # --- Nested Helper Function: Generate Stress Recommendations ---
-    def _generate_stress_recommendations(stress_level, significant_differences):
-        recommendations = []
-        if stress_level == "کم":
-            recommendations.append("رفتار شما در اکثر موقعیت‌ها طبیعی و مؤثر است.")
-        elif stress_level == "متوسط":
-            recommendations.append("توجه به تعادل بین نیازهای شخصی و انتظارات محیطی.")
-            for diff in significant_differences:
-                dim = diff["dimension"]
-                if dim == "D": recommendations.append("توجه به تعادل بین رهبری و همکاری.")
-                elif dim == "I": recommendations.append("مدیریت انرژی اجتماعی و زمان‌های تنهایی.")
-                elif dim == "S": recommendations.append("یافتن تعادل بین ثبات و انطباق با تغییرات.")
-                elif dim == "C": recommendations.append("تعادل بین کمال‌گرایی و عملکرد مؤثر.")
-        else:  # بالا
-            recommendations.append("بررسی محیط کاری و شناسایی منابع فشار.")
-            recommendations.append("مشاوره با متخصص برای مدیریت استرس.")
-        return recommendations
-
-    # --- Nested Helper Function: Analyze Profile Differences for Stress ---
-    def _analyze_profile_differences(adaptive_scores, natural_scores):
-        differences = {dim: abs(adaptive_scores[dim] - natural_scores[dim]) for dim in adaptive_scores}
-        total_difference = sum(differences.values())
-        significant_differences = [
-            {"dimension": dim, "difference": diff, "adaptive_score": adaptive_scores[dim], "natural_score": natural_scores[dim]}
-            for dim, diff in differences.items() if diff >= 3
-        ]
-
-        if total_difference <= 8:
-            stress_level = "کم"
-        elif total_difference <= 16:
-            stress_level = "متوسط"
-        else:
-            stress_level = "بالا"
-
-        return {
-            "total_difference": total_difference,
-            "dimension_differences": differences,
-            "significant_differences": significant_differences,
-            "stress_level": stress_level,
-            "recommendations": _generate_stress_recommendations(stress_level, significant_differences)
-        }
-
-    # --- Nested Helper Function: Determine Profile Type ---
-    def _determine_profile_type(scores, dominant_types, profile_type):
-        sorted_dims = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-        primary = sorted_dims[0][0]
-        secondary = sorted_dims[1][0] if len(sorted_dims) > 1 else None
-
+    # --- Nested Helper: Determine Detailed Behavioral Pattern ---
+    def _get_detailed_behavioral_pattern(scores):
+        # Based on the user-provided JSON structure
         profile_mappings = {
-            "D": {"name": "پیروز (Winner)", "description": "قاطع، ریسک‌پذیر، تمرکز بر نتیجه"},
-            "I": {"name": "مشتاق (Enthusiast)", "description": "تمایل به صحبت و شنیدن، خلاق و پویا"},
-            "S": {"name": "صلح‌بان (Peacekeeper)", "description": "حفظ ثبات در شرایط سخت، شنونده عالی"},
-            "C": {"name": "تحلیل‌گر (Analyst)", "description": "انگیزه بر درستی کارها، تحلیل‌گر، دقیق"},
-            "DC": {"name": "چالش‌گر (Challenger)", "description": "تمایل به نتیجه‌گرایی و دقت بالا، خلاق و پرشور"},
-            "Di": {"name": "جستجوگر (Seeker)", "description": "پرهیجان، علاقه‌مند به شکستن مرزها"},
-            "iD": {"name": "ریسک‌پذیر (Risk Taker)", "description": "معتقد به ریسک کردن، با اعتماد به نفس و حمایت‌گر"},
-            "iS": {"name": "رفیق (Buddy)", "description": "صلح‌جو، بخشنده، با اعتماد به نفس"},
-            "Si": {"name": "همکار (Collaborator)", "description": "مهارت در تیم‌سازی، محبوب"},
-            "SC": {"name": "کاردان (Technician)", "description": "قابل اعتماد و توانا، نیاز به محیط آرام"},
-            "CS": {"name": "پایه (Bedrock)", "description": "باثبات و متواضع، تمرکز بر پیش‌بینی اتفاقات"},
-            "CD": {"name": "کمال‌گرا (Perfectionist)", "description": "تمایل به بهترین بودن، ذهنیتی روشن و تحلیلی"}
+            "D": {"name": "تسلط‌گرا (Dominant) یا برتری‌طلب (پیروز)", "description": "غلبه بر چالش‌ها، تمرکز بر نتیجه، قاطع و صریح، اعتماد به نفس بالا. نیاز به یادگیری صبر و توجه به جزئیات."},
+            "I": {"name": "تأثیرگذار (Influent, Enthusiast) یا متقاعدکننده (مشتاق)", "description": "پیشگام، متقاعدکننده، پرشور، خوش‌بین، خلاق، پویا، تمایل به بودن با گروه. نیاز به تقویت توانایی تحقیق و پیگیری و همچنین کنترل شور و هیجان."},
+            "S": {"name": "باثبات (Steady, Peacemaker) یا حامی (صلح‌بان)", "description": "آرام، صبور، سازگار، حمایت‌کننده. تمایل به حفظ وضعیت موجود. نیاز به انطباق با تغییرات و چندکارگی."},
+            "C": {"name": "وظیفه‌شناس (Conscientious) یا تحلیل‌گر", "description": "کار با کیفیت و دقت بالا، مستقل، محافظه‌کار. نیاز به قدرت سازش و تصمیم‌گیری سریع."},
+            "DC": {"name": "چالش‌گر (Challenger)", "description": "ترکیبی از تسلط و وظیفه‌شناسی. تمایل به نتیجه‌گرایی و دقت بالا، خلاق و پرشور، نیاز به توجه بیشتر به روابط."},
+            "DI": {"name": "جستجوگر (Seeker)", "description": "ترکیب تسلط‌گرا و تأثیرگذار، پرهیجان، علاقه‌مند به شکستن مرزها. نیاز به کنترل بیشتر."},
+            "ID": {"name": "ریسک‌پذیر (Risk Taker)", "description": "ترکیب تأثیرگذار و تسلط‌گرا. معتقد به ریسک کردن، با اعتماد به نفس و حمایت‌گر. نیاز به مدیریت ناامیدی."},
+            "IS": {"name": "رفیق (Buddy)", "description": "ترکیب تأثیرگذار و باثبات. صلح‌جو، بخشنده، با اعتماد به نفس. نیاز به قاطعیت و عدم سلطه‌پذیری."},
+            "SI": {"name": "همکار (Collaborator)", "description": "ترکیب باثبات و تأثیرگذار. مهارت در تیم‌سازی، محبوب. نیاز به حفظ تمرکز."},
+            "SC": {"name": "کاردان (Technician)", "description": "ترکیب باثبات و وظیفه‌شناس. قابل اعتماد و توانا، نیاز به محیط آرام. ممکن است گوشه‌گیر."},
+            "CS": {"name": "پایه (Bedrock)", "description": "ترکیب وظیفه‌شناس و باثبات. باثبات و متواضع، تمرکز بر پیش‌بینی اتفاقات. نیاز به دایره ارتباطی گسترده."},
+            "CD": {"name": "کمال‌گرا (Perfectionist)", "description": "ترکیب وظیفه‌شناس و تسلط‌گرا. تمایل به بهترین بودن، ذهنیتی روشن و تحلیلی. نیاز به همدلی."}
         }
+        # Note: The user's JSON used 'i' in some keys. Standard practice is to use uppercase for consistency.
+        # The logic will sort keys (e.g., 'DI' not 'ID') to match a single mapping.
 
-        profile_key = primary
-        # Check for combination profiles
-        if len(dominant_types) > 1 and secondary and abs(scores[primary] - scores[secondary]) <= 2:
-            combo_key = "".join(sorted([primary, secondary]))
-            profile_key = combo_key if combo_key in profile_mappings else primary
+        sorted_dims = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        primary_dim, primary_score = sorted_dims[0]
+        secondary_dim, secondary_score = sorted_dims[1]
 
-        profile_info = profile_mappings.get(profile_key, {"name": f"غالب {primary}", "description": "پروفایل ترکیبی"})
+        # Determine if it's a combination profile (score difference <= 2)
+        if primary_score - secondary_score <= 2:
+            # Create a sorted key (e.g., "CD" not "DC") to match mappings
+            profile_key = "".join(sorted([primary_dim, secondary_dim]))
+        else:
+            profile_key = primary_dim
+
+        # Fallback to primary dimension if specific combo not found
+        pattern = profile_mappings.get(profile_key, profile_mappings.get(primary_dim))
+        return {"id": profile_key, "name": pattern["name"], "description": pattern["description"]}
+
+    # --- Nested Helper: Simplified Stress Analysis ---
+    def _analyze_stress_levels(adaptive_scores, natural_scores):
+        # Using a threshold of 10 for "زیاد" as discussed.
+        STRESS_THRESHOLD = 10
+        total_difference = sum(abs(adaptive_scores[dim] - natural_scores[dim]) for dim in adaptive_scores)
+
+        if total_difference > STRESS_THRESHOLD:
+            stress_level = "زیاد"
+            interpretation = "فرد در تلاش مداوم برای انطباق رفتار ذاتی خود با دنیای بیرون (مانند محیط کار) است. این موضوع می‌تواند منجر به استرس زیادی در زندگی شده و روشی نامناسب برای همکاری با دیگران و زندگی کردن باشد."
+        else:
+            stress_level = "کم"
+            interpretation = "سطح انطباق‌پذیری فرد با محیط در حد طبیعی است و نشان‌دهنده عدم وجود فشار یا استرس قابل توجهی برای تغییر رفتار ذاتی است."
+
         return {
-            "type": profile_key, "name": profile_info["name"], "description": profile_info["description"],
-            "primary_dimension": primary, "secondary_dimension": secondary, "profile_context": profile_type
+            "level": stress_level,
+            "score": total_difference,
+            "interpretation": interpretation
         }
 
     # --- Main Function Logic ---
     EXPECTED_QUESTIONS = 24
-    if not isinstance(responses, dict):
-        return {"success": False, "error": "INVALID_FORMAT", "message": "Responses must be a dictionary."}
-    if len(responses) != EXPECTED_QUESTIONS:
-        return {"success": False, "error": "INCOMPLETE_RESPONSES", "message": f"Expected {EXPECTED_QUESTIONS} responses, received {len(responses)}."}
+    if not isinstance(responses, dict) or len(responses) != EXPECTED_QUESTIONS:
+        return {"success": False, "error": "INCOMPLETE_OR_INVALID_FORMAT", "message": f"Expected {EXPECTED_QUESTIONS} responses in a dictionary."}
 
     most_like_counts = {"D": 0, "I": 0, "S": 0, "C": 0}
     least_like_counts = {"D": 0, "I": 0, "S": 0, "C": 0}
     valid_types = {"D", "I", "S", "C"}
 
     for q_id, resp_data in responses.items():
-        if not isinstance(resp_data, dict) or not all(k in resp_data for k in ["most_like_me", "least_like_me"]):
-            return {"success": False, "error": "MISSING_RESPONSE_KEYS", "message": f"Question {q_id} is missing required keys."}
+        if not isinstance(resp_data, dict) or "most_like_me" not in resp_data or "least_like_me" not in resp_data:
+            return {"success": False, "error": "MISSING_RESPONSE_KEYS", "message": f"Question {q_id} is missing keys."}
 
         most_like, least_like = resp_data["most_like_me"], resp_data["least_like_me"]
         if most_like not in valid_types or least_like not in valid_types or most_like == least_like:
@@ -393,34 +370,38 @@ def _calculate_disc_scores(responses):
         most_like_counts[most_like] += 1
         least_like_counts[least_like] += 1
 
-    # Calculate scores for the three profiles
+    # Calculate the three core profiles
     adaptive_scores = most_like_counts
     natural_scores = least_like_counts
     perceived_scores = {dim: most_like_counts[dim] - least_like_counts[dim] for dim in valid_types}
 
-    # Determine dominant types
-    adaptive_dominant = [dim for dim, score in adaptive_scores.items() if score == max(adaptive_scores.values())]
-    natural_dominant = [dim for dim, score in natural_scores.items() if score == max(natural_scores.values())]
-    perceived_dominant = [dim for dim, score in perceived_scores.items() if score == max(perceived_scores.values())]
+    # Determine the final behavioral pattern based on the "perceived" profile
+    final_behavioral_pattern = _get_detailed_behavioral_pattern(perceived_scores)
 
-    # Generate profile interpretations using nested helpers
-    adaptive_profile = _determine_profile_type(adaptive_scores, adaptive_dominant, "adaptive")
-    natural_profile = _determine_profile_type(natural_scores, natural_dominant, "natural")
-    perceived_profile = _determine_profile_type(perceived_scores, perceived_dominant, "perceived")
-
-    # Analyze stress using nested helper
-    stress_analysis = _analyze_profile_differences(adaptive_scores, natural_scores)
+    # Analyze the stress level between adaptive and natural profiles
+    stress_analysis = _analyze_stress_levels(adaptive_scores, natural_scores)
 
     return {
         "success": True,
-        "raw_scores": {"most_like_counts": most_like_counts, "least_like_counts": least_like_counts},
-        "profiles": {
-            "adaptive": {"name": "پروفایل تطبیقی (خود عمومی)", "scores": adaptive_scores, "dominant_types": adaptive_dominant, "interpretation": adaptive_profile},
-            "natural": {"name": "پروفایل طبیعی (خود غریزی)", "scores": natural_scores, "dominant_types": natural_dominant, "interpretation": natural_profile},
-            "perceived": {"name": "خود ادراک‌شده (آیینه)", "scores": perceived_scores, "dominant_types": perceived_dominant, "interpretation": perceived_profile}
-        },
+        "final_behavioral_pattern": final_behavioral_pattern,
         "stress_analysis": stress_analysis,
-        "final_behavioral_style": perceived_profile
+        "profiles": {
+            "adaptive": {
+                "name": "پروفایل تطبیقی (خود عمومی - نقاب)",
+                "description": "Represents behavior in professional/social environments.",
+                "scores": adaptive_scores
+            },
+            "natural": {
+                "name": "پروفایل طبیعی (خود غریزی - ذات)",
+                "description": "Reflects instinctive behavior, especially under pressure.",
+                "scores": natural_scores
+            },
+            "perceived": {
+                "name": "خود ادراک‌شده (برآیند نقاب و ذات - آیینه)",
+                "description": "A composite profile used to determine the final behavioral pattern.",
+                "scores": perceived_scores
+            }
+        }
     }
 
 # def _calculate_pvq_scores(raw_data):

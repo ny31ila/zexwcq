@@ -174,8 +174,25 @@ def _calculate_holland_scores(raw_data):
 def _calculate_gardner_scores(user_responses):
     """
     Calculate and interpret scores for Gardner's Multiple Intelligences test.
-    This function processes raw user responses, calculates scores for each dimension,
-    provides interpretations, and ranks the intelligences.
+
+    This function processes raw user responses which are expected in a nested
+    format, calculates scores for each dimension, provides interpretations,
+    and ranks the intelligences.
+
+    Args:
+        user_responses (dict): A dictionary of user responses.
+            Expected format:
+            {
+                "1": {"response": "5"},
+                "2": {"response": "3"},
+                ...
+            }
+            The keys are question IDs (as strings) and the values are objects
+            containing a "response" key with the answer (as a string).
+
+    Returns:
+        dict: A dictionary containing the detailed analysis of the test,
+              or an error message if the input is invalid.
     """
     # Define dimensions and their corresponding question IDs
     dimensions = {
@@ -193,17 +210,22 @@ def _calculate_gardner_scores(user_responses):
     if not isinstance(user_responses, dict):
         return {"status": "error", "message": "Invalid format: Responses must be a dictionary."}
 
-    # Expects string keys and string values, converts to integers
     validated_responses = {}
-    for q_id_str, answer_str in user_responses.items():
+    for q_id_str, resp_obj in user_responses.items():
         try:
+            # Check for the correct nested structure
+            if not isinstance(resp_obj, dict) or "response" not in resp_obj:
+                raise ValueError("Missing 'response' key in response object.")
+
             q_id = int(q_id_str)
-            answer = int(answer_str)
+            answer = int(resp_obj["response"]) # Get answer from the nested object
+
             if not (1 <= answer <= 5):
-                raise ValueError("Answer out of range")
+                raise ValueError("Answer out of range 1-5.")
+
             validated_responses[q_id] = answer
         except (ValueError, TypeError):
-            return {"status": "error", "message": f"Invalid response data for question '{q_id_str}'."}
+            return {"status": "error", "message": f"Invalid or malformed response data for question '{q_id_str}'."}
 
     # Check for completeness
     all_required_questions = {q for dim_info in dimensions.values() for q in dim_info["questions"]}
@@ -237,7 +259,6 @@ def _calculate_gardner_scores(user_responses):
         total_interpretation = "هوش چندگانه فرد بالا است."
 
     # --- 4. Calculate Percentages ---
-    # Max score per dimension is 10 questions * 5 points = 50
     percentages = {dim_id: round((score / 50) * 100, 2) for dim_id, score in scores.items()}
 
     # --- 5. Rank Intelligences ---
@@ -252,21 +273,17 @@ def _calculate_gardner_scores(user_responses):
             }
             for dim_id, score in scores.items()
         ],
-        key=lambda x: (-x['score'], x['dimension_id']) # Sort by score desc, then name asc for ties
+        key=lambda x: (-x['score'], x['dimension_id'])
     )
 
     # --- 6. Identify Strongest and Weakest ---
-    if not scores: # Should not happen if validation is correct
-        strongest_intelligences = []
-        weakest_intelligences = []
-    else:
-        max_score = max(scores.values())
-        min_score = min(scores.values())
-        strongest_ids = {dim_id for dim_id, score in scores.items() if score == max_score}
-        weakest_ids = {dim_id for dim_id, score in scores.items() if score == min_score}
+    max_score = max(scores.values())
+    min_score = min(scores.values())
+    strongest_ids = {dim_id for dim_id, score in scores.items() if score == max_score}
+    weakest_ids = {dim_id for dim_id, score in scores.items() if score == min_score}
 
-        strongest_intelligences = [item for item in ranked_intelligences if item["dimension_id"] in strongest_ids]
-        weakest_intelligences = [item for item in ranked_intelligences if item["dimension_id"] in weakest_ids]
+    strongest_intelligences = [item for item in ranked_intelligences if item["dimension_id"] in strongest_ids]
+    weakest_intelligences = [item for item in ranked_intelligences if item["dimension_id"] in weakest_ids]
 
     # --- 7. Assemble Final Result ---
     return {
@@ -298,7 +315,6 @@ def _calculate_disc_scores(responses):
 
     # --- Nested Helper: Determine Detailed Behavioral Pattern ---
     def _get_detailed_behavioral_pattern(scores):
-        # Based on the user-provided JSON structure
         profile_mappings = {
             "D": {"name": "تسلط‌گرا (Dominant) یا برتری‌طلب (پیروز)", "description": "غلبه بر چالش‌ها، تمرکز بر نتیجه، قاطع و صریح، اعتماد به نفس بالا. نیاز به یادگیری صبر و توجه به جزئیات."},
             "I": {"name": "تأثیرگذار (Influent, Enthusiast) یا متقاعدکننده (مشتاق)", "description": "پیشگام، متقاعدکننده، پرشور، خوش‌بین، خلاق، پویا، تمایل به بودن با گروه. نیاز به تقویت توانایی تحقیق و پیگیری و همچنین کنترل شور و هیجان."},
@@ -313,27 +329,23 @@ def _calculate_disc_scores(responses):
             "CS": {"name": "پایه (Bedrock)", "description": "ترکیب وظیفه‌شناس و باثبات. باثبات و متواضع، تمرکز بر پیش‌بینی اتفاقات. نیاز به دایره ارتباطی گسترده."},
             "CD": {"name": "کمال‌گرا (Perfectionist)", "description": "ترکیب وظیفه‌شناس و تسلط‌گرا. تمایل به بهترین بودن، ذهنیتی روشن و تحلیلی. نیاز به همدلی."}
         }
-        # Note: The user's JSON used 'i' in some keys. Standard practice is to use uppercase for consistency.
-        # The logic will sort keys (e.g., 'DI' not 'ID') to match a single mapping.
 
         sorted_dims = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         primary_dim, primary_score = sorted_dims[0]
         secondary_dim, secondary_score = sorted_dims[1]
 
-        # Determine if it's a combination profile (score difference <= 2)
         if primary_score - secondary_score <= 2:
-            # Create a sorted key (e.g., "CD" not "DC") to match mappings
             profile_key = "".join(sorted([primary_dim, secondary_dim]))
         else:
             profile_key = primary_dim
 
-        # Fallback to primary dimension if specific combo not found
-        pattern = profile_mappings.get(profile_key, profile_mappings.get(primary_dim))
-        return {"id": profile_key, "name": pattern["name"], "description": pattern["description"]}
+        # Fallback for keys like 'i' or 'd' if they appear in user data
+        profile_key_upper = profile_key.upper()
+        pattern = profile_mappings.get(profile_key_upper, profile_mappings.get(primary_dim))
+        return {"id": profile_key_upper, "name": pattern["name"], "description": pattern["description"]}
 
     # --- Nested Helper: Simplified Stress Analysis ---
     def _analyze_stress_levels(adaptive_scores, natural_scores):
-        # Using a threshold of 10 for "زیاد" as discussed.
         STRESS_THRESHOLD = 10
         total_difference = sum(abs(adaptive_scores[dim] - natural_scores[dim]) for dim in adaptive_scores)
 
@@ -344,11 +356,7 @@ def _calculate_disc_scores(responses):
             stress_level = "کم"
             interpretation = "سطح انطباق‌پذیری فرد با محیط در حد طبیعی است و نشان‌دهنده عدم وجود فشار یا استرس قابل توجهی برای تغییر رفتار ذاتی است."
 
-        return {
-            "level": stress_level,
-            "score": total_difference,
-            "interpretation": interpretation
-        }
+        return {"level": stress_level, "score": total_difference, "interpretation": interpretation}
 
     # --- Main Function Logic ---
     EXPECTED_QUESTIONS = 24
@@ -363,22 +371,18 @@ def _calculate_disc_scores(responses):
         if not isinstance(resp_data, dict) or "most_like_me" not in resp_data or "least_like_me" not in resp_data:
             return {"success": False, "error": "MISSING_RESPONSE_KEYS", "message": f"Question {q_id} is missing keys."}
 
-        most_like, least_like = resp_data["most_like_me"], resp_data["least_like_me"]
+        most_like, least_like = resp_data["most_like_me"].upper(), resp_data["least_like_me"].upper()
         if most_like not in valid_types or least_like not in valid_types or most_like == least_like:
             return {"success": False, "error": "INVALID_DISC_VALUE", "message": f"Invalid values for question {q_id}."}
 
         most_like_counts[most_like] += 1
         least_like_counts[least_like] += 1
 
-    # Calculate the three core profiles
     adaptive_scores = most_like_counts
     natural_scores = least_like_counts
     perceived_scores = {dim: most_like_counts[dim] - least_like_counts[dim] for dim in valid_types}
 
-    # Determine the final behavioral pattern based on the "perceived" profile
     final_behavioral_pattern = _get_detailed_behavioral_pattern(perceived_scores)
-
-    # Analyze the stress level between adaptive and natural profiles
     stress_analysis = _analyze_stress_levels(adaptive_scores, natural_scores)
 
     return {
@@ -386,21 +390,9 @@ def _calculate_disc_scores(responses):
         "final_behavioral_pattern": final_behavioral_pattern,
         "stress_analysis": stress_analysis,
         "profiles": {
-            "adaptive": {
-                "name": "پروفایل تطبیقی (خود عمومی - نقاب)",
-                "description": "Represents behavior in professional/social environments.",
-                "scores": adaptive_scores
-            },
-            "natural": {
-                "name": "پروفایل طبیعی (خود غریزی - ذات)",
-                "description": "Reflects instinctive behavior, especially under pressure.",
-                "scores": natural_scores
-            },
-            "perceived": {
-                "name": "خود ادراک‌شده (برآیند نقاب و ذات - آیینه)",
-                "description": "A composite profile used to determine the final behavioral pattern.",
-                "scores": perceived_scores
-            }
+            "adaptive": {"name": "پروفایل تطبیقی (خود عمومی - نقاب)", "description": "Represents behavior in professional/social environments.", "scores": adaptive_scores},
+            "natural": {"name": "پروفایل طبیعی (خود غریزی - ذات)", "description": "Reflects instinctive behavior, especially under pressure.", "scores": natural_scores},
+            "perceived": {"name": "خود ادراک‌شده (برآیند نقاب و ذات - آیینه)", "description": "A composite profile used to determine the final behavioral pattern.", "scores": perceived_scores}
         }
     }
 

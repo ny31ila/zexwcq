@@ -128,31 +128,133 @@ def calculate_assessment_scores(attempt_id):
 # --- Helper Functions for Specific Assessments (Placeholders) ---
 
 def _calculate_mbti_scores(raw_data):
-    """Placeholder function to calculate MBTI scores."""
-    # This would contain the actual logic to parse raw_data and compute MBTI dimensions.
-    # Example (highly simplified):
-    # counts = {'E': 0, 'I': 0, 'S': 0, 'N': 0, 'T': 0, 'F': 0, 'J': 0, 'P': 0}
-    # for q_id, response in raw_data.items():
-    #     # Logic to map response to dimension increments
-    #     # ...
-    # # Calculate percentages
-    # total_ei = counts['E'] + counts['I']
-    # ei_percentage = {'E': (counts['E'] / total_ei) * 100 if total_ei > 0 else 0,
-    #                  'I': (counts['I'] / total_ei) * 100 if total_ei > 0 else 0}
-    # ... similarly for SN, TF, JP ...
-    # return {
-    #     "EI": ei_percentage,
-    #     "SN": sn_percentage,
-    #     "TF": tf_percentage,
-    #     "JP": jp_percentage,
-    #     "Personality_Type": determine_type(ei_percentage, sn_percentage, tf_percentage, jp_percentage)
-    # }
-    logger.debug("Calculating MBTI scores (placeholder logic)")
-    return {
-        "assessment_type": "MBTI",
-        "placeholder_result": "Introversion: 60%, Intuition: 55%, Thinking: 70%, Judging: 65%",
-        "details": "Actual MBTI calculation logic goes here."
+    """
+    Calculate and interpret scores for the MBTI assessment.
+    This function is self-contained and includes all necessary data and logic,
+    with robust handling for tied results.
+    """
+    # --- Nested Data Structures for MBTI Test ---
+    QUESTION_MAP = {
+        "1": {"a": "I", "b": "E"}, "2": {"a": "S", "b": "N"}, "3": {"a": "T", "b": "F"}, "4": {"a": "P", "b": "J"},
+        "5": {"a": "I", "b": "E"}, "6": {"a": "S", "b": "N"}, "7": {"a": "T", "b": "F"}, "8": {"a": "P", "b": "J"},
+        "9": {"a": "I", "b": "E"}, "10": {"a": "S", "b": "N"}, "11": {"a": "T", "b": "F"}, "12": {"a": "P", "b": "J"},
+        "13": {"a": "I", "b": "E"}, "14": {"a": "S", "b": "N"}, "15": {"a": "J", "b": "P"}, "16": {"a": "P", "b": "J"},
+        "17": {"a": "I", "b": "E"}, "18": {"a": "S", "b": "N"}, "19": {"a": "T", "b": "F"}, "20": {"a": "P", "b": "J"},
+        "21": {"a": "I", "b": "E"}, "22": {"a": "S", "b": "N"}, "23": {"a": "T", "b": "F"}, "24": {"a": "P", "b": "J"},
+        "25": {"a": "I", "b": "E"}, "26": {"a": "S", "b": "N"}, "27": {"a": "T", "b": "F"}, "28": {"a": "P", "b": "J"},
+        "29": {"a": "I", "b": "E"}, "30": {"a": "S", "b": "N"}, "31": {"a": "T", "b": "F"}, "32": {"a": "P", "b": "J"},
+        "33": {"a": "I", "b": "E"}, "34": {"a": "S", "b": "N"}, "35": {"a": "T", "b": "F"}, "36": {"a": "P", "b": "J"},
+        "37": {"a": "I", "b": "E"}, "38": {"a": "S", "b": "N"}, "39": {"a": "T", "b": "F"}, "40": {"a": "P", "b": "J"},
+        "41": {"a": "I", "b": "E"}, "42": {"a": "S", "b": "N"}, "43": {"a": "T", "b": "F"}, "44": {"a": "P", "b": "J"},
+        "45": {"a": "I", "b": "E"}, "46": {"a": "S", "b": "N"}, "47": {"a": "T", "b": "F"}, "48": {"a": "P", "b": "J"},
+        "49": {"a": "I", "b": "E"}, "50": {"a": "J", "b": "P"}, "51": {"a": "T", "b": "F"}, "52": {"a": "P", "b": "J"},
+        "53": {"a": "I", "b": "E"}, "54": {"a": "P", "b": "J"}, "55": {"a": "T", "b": "F"}, "56": {"a": "P", "b": "J"},
+        "57": {"a": "I", "b": "E"}, "58": {"a": "J", "b": "P"}, "59": {"a": "T", "b": "F"}, "60": {"a": "P", "b": "J"}
     }
+    DIMENSION_INTERPRETATIONS = {
+        "I": {"name": "درون‌گرا (Introvert - I)", "description": "افرادی که درون‌گرایی را ترجیح می‌دهند، تمایل دارند روی تجربیات و عقاید دنیای درونی خود تمرکز کنند و از افکار، احساسات و اندیشه‌های درونی خود انرژی می‌گیرند."},
+        "E": {"name": "برون‌گرا (Extravert - E)", "description": "افرادی که برون‌گرایی را ترجیح می‌دهند، تمایل دارند بر دنیای بیرونی و افراد و رویدادهای خارجی تمرکز کنند و از رویدادها، تجربه‌ها و تعاملات بیرونی انرژی می‌گیرند."},
+        "S": {"name": "حسی (Sensing - S)", "description": "افرادی که ترجیح می‌دهند با استفاده از حواس پنج‌گانه به آنچه در اطرافشان می‌گذرد پی ببرند و به حقایق عملی یک موقعیت توجه می‌کنند."},
+        "N": {"name": "شهودی (Intuiting - N)", "description": "افرادی که ترجیح می‌دهند با دیدن تصویر بزرگ و تمرکز بر پیوندها و ارتباطات میان حقایق، اطلاعات را درک کنند و در دیدن امکانات جدید و خلاقیت بینش خوبی دارند."},
+        "T": {"name": "تفکری (Thinking - T)", "description": "افرادی که در تصمیم‌گیری به نتایج منطقی انتخاب یا عمل توجه دارند و بی‌طرفانه و به شکل عینی، علت و معلول را تجزیه و تحلیل می‌کنند."},
+        "F": {"name": "احساسی (Feeling - F)", "description": "افرادی که به احساسات دیگران توجه می‌کنند، نیازها و ارزش‌ها را درک کرده و احساساتشان را نشان می‌دهند."},
+        "J": {"name": "منضبط (Judging - J)", "description": "این افراد سبک زندگی ساختاری و سازمان‌یافته دارند و دوست دارند هر چیزی در جای خود قرار گیرد."},
+        "P": {"name": "ملاحظه‌کار (Perceiving - P)", "description": "این افراد انطباق‌پذیر و انعطاف‌پذیر هستند و زندگی خود را با توجه به شرایطی که پیش می‌آید، تنظیم و اداره می‌کنند."}
+    }
+    TYPE_DESCRIPTIONS = {
+        "ISTJ": {"name": "بازرس", "description": "جدی، آرام، واقع‌گرا، منظم و منطقی. موفقیت را با تمرکز و پشتکار بدست می‌آورد. مسئولیت‌پذیر است و کارها را بدون توجه به معطلی انجام می‌دهد."},
+        "ISFJ": {"name": "محافظ", "description": "آرام، خوش‌برخورد، مسئولیت‌پذیر و وظیفه‌شناس. برای انجام وظایف خالصانه کار می‌کند. دقیق، زحمت‌کش، وفادار و نسبت به احساسات دیگران بسیار حساس است."},
+        "INFJ": {"name": "حامی", "description": "موفقیت را با پشتکار فراوان بدست می‌آورد و در انجام کارها اشتیاق دارد. آرام، با قدرت و وظیفه‌شناس است. به کمک به دیگران علاقه دارد و مورد احترام مردم است."},
+        "INTJ": {"name": "معمار", "description": "افکاری بدیع و مبتکرانه دارد و پرانرژی است. قدرت خاصی در سازماندهی کارها دارد و می‌تواند کارها را با کمک یا بدون کمک دیگران به پایان برساند. منتقد، مستقل، مصمم و گاهی لجوج است."},
+        "ISTP": {"name": "صنعتگر", "description": "افرادی با نگاه نافذ، آرام و محتاط که زندگی را با کنجکاوی تجزیه و تحلیل می‌کنند. علاقه‌مند به اصول علمی، علت و معلول و موضوعات فنی هستند."},
+        "ISFP": {"name": "هنرمند", "description": "خستگی‌ناپذیر، خوش‌برخورد، حساس و کم‌ادعا در مورد توانایی‌های خود. از مخالفت پرهیز می‌کند و ارزش‌های خود را به دیگران تحمیل نمی‌کند. اغلب دنباله‌روی وفاداری است و از زمان حال لذت می‌برد."},
+        "INFP": {"name": "واسطه", "description": "پر از وفاداری و هواخواهی پرحرارت. علاقه فراوانی به یادگیری، ایده‌های جدید و زبان دارد. گاهی بیش از حد مسئولیت قبول می‌کند و آن را به پایان می‌رساند."},
+        "INTP": {"name": "منطق‌دان", "description": "آرام و تودار. در آزمون‌های آموزشی بخصوص در زمینه علمی و تئوری موفق است. به ایده‌ها و نظریات جدید علاقه نشان می‌دهد و به محافل اجتماعی یا بحث‌های بیهوده توجهی ندارد."},
+        "ESTP": {"name": "کارآفرین", "description": "واقع‌گرا و بندرت نگران می‌شود. از هرچه پیش آید لذت می‌برد. به ورزش و موضوعات فنی علاقه نشان می‌دهد و در محافل مختلف شرکت می‌کند."},
+        "ESFP": {"name": "بازیگر", "description": "برون‌گرا، زودجوش، مهمان‌نواز و خوش‌برخورد. علاقه زیادی به لذت بردن از زمان حال دارد. به ورزش و تولید و ساخت علاقه دارد و برای حقایق اهمیت بیشتری نسبت به تئوری‌های پیچیده قائل است."},
+        "ENFP": {"name": "مبارز", "description": "پر حرارت، پرانرژی، دارای قوه تخیل بالا و مبتکر. توانایی انجام هر کاری که به آن علاقه‌مند است را دارد. در پیدا کردن راه‌حل برای هر مشکلی سریع عمل می‌کند و آماده کمک به دیگران است."},
+        "ENTP": {"name": "مناظره‌گر", "description": "صریح، بی‌ریا، پرهیجان، پرحرف و باهوش. در پیدا کردن راه‌حل‌های مبتکرانه برای موضوعات پیچیده مهارت دارد. از انجام کارهای یکنواخت روزانه سرباز می‌زند."},
+        "ESTJ": {"name": "مجری", "description": "واقع‌بین، قاطع و کم‌احساس. در زمینه تجارت و کارهای فنی استعداد خاصی از خود نشان می‌دهد. به سازماندهی و هدایت فعالیت‌ها و پروژه‌ها علاقه دارد."},
+        "ESFJ": {"name": "سفیر", "description": "خوش‌قلب، خوش‌صحبت، محبوب و مسئولیت‌پذیر. از سنین پایین مشارکت و همکاری با دیگران را به خوبی یاد می‌گیرد. همیشه می‌خواهد یک کار نیک برای دیگران انجام دهد و نیاز به تشویق و قدردانی دارد."},
+        "ENFJ": {"name": "قهرمان", "description": "مسئولیت‌پذیر و دلسوز. حساسیت واقعی نسبت به آنچه دیگران می‌خواهند، فکر می‌کنند و دارند. در ارائه یک موضوع یا رهبری یک بحث گروهی توانایی خاصی دارد. زودجوش، محبوب و فعال در امور آموزشی است."},
+        "ENTJ": {"name": "فرمانده", "description": "پرنشاط، صادق و موفق در مطالعات و آموزش تحصیلی. قدرت رهبری در فعالیت‌های مختلف دارد. معمولاً در کارهایی که نیاز به منطق زیاد و بیان هوشیارانه دارد موفق است."}
+    }
+
+    # --- Nested Helper Functions for Interpretation ---
+    def get_dimension_interpretation(pref, d1, d2):
+        if "/" not in pref:
+            return DIMENSION_INTERPRETATIONS[pref]
+        else:
+            return {
+                "name": f"{DIMENSION_INTERPRETATIONS[d1]['name']} / {DIMENSION_INTERPRETATIONS[d2]['name']} (متعادل)",
+                "description": "شما خصوصیاتی از هر دو ترجیح را نشان می‌دهید که نشانگر انعطاف‌پذیری در این بعد شخصیتی است.",
+                "details": {
+                    d1: DIMENSION_INTERPRETATIONS[d1],
+                    d2: DIMENSION_INTERPRETATIONS[d2]
+                }
+            }
+
+    def get_type_interpretation(mbti_type, preferences):
+        if "-" not in mbti_type:
+            return TYPE_DESCRIPTIONS.get(mbti_type, {})
+        else:
+            # Build a dynamic description for tied types
+            desc_parts = [DIMENSION_INTERPRETATIONS[p.split('/')[0]]['name'].split(" ")[0] for p in preferences]
+            return {
+                "name": "تیپ شخصیتی ترکیبی",
+                "description": f"نتیجه آزمون شما نشان‌دهنده تعادل در برخی از ابعاد شخصیتی است. این تیپ ترکیبی از ترجیحات {', '.join(desc_parts)} است. این تعادل می‌تواند نشان‌دهنده انعطاف‌پذیری شما در موقعیت‌های مختلف باشد."
+            }
+
+    # --- Main function logic starts here ---
+    try:
+        if not isinstance(raw_data, dict):
+            logger.warning("MBTI score calculation received invalid raw_data (not a dict).")
+            return {"status": "error", "message": "Invalid input data format."}
+
+        scores = {'E': 0, 'I': 0, 'S': 0, 'N': 0, 'T': 0, 'F': 0, 'J': 0, 'P': 0}
+        for q_id, data in raw_data.items():
+            response_option = data.get("response")
+            if q_id in QUESTION_MAP and response_option in ['a', 'b']:
+                dimension = QUESTION_MAP[q_id][response_option]
+                scores[dimension] += 1
+
+        # Determine preferences and handle ties
+        result_ei = 'I' if scores['I'] > scores['E'] else ('E' if scores['E'] > scores['I'] else 'I/E')
+        result_sn = 'S' if scores['S'] > scores['N'] else ('N' if scores['N'] > scores['S'] else 'S/N')
+        result_tf = 'T' if scores['T'] > scores['F'] else ('F' if scores['F'] > scores['T'] else 'T/F')
+        result_jp = 'J' if scores['J'] > scores['P'] else ('P' if scores['P'] > scores['J'] else 'J/P')
+
+        preferences = [result_ei, result_sn, result_tf, result_jp]
+        mbti_type = "".join(p[0] for p in preferences) if not any('/' in p for p in preferences) else "-".join(preferences)
+
+        # Build the final JSON result
+        final_result = {
+            "status": "success",
+            "mbti_type": mbti_type,
+            "scores": scores,
+            "preferences": {
+                "EI": {"preference": result_ei, "score_I": scores['I'], "score_E": scores['E']},
+                "SN": {"preference": result_sn, "score_S": scores['S'], "score_N": scores['N']},
+                "TF": {"preference": result_tf, "score_T": scores['T'], "score_F": scores['F']},
+                "JP": {"preference": result_jp, "score_J": scores['J'], "score_P": scores['P']}
+            },
+            "interpretation": {
+                "type_details": get_type_interpretation(mbti_type, preferences),
+                "dimension_details": {
+                    "EI": get_dimension_interpretation(result_ei, 'I', 'E'),
+                    "SN": get_dimension_interpretation(result_sn, 'S', 'N'),
+                    "TF": get_dimension_interpretation(result_tf, 'T', 'F'),
+                    "JP": get_dimension_interpretation(result_jp, 'J', 'P')
+                }
+            }
+        }
+
+        logger.info(f"Successfully calculated MBTI scores. Type: {mbti_type}")
+        return final_result
+
+    except Exception as e:
+        logger.exception("An unexpected error occurred during MBTI score calculation.")
+        return {"status": "error", "message": str(e)}
 
 def _calculate_holland_scores(raw_data):
     """

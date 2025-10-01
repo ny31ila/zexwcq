@@ -11,6 +11,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 import logging
 import json
+import re
+from collections import defaultdict
 
 # Import models
 from .models import UserAssessmentAttempt, Assessment
@@ -152,24 +154,193 @@ def _calculate_mbti_scores(raw_data):
         "details": "Actual MBTI calculation logic goes here."
     }
 
-def _calculate_holland_scores(raw_data):
-    """Placeholder function to calculate Holland (RIASEC) scores."""
-    # This would parse the raw_data specific to the Holland test structure
-    # (sections like interests, experiences, occupations, self-assessments)
-    # and calculate scores for Realistic, Investigative, Artistic, Social, Enterprising, Conventional.
-    logger.debug("Calculating Holland scores (placeholder logic)")
-    return {
-        "assessment_type": "Holland (RIASEC)",
-        "placeholder_result": {
-            "Realistic": 75,
-            "Investigative": 60,
-            "Artistic": 40,
-            "Social": 55,
-            "Enterprising": 50,
-            "Conventional": 30
+# --- Data Structures for Holland Test ---
+# This data is hardcoded to avoid file I/O and make the service self-contained.
+# It is based on the provided JSON structure and is assumed to be stable.
+
+HOLLAND_TEST_STRUCTURE = {
+    "dimensions": [
+        {"id": "realistic", "name": "واقع‌گرا/اهل کار"},
+        {"id": "investigative", "name": "مسئله‌حل‌کن / جستجوگر"},
+        {"id": "enterprising", "name": "ترغیب‌کننده / متهور"},
+        {"id": "social", "name": "امدادگر / اجتماعی"},
+        {"id": "artistic", "name": "خلاق / هنری"},
+        {"id": "conventional", "name": "سازمان‌دهنده / متعارف"}
+    ],
+    "self_assessment_map": {
+        "self_assessment_1": {
+            1: "realistic", 2: "investigative", 3: "artistic",
+            4: "social", 5: "enterprising", 6: "conventional"
         },
-        "details": "Actual Holland calculation logic goes here, processing sections and dimensions."
+        "self_assessment_2": {
+            1: "realistic", 2: "investigative", 3: "artistic",
+            4: "social", 5: "enterprising", 6: "conventional"
+        }
+    },
+    "interpretation_details": {
+      "realistic": { "characteristics": ["اهل عمل","خودمحور","صرفه‌جو","سرسخت","مصر","غیر اجتماعی"], "suitable_occupations": "مشاغل فنی، کشاورزی و بعضی مشاغل خدماتی" },
+      "investigative": { "characteristics": ["کنجکاو","دقیق","تحلیل‌گر","پیچیده","کناره‌گیر","منتقد","خوددار"], "suitable_occupations": "مشاغل علمی و پژوهشی، پزشکی و برخی مهندسی‌ها" },
+      "enterprising": { "characteristics": ["ماجراجو","با انرژی","مطمئن به خود","هیجان‌طلب","سلطه‌جو"], "suitable_occupations": "مدیریت، تجارت و فروشندگی" },
+      "social": { "characteristics": ["اهل همکاری","معاشرتی","صبور","مسئول","صمیمی","امدادگر"], "suitable_occupations": "تعلیم و تربیت، رفاه اجتماعی و مشاغل خدماتی" },
+      "artistic": { "characteristics": ["عاطفی","ابرازگر","خیال‌پرداز","شهودی","آرمانگرا","مستقل"], "suitable_occupations": "هنر، موسیقی، ادبیات، بازیگری، ترجمهٔ ادبی" },
+      "conventional": { "characteristics": ["محتاط","مطیع","منظم","صرفه‌جو","دوراندیش","وظیفه‌شناس"], "suitable_occupations": "اداری، منشی‌گری، حسابداری، بایگانی" }
     }
+}
+
+class HollandTestScorer:
+    """
+    Calculates scores and provides interpretation for the Holland (RIASEC) test.
+    This class encapsulates the logic based on the provided Python script and JSON structure.
+    """
+    def __init__(self, test_structure):
+        self.test_structure = test_structure
+        self.dimensions = [dim['id'] for dim in test_structure['dimensions']]
+        self.dimension_names = {dim['id']: dim['name'] for dim in test_structure['dimensions']}
+        self.self_assessment_map = test_structure['self_assessment_map']
+        self.interpretation_details = test_structure['interpretation_details']
+
+    def parse_response_key(self, key):
+        """Parse response key to extract section and dimension information."""
+        # Using five underscores as the separator, as specified.
+        checkbox_pattern = r'^(interests|experiences|occupations)_____(realistic|investigative|enterprising|social|artistic|conventional)_____(\d+)$'
+        self_assess_pattern = r'^(self_assessment_1|self_assessment_2)_____(\d+)$'
+
+        checkbox_match = re.match(checkbox_pattern, key)
+        if checkbox_match:
+            section, dimension, question_id = checkbox_match.groups()
+            return {'type': 'checkbox', 'dimension': dimension}
+
+        self_assess_match = re.match(self_assess_pattern, key)
+        if self_assess_match:
+            section, question_id_str = self_assess_match.groups()
+            question_id = int(question_id_str)
+            # Use the hardcoded map to find the dimension
+            dimension = self.self_assessment_map.get(section, {}).get(question_id)
+            if dimension:
+                return {'type': 'likert', 'dimension': dimension}
+        return None
+
+    def calculate_scores(self, response_data):
+        """Calculate scores for all dimensions from the raw response data."""
+        scores = {dim: 0 for dim in self.dimensions}
+        if not isinstance(response_data, dict):
+            return scores # Return zeroed scores if input is invalid
+
+        for key, value in response_data.items():
+            parsed = self.parse_response_key(key)
+            if not parsed:
+                continue
+
+            response_value = value.get('response')
+            if response_value is None:
+                continue
+
+            dimension = parsed['dimension']
+            if parsed['type'] == 'checkbox':
+                if response_value is True:
+                    scores[dimension] += 1
+            elif parsed['type'] == 'likert':
+                try:
+                    scores[dimension] += int(response_value)
+                except (ValueError, TypeError):
+                    continue
+        return scores
+
+    def get_top_dimensions_and_code(self, scores):
+        """Get top dimensions, handling ties, and generate the Holland code."""
+        dimension_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+
+        if not dimension_scores:
+            return [], ""
+
+        # Group dimensions by score to handle ties
+        score_groups = defaultdict(list)
+        for dim, score in dimension_scores:
+            score_groups[score].append(dim)
+
+        # Get the top 3 score levels
+        top_scores = sorted(score_groups.keys(), reverse=True)[:3]
+
+        # Build the ranked list and Holland code simultaneously
+        dimension_letters = {'realistic': 'R', 'investigative': 'I', 'artistic': 'A', 'social': 'S', 'enterprising': 'E', 'conventional': 'C'}
+        ranked_dimensions = []
+        code_parts = []
+        rank = 1
+        for score in top_scores:
+            group = sorted(score_groups[score]) # Sort alphabetically for consistent tie-breaking
+
+            # Add to ranked list
+            for dim in group:
+                ranked_dimensions.append({
+                    'rank': rank,
+                    'dimension': dim,
+                    'name': self.dimension_names[dim],
+                    'score': scores[dim]
+                })
+
+            # Add to Holland code
+            group_letters = [dimension_letters[dim] for dim in group]
+            code_parts.append('/'.join(sorted(group_letters)))
+
+            rank += len(group) # Increment rank by the size of the tied group
+
+        return ranked_dimensions, '-'.join(code_parts)
+
+    def interpret_results(self, scores, ranked_dimensions, holland_code):
+        """Generate the final interpretation object."""
+        return {
+            "status": "success",
+            "holland_code": holland_code,
+            "raw_scores": scores,
+            "ranked_dimensions": ranked_dimensions,
+            "dimension_details": {
+                dim: {
+                    "name": self.dimension_names[dim],
+                    "score": scores[dim],
+                    "characteristics": self.interpretation_details[dim]["characteristics"],
+                    "suitable_occupations": self.interpretation_details[dim]["suitable_occupations"]
+                } for dim in self.dimensions
+            }
+        }
+
+def _calculate_holland_scores(raw_data):
+    """
+    Calculates and interprets scores for the Holland (RIASEC) test.
+
+    This function processes raw user responses, calculates scores for each of the
+    six RIASEC dimensions, provides detailed interpretations, and determines the
+    user's 3-letter Holland code, handling ties correctly.
+
+    Args:
+        raw_data (dict): The raw_results_json from a UserAssessmentAttempt.
+
+    Returns:
+        dict: A dictionary containing the detailed analysis of the test,
+              or an error message if the input is invalid.
+    """
+    try:
+        if not isinstance(raw_data, dict):
+            logger.warning("Holland score calculation received invalid raw_data (not a dict).")
+            return {"status": "error", "message": "Invalid input data format."}
+
+        # 1. Initialize the scorer with the hardcoded test structure
+        scorer = HollandTestScorer(HOLLAND_TEST_STRUCTURE)
+
+        # 2. Calculate raw scores
+        scores = scorer.calculate_scores(raw_data)
+
+        # 3. Get top dimensions and Holland code
+        ranked_dimensions, holland_code = scorer.get_top_dimensions_and_code(scores)
+
+        # 4. Generate the final, comprehensive result object
+        result = scorer.interpret_results(scores, ranked_dimensions, holland_code)
+
+        logger.info(f"Successfully calculated Holland scores. Code: {holland_code}")
+        return result
+
+    except Exception as e:
+        logger.exception("An unexpected error occurred during Holland score calculation.")
+        return {"status": "error", "message": str(e)}
 
 def _calculate_gardner_scores(user_responses):
     """

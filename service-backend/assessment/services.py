@@ -65,17 +65,6 @@ def calculate_assessment_scores(attempt_id):
     assessment = attempt.assessment
 
     # 3. --- Core Logic: Perform Calculations ---
-    # This is where the specific scoring logic for each assessment type would go.
-    # The logic could be:
-    # a) Hardcoded here based on assessment.name (e.g., if name=="MBTI": calculate_mbti(...))
-    # b) Defined in separate functions within this file (e.g., calculate_holland_scores(...))
-    # c) Defined in the Assessment model itself as a method (e.g., assessment.calculate_scores(...))
-    # d) Read from the assessment's JSON file to get scoring rules (most flexible)
-
-    # --- Placeholder/Example Logic ---
-    # For demonstration, let's assume a simple scoring logic based on assessment name.
-    # In reality, this would be much more complex and specific to each test.
-
     calculated_results = {}
     try:
         if assessment.name.lower() == "mbti":
@@ -84,20 +73,11 @@ def calculate_assessment_scores(attempt_id):
              calculated_results = _calculate_holland_scores(attempt.raw_results_json)
         elif assessment.name.lower() == "gardner":
              calculated_results = _calculate_gardner_scores(attempt.raw_results_json)
-        # elif assessment.name.lower() == "swanson":
-        #     calculated_results = _calculate_adhd_scores(attempt.raw_results_json)
-        # elif assessment.name.lower() == "neo":
-        #     calculated_results = _calculate_neo_scores(attempt.raw_results_json)
         elif assessment.name.lower() == "disc":
              calculated_results = _calculate_disc_scores(attempt.raw_results_json)
-        # elif assessment.name.lower() == "pvq":
-        #     calculated_results = _calculate_pvq_scores(attempt.raw_results_json)
-        # elif assessment.name.lower() == "schwartz values":
-        #     calculated_results = _calculate_schwartz_scores(attempt.raw_results_json)
         else:
             # Generic handler or log unsupported assessment
             logger.info(f"No specific calculator implemented for assessment '{assessment.name}'. Using generic processor.")
-            # Example generic processor: just count responses
             total_questions_answered = len(attempt.raw_results_json.keys()) if isinstance(attempt.raw_results_json, dict) else 0
             calculated_results = {
                 "generic_summary": {
@@ -108,9 +88,7 @@ def calculate_assessment_scores(attempt_id):
             }
 
         # 4. --- Save Calculated Results ---
-        # Update the attempt's processed_results_json field with the calculated data
         attempt.processed_results_json = calculated_results
-        # Save only the processed_results_json field and updated_at
         attempt.save(update_fields=['processed_results_json', 'updated_at'])
 
         success_msg = f"Score calculation completed and saved for Attempt {attempt_id} ({assessment.name})."
@@ -119,13 +97,11 @@ def calculate_assessment_scores(attempt_id):
 
     except Exception as e:
         error_msg = f"Failed to calculate scores for Attempt {attempt_id} ({assessment.name}): {e}"
-        logger.exception(error_msg) # Logs the full traceback
-        # Depending on requirements, you might want to save an error state in processed_results_json
-        # or rely on the calling view/task to handle retries/errors.
+        logger.exception(error_msg)
         return {'status': 'error', 'message': error_msg}
 
 
-# --- Helper Functions for Specific Assessments (Placeholders) ---
+# --- Helper Functions for Specific Assessments ---
 
 def _calculate_mbti_scores(raw_data):
     """
@@ -134,11 +110,12 @@ def _calculate_mbti_scores(raw_data):
     with robust handling for tied results.
     """
     # --- Nested Data Structures for MBTI Test ---
+    # This map is based on the corrected mbti.json file.
     QUESTION_MAP = {
         "1": {"a": "I", "b": "E"}, "2": {"a": "S", "b": "N"}, "3": {"a": "T", "b": "F"}, "4": {"a": "P", "b": "J"},
         "5": {"a": "I", "b": "E"}, "6": {"a": "S", "b": "N"}, "7": {"a": "T", "b": "F"}, "8": {"a": "P", "b": "J"},
         "9": {"a": "I", "b": "E"}, "10": {"a": "S", "b": "N"}, "11": {"a": "T", "b": "F"}, "12": {"a": "P", "b": "J"},
-        "13": {"a": "I", "b": "E"}, "14": {"a": "S", "b": "N"}, "15": {"a": "J", "b": "P"}, "16": {"a": "P", "b": "J"},
+        "13": {"a": "I", "b": "E"}, "14": {"a": "S", "b": "N"}, "15": {"a": "T", "b": "F"}, "16": {"a": "P", "b": "J"},
         "17": {"a": "I", "b": "E"}, "18": {"a": "S", "b": "N"}, "19": {"a": "T", "b": "F"}, "20": {"a": "P", "b": "J"},
         "21": {"a": "I", "b": "E"}, "22": {"a": "S", "b": "N"}, "23": {"a": "T", "b": "F"}, "24": {"a": "P", "b": "J"},
         "25": {"a": "I", "b": "E"}, "26": {"a": "S", "b": "N"}, "27": {"a": "T", "b": "F"}, "28": {"a": "P", "b": "J"},
@@ -147,9 +124,9 @@ def _calculate_mbti_scores(raw_data):
         "37": {"a": "I", "b": "E"}, "38": {"a": "S", "b": "N"}, "39": {"a": "T", "b": "F"}, "40": {"a": "P", "b": "J"},
         "41": {"a": "I", "b": "E"}, "42": {"a": "S", "b": "N"}, "43": {"a": "T", "b": "F"}, "44": {"a": "P", "b": "J"},
         "45": {"a": "I", "b": "E"}, "46": {"a": "S", "b": "N"}, "47": {"a": "T", "b": "F"}, "48": {"a": "P", "b": "J"},
-        "49": {"a": "I", "b": "E"}, "50": {"a": "J", "b": "P"}, "51": {"a": "T", "b": "F"}, "52": {"a": "P", "b": "J"},
-        "53": {"a": "I", "b": "E"}, "54": {"a": "P", "b": "J"}, "55": {"a": "T", "b": "F"}, "56": {"a": "P", "b": "J"},
-        "57": {"a": "I", "b": "E"}, "58": {"a": "J", "b": "P"}, "59": {"a": "T", "b": "F"}, "60": {"a": "P", "b": "J"}
+        "49": {"a": "I", "b": "E"}, "50": {"a": "S", "b": "N"}, "51": {"a": "T", "b": "F"}, "52": {"a": "P", "b": "J"},
+        "53": {"a": "I", "b": "E"}, "54": {"a": "S", "b": "N"}, "55": {"a": "T", "b": "F"}, "56": {"a": "P", "b": "J"},
+        "57": {"a": "I", "b": "E"}, "58": {"a": "S", "b": "N"}, "59": {"a": "T", "b": "F"}, "60": {"a": "P", "b": "J"}
     }
     DIMENSION_INTERPRETATIONS = {
         "I": {"name": "درون‌گرا (Introvert - I)", "description": "افرادی که درون‌گرایی را ترجیح می‌دهند، تمایل دارند روی تجربیات و عقاید دنیای درونی خود تمرکز کنند و از افکار، احساسات و اندیشه‌های درونی خود انرژی می‌گیرند."},
@@ -195,8 +172,9 @@ def _calculate_mbti_scores(raw_data):
             }
 
     def get_type_interpretation(mbti_type, preferences):
-        if "-" not in mbti_type:
-            return TYPE_DESCRIPTIONS.get(mbti_type, {})
+        pure_type = "".join(p[0] for p in preferences if '/' not in p)
+        if "-" not in mbti_type and pure_type in TYPE_DESCRIPTIONS:
+             return TYPE_DESCRIPTIONS[pure_type]
         else:
             # Build a dynamic description for tied types
             desc_parts = [DIMENSION_INTERPRETATIONS[p.split('/')[0]]['name'].split(" ")[0] for p in preferences]
@@ -225,7 +203,9 @@ def _calculate_mbti_scores(raw_data):
         result_jp = 'J' if scores['J'] > scores['P'] else ('P' if scores['P'] > scores['J'] else 'J/P')
 
         preferences = [result_ei, result_sn, result_tf, result_jp]
-        mbti_type = "".join(p[0] for p in preferences) if not any('/' in p for p in preferences) else "-".join(preferences)
+        mbti_type = "".join(p[0] for p in preferences if '/' not in p)
+        if any('/' in p for p in preferences):
+             mbti_type = "-".join(preferences)
 
         # Build the final JSON result
         final_result = {
@@ -255,6 +235,7 @@ def _calculate_mbti_scores(raw_data):
     except Exception as e:
         logger.exception("An unexpected error occurred during MBTI score calculation.")
         return {"status": "error", "message": str(e)}
+
 
 def _calculate_holland_scores(raw_data):
     """
@@ -318,6 +299,7 @@ def _calculate_holland_scores(raw_data):
 
         def parse_response_key(self, key):
             """Parse response key to extract section and dimension information."""
+            # Using five underscores as the separator, as specified.
             checkbox_pattern = r'^(interests|experiences|occupations)_____(realistic|investigative|enterprising|social|artistic|conventional)_____(\d+)$'
             self_assess_pattern = r'^(self_assessment_1|self_assessment_2)_____(\d+)$'
 
@@ -330,6 +312,7 @@ def _calculate_holland_scores(raw_data):
             if self_assess_match:
                 section, question_id_str = self_assess_match.groups()
                 question_id = int(question_id_str)
+                # Use the hardcoded map to find the dimension
                 dimension = self.self_assessment_map.get(section, {}).get(question_id)
                 if dimension:
                     return {'type': 'likert', 'dimension': dimension}
@@ -339,15 +322,17 @@ def _calculate_holland_scores(raw_data):
             """Calculate scores for all dimensions from the raw response data."""
             scores = {dim: 0 for dim in self.dimensions}
             if not isinstance(response_data, dict):
-                return scores
+                return scores # Return zeroed scores if input is invalid
 
             for key, value in response_data.items():
                 parsed = self.parse_response_key(key)
                 if not parsed:
                     continue
+
                 response_value = value.get('response')
                 if response_value is None:
                     continue
+
                 dimension = parsed['dimension']
                 if parsed['type'] == 'checkbox':
                     if response_value is True:
@@ -362,36 +347,54 @@ def _calculate_holland_scores(raw_data):
         def get_top_dimensions_and_code(self, scores):
             """Get top dimensions, handling ties, and generate the Holland code."""
             dimension_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+
             if not dimension_scores:
                 return [], ""
+
+            # Group dimensions by score to handle ties
             score_groups = defaultdict(list)
             for dim, score in dimension_scores:
                 score_groups[score].append(dim)
+
+            # Get the top 3 score levels
             top_scores = sorted(score_groups.keys(), reverse=True)[:3]
+
+            # Build the ranked list and Holland code simultaneously
             dimension_letters = {'realistic': 'R', 'investigative': 'I', 'artistic': 'A', 'social': 'S', 'enterprising': 'E', 'conventional': 'C'}
             ranked_dimensions = []
             code_parts = []
             rank = 1
             for score in top_scores:
-                group = sorted(score_groups[score])
+                group = sorted(score_groups[score]) # Sort alphabetically for consistent tie-breaking
+
+                # Add to ranked list
                 for dim in group:
                     ranked_dimensions.append({
-                        'rank': rank, 'dimension': dim,
-                        'name': self.dimension_names[dim], 'score': scores[dim]
+                        'rank': rank,
+                        'dimension': dim,
+                        'name': self.dimension_names[dim],
+                        'score': scores[dim]
                     })
+
+                # Add to Holland code
                 group_letters = [dimension_letters[dim] for dim in group]
                 code_parts.append('/'.join(sorted(group_letters)))
-                rank += len(group)
+
+                rank += len(group) # Increment rank by the size of the tied group
+
             return ranked_dimensions, '-'.join(code_parts)
 
         def interpret_results(self, scores, ranked_dimensions, holland_code):
             """Generate the final interpretation object."""
             return {
-                "status": "success", "holland_code": holland_code, "raw_scores": scores,
+                "status": "success",
+                "holland_code": holland_code,
+                "raw_scores": scores,
                 "ranked_dimensions": ranked_dimensions,
                 "dimension_details": {
                     dim: {
-                        "name": self.dimension_names[dim], "score": scores[dim],
+                        "name": self.dimension_names[dim],
+                        "score": scores[dim],
                         "characteristics": self.interpretation_details[dim]["characteristics"],
                         "suitable_occupations": self.interpretation_details[dim]["suitable_occupations"]
                     } for dim in self.dimensions
@@ -415,6 +418,7 @@ def _calculate_holland_scores(raw_data):
     except Exception as e:
         logger.exception("An unexpected error occurred during Holland score calculation.")
         return {"status": "error", "message": str(e)}
+
 
 def _calculate_gardner_scores(user_responses):
     """
@@ -641,16 +645,7 @@ def _calculate_disc_scores(responses):
         }
     }
 
-# def _calculate_pvq_scores(raw_data):
-#     """Logic for Portrait Values Questionnaire."""
-#     pass
 
-# def _calculate_schwartz_scores(raw_data):
-#     """Logic for Schwartz Values Survey."""
-#     pass
-
-
-# --- Service Function: Aggregate Package Results for AI (Called by Task/View) ---
 def prepare_aggregated_package_data_for_ai(user, package):
     """
     Service function to aggregate processed results from all completed assessments
@@ -689,13 +684,6 @@ def prepare_aggregated_package_data_for_ai(user, package):
             "user_id": user.id,
             "package_id": package.id,
             "package_name": package.name,
-            # "user_info": { # Optional: Include relevant user profile info if needed by AI prompt
-            #     "national_code": user.national_code,
-            #     "first_name": user.first_name,
-            #     "last_name": user.last_name,
-            #     # "birth_date": user.birth_date.isoformat() if user.birth_date else None,
-            #     # Add other relevant fields if needed by the AI prompt
-            # },
             "assessments_data": []
         }
 
@@ -716,6 +704,4 @@ def prepare_aggregated_package_data_for_ai(user, package):
     except Exception as e:
         error_msg = f"Failed to aggregate package data for AI (User: {user.id}, Package: {package.id}): {e}"
         logger.exception(error_msg)
-        # Depending on how this service is called, you might re-raise or return an error indicator
-        # For now, returning None signifies failure.
         return None

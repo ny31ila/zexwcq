@@ -75,6 +75,8 @@ def calculate_assessment_scores(attempt_id):
              calculated_results = _calculate_gardner_scores(attempt.raw_results_json)
         elif assessment.name.lower() == "disc":
              calculated_results = _calculate_disc_scores(attempt.raw_results_json)
+        elif assessment.name.lower() == "neo":
+            calculated_results = _calculate_neo_scores(attempt.raw_results_json)
         else:
             # Generic handler or log unsupported assessment
             logger.info(f"No specific calculator implemented for assessment '{assessment.name}'. Using generic processor.")
@@ -552,9 +554,220 @@ def _calculate_gardner_scores(user_responses):
 #     """Logic for Swanson ADHD assessment."""
 #     pass
 
-# def _calculate_neo_scores(raw_data):
-#     """Logic for NEO Personality Inventory."""
-#     pass
+def _calculate_neo_scores(raw_data):
+    """
+    Calculates and interprets scores for the NEO-FFI (Five-Factor Inventory) assessment.
+
+    This function processes raw user responses to calculate scores for the five core
+    personality dimensions (Neuroticism, Extraversion, Openness, Agreeableness, Conscientiousness).
+    It then derives 10 detailed "personality styles" based on the interplay between these
+    dimensions, providing a comprehensive, multi-layered analysis.
+
+    The final output is a rich JSON object designed for easy consumption by the frontend,
+    including raw and scaled scores, descriptive levels, strength percentages, and detailed
+    interpretations for both dimensions and styles.
+
+    Args:
+        raw_data (dict): The raw_results_json from a UserAssessmentAttempt.
+            Expected format: {"1": {"response": "4"}, "2": {"response": "1"}, ...}
+
+    Returns:
+        dict: A dictionary containing the detailed analysis of the test,
+              or an error message if the input is invalid or incomplete.
+    """
+    # --- Self-Contained Data Structures for NEO-FFI ---
+    # This data is embedded within the function to ensure it is self-contained and
+    # follows the established pattern in this service module.
+
+    QUESTIONS_DATA = [
+        {"id": 1, "dimension_id": "neuroticism", "is_reverse_scored": True},
+        {"id": 2, "dimension_id": "extraversion", "is_reverse_scored": False},
+        {"id": 3, "dimension_id": "openness", "is_reverse_scored": True},
+        {"id": 4, "dimension_id": "agreeableness", "is_reverse_scored": False},
+        {"id": 5, "dimension_id": "conscientiousness", "is_reverse_scored": False},
+        {"id": 6, "dimension_id": "neuroticism", "is_reverse_scored": False},
+        {"id": 7, "dimension_id": "extraversion", "is_reverse_scored": False},
+        {"id": 8, "dimension_id": "openness", "is_reverse_scored": True},
+        {"id": 9, "dimension_id": "agreeableness", "is_reverse_scored": True},
+        {"id": 10, "dimension_id": "conscientiousness", "is_reverse_scored": False},
+        {"id": 11, "dimension_id": "neuroticism", "is_reverse_scored": False},
+        {"id": 12, "dimension_id": "extraversion", "is_reverse_scored": True},
+        {"id": 13, "dimension_id": "openness", "is_reverse_scored": False},
+        {"id": 14, "dimension_id": "agreeableness", "is_reverse_scored": True},
+        {"id": 15, "dimension_id": "conscientiousness", "is_reverse_scored": True},
+        {"id": 16, "dimension_id": "neuroticism", "is_reverse_scored": True},
+        {"id": 17, "dimension_id": "extraversion", "is_reverse_scored": False},
+        {"id": 18, "dimension_id": "openness", "is_reverse_scored": True},
+        {"id": 19, "dimension_id": "agreeableness", "is_reverse_scored": False},
+        {"id": 20, "dimension_id": "conscientiousness", "is_reverse_scored": False},
+        {"id": 21, "dimension_id": "neuroticism", "is_reverse_scored": False},
+        {"id": 22, "dimension_id": "extraversion", "is_reverse_scored": False},
+        {"id": 23, "dimension_id": "openness", "is_reverse_scored": True},
+        {"id": 24, "dimension_id": "agreeableness", "is_reverse_scored": True},
+        {"id": 25, "dimension_id": "conscientiousness", "is_reverse_scored": False},
+        {"id": 26, "dimension_id": "neuroticism", "is_reverse_scored": False},
+        {"id": 27, "dimension_id": "extraversion", "is_reverse_scored": True},
+        {"id": 28, "dimension_id": "openness", "is_reverse_scored": False},
+        {"id": 29, "dimension_id": "agreeableness", "is_reverse_scored": True},
+        {"id": 30, "dimension_id": "conscientiousness", "is_reverse_scored": True},
+        {"id": 31, "dimension_id": "neuroticism", "is_reverse_scored": True},
+        {"id": 32, "dimension_id": "extraversion", "is_reverse_scored": False},
+        {"id": 33, "dimension_id": "openness", "is_reverse_scored": True},
+        {"id": 34, "dimension_id": "agreeableness", "is_reverse_scored": False},
+        {"id": 35, "dimension_id": "conscientiousness", "is_reverse_scored": False},
+        {"id": 36, "dimension_id": "neuroticism", "is_reverse_scored": False},
+        {"id": 37, "dimension_id": "extraversion", "is_reverse_scored": False},
+        {"id": 38, "dimension_id": "openness", "is_reverse_scored": True},
+        {"id": 39, "dimension_id": "agreeableness", "is_reverse_scored": True},
+        {"id": 40, "dimension_id": "conscientiousness", "is_reverse_scored": False},
+        {"id": 41, "dimension_id": "neuroticism", "is_reverse_scored": False},
+        {"id": 42, "dimension_id": "extraversion", "is_reverse_scored": True},
+        {"id": 43, "dimension_id": "openness", "is_reverse_scored": False},
+        {"id": 44, "dimension_id": "agreeableness", "is_reverse_scored": True},
+        {"id": 45, "dimension_id": "conscientiousness", "is_reverse_scored": True},
+        {"id": 46, "dimension_id": "neuroticism", "is_reverse_scored": True},
+        {"id": 47, "dimension_id": "extraversion", "is_reverse_scored": False},
+        {"id": 48, "dimension_id": "openness", "is_reverse_scored": True},
+        {"id": 49, "dimension_id": "agreeableness", "is_reverse_scored": False},
+        {"id": 50, "dimension_id": "conscientiousness", "is_reverse_scored": False},
+        {"id": 51, "dimension_id": "neuroticism", "is_reverse_scored": False},
+        {"id": 52, "dimension_id": "extraversion", "is_reverse_scored": False},
+        {"id": 53, "dimension_id": "openness", "is_reverse_scored": False},
+        {"id": 54, "dimension_id": "agreeableness", "is_reverse_scored": True},
+        {"id": 55, "dimension_id": "conscientiousness", "is_reverse_scored": True},
+        {"id": 56, "dimension_id": "neuroticism", "is_reverse_scored": False},
+        {"id": 57, "dimension_id": "extraversion", "is_reverse_scored": True},
+        {"id": 58, "dimension_id": "openness", "is_reverse_scored": False},
+        {"id": 59, "dimension_id": "agreeableness", "is_reverse_scored": True},
+        {"id": 60, "dimension_id": "conscientiousness", "is_reverse_scored": False}
+    ]
+
+    DIMENSIONS_META = {
+      "openness": {"name": "تجربه‌پذیری (Openness)", "abbr": "O", "description": "میزان گشودگی ذهن، علاقه به تجربه‌های جدید، خلاقیت و تفکر انتزاعی."},
+      "conscientiousness": {"name": "وظیفه‌شناسی (Conscientiousness)", "abbr": "C", "description": "میزان نظم، برنامه‌ریزی، پشتکار و مسئولیت‌پذیری در انجام وظایف."},
+      "extraversion": {"name": "برون‌گرایی (Extraversion)", "abbr": "E", "description": "میزان انرژی اجتماعی، تمایل به تعامل با دیگران و واکنش به محرک‌های خارجی."},
+      "agreeableness": {"name": "سازگاری (Agreeableness)", "abbr": "A", "description": "میزان مهربانی، همکاری، اعتماد و تمایل به اجتناب از تعارض."},
+      "neuroticism": {"name": "روان‌رنجوری (Neuroticism)", "abbr": "N", "description": "میزان حساسیت به استرس، اضطراب، نگرانی و نوسانات خلقی."}
+    }
+
+    PERSONALITY_STYLES_META = {
+      "well_being": {"style_name": "سبک بهزیستی (Style Of Well-Being)","factors": ["neuroticism", "extraversion"],"axes": {"vertical": "neuroticism", "horizontal": "extraversion"},"types": {"N+E-": {"name": "غمگین و بدبین (Gloomy Pessimists)","detailed_description": "این افراد نیمه خالی لیوان را می‌بینند..."},"N-E+": {"name": "شاد و خوشبین (Upbeat Optimists)","detailed_description": "این دسته اغلب سرزنده و بانشاط هستند..."},"N+E+": {"name": "بسیار هیجانی (Strongly Emotional)","detailed_description": "این افراد هم هیجان‌های منفی و هم هیجان‌های مثبت را با شدت زیادی تجربه می‌کنند..."},"N-E-": {"name": "کم‌هیجان (Low-keyed)","detailed_description": "نه خبرهای بد و نه خبرهای خوب تاثیر زیادی روی هیجان این افراد ندارد..."}}},
+      "defense_style": {"style_name": "سبک دفاعی (Style Of Defense)","factors": ["neuroticism", "openness"],"axes": {"vertical": "neuroticism", "horizontal": "openness"},"types": {"N+O-": {"name": "ناسازگار (Maladaptive)","detailed_description": "کسانی که سبک دفاعی ناسازگار دارند..."},"N-O+": {"name": "سازگار (Adaptive)","detailed_description": "سبک دفاعی سازگار به این معنی است که فرد از تعارض‌ها..."},"N+O+": {"name": "بیش‌حساس (Hypersensitive)","detailed_description": "این گروه افراد در مقابل مشکلات بی‌دفاع به نظر می‌رسند..."},"N-O-": {"name": "غیرحساس (Unconcerned)","detailed_description": "این دسته وضعیت‌های استرس‌زا را کم‌اهمیت می‌دانند..."}}},
+      "anger_control": {"style_name": "سبک مدیریت خشم (Style of Anger Control)","factors": ["neuroticism", "agreeableness"],"axes": {"vertical": "neuroticism", "horizontal": "agreeableness"},"types": {"N+A-": {"name": "تندخو (Temperamental)","detailed_description": "افراد تندخو با کوچک‌ترین چیزی عصبانی می‌شوند..."},"N-A+": {"name": "آسان‌گیر (Easy-Going)","detailed_description": "افراد آسان‌گیر دیر عصبانی می‌شوند..."},"N+A+": {"name": "محجوب (Timid)","detailed_description": "افراد محجوب درباره عصبانیت با خودشان تعارض دارند..."},"N-A-": {"name": "خونسرد (Cold-Blooded)","detailed_description": "این دسته افراد حتی وقتی عصبانی هستند هم ظاهر عصبانی ندارند..."}}},
+      "impulse_control": {"style_name": "سبک مدیریت تکانه (Style of Impulse Control)","factors": ["neuroticism", "conscientiousness"],"axes": {"vertical": "neuroticism", "horizontal": "conscientiousness"},"types": {"N+C-": {"name": "مهارنشده (Undercontrolled)","detailed_description": "این افراد اغلب تحت تاثیر تکانه‌های خود هستند..."},"N-C+": {"name": "جهت‌مند (Directed)","detailed_description": "انسان‌های جهت‌مند درک روشنی از اهداف خود دارند..."},"N+C+": {"name": "بیش‌ازحد مهارشده (Overcontrolled)","detailed_description": "این افراد رفتار خود را به‌شدت و با اضطراب زیاد مدیریت می‌کنند..."},"N-C-": {"name": "آرام (Relaxed)","detailed_description": "این گروه نیاز چندانی به مدیریت دقیق رفتار خود نمی‌بینند..."}}},
+      "interests": {"style_name": "سبک علایق (Style of Interests)","factors": ["extraversion", "openness"],"axes": {"vertical": "extraversion", "horizontal": "openness"},"types": {"E+O-": {"name": "مصرف‌کنندگان اصلی (Mainstream Consumers)","detailed_description": "این گروه به فعالیت‌های هنجار محبوب علاقه‌ دارند..."},"E-O+": {"name": "درون‌نگرها (Introspectors)","detailed_description": "این گروه خلاق و پر از ایده‌های نو هستند..."},"E+O+": {"name": "تعامل‌کنندگان خلاق (Creative Interactors)","detailed_description": "این افراد به تجربه کردن چیزهای جدید و متنوع علاقه دارند..."},"E-O-": {"name": "خانه‌نشین‌ها (Homebodies)","detailed_description": "خانه‌نشین‌ها به فعالیت‌هایی که بتوانند به تنهایی انجام دهند علاقه دارند..."}}},
+      "interaction_style": {"style_name": "سبک تعامل (Style of Interactions)","factors": ["extraversion", "agreeableness"],"axes": {"vertical": "extraversion", "horizontal": "agreeableness"},"types": {"E+A-": {"name": "رهبرها (Leaders)","detailed_description": "این افراد از موقعیت‌های اجتماعی به عنوان فرصتی برای درخشیدن استفاده می‌کنند..."},"E-A+": {"name": "بی‌تکلف‌ها (The Unassuming)","detailed_description": "این گروه فروتن و دلسوز هستند..."},"E+A+": {"name": "استقبال‌کنندگان (Welcomers)","detailed_description": "استقبال‌کنندگان صمیمانه از همراهی با دیگران لذت می‌برند..."},"E-A-": {"name": "رقابت‌کنندگان (Competitors)","detailed_description": "رقابت‌کنندگان دیگران را به عنوان دشمن بالقوه درنظر می‌گیرند..."}}},
+      "activity_style": {"style_name": "سبک فعالیت (Style of Activity)","factors": ["extraversion", "conscientiousness"],"axes": {"vertical": "extraversion", "horizontal": "conscientiousness"},"types": {"E+C-": {"name": "عاشقان سرگرمی (Fun Lovers)","detailed_description": "این افراد سرشار از انرژی و نشاط هستند..."},"E-C+": {"name": "زحمت‌کش‌ها (Plodders)","detailed_description": "این گروه کارکنانی ساختارمند هستند..."},"E+C+": {"name": "به‌دست آورندگان (Go-Getters)","detailed_description": "به‌دست آورندگان مولد و کارآمد هستند..."},"E-C-": {"name": "کم‌کارها (The Lethargic)","detailed_description": "کم‌کارها شور و شوق زیادی از خود نشان نمی‌دهند..."}}},
+      "attitude_style": {"style_name": "سبک نگرش (Style of Attitudes)","factors": ["openness", "agreeableness"],"axes": {"vertical": "openness", "horizontal": "agreeableness"},"types": {"O+A-": {"name": "آزاداندیشان (Free-Thinkers)","detailed_description": "این گروه نه تحت تاثیر سنت قرار می‌گیرند..."},"O-A+": {"name": "سنت‌گرایان (Traditionalists)","detailed_description": "این افراد با تکیه بر سنت‌ها و آداب‌ورسوم..."},"O+A+": {"name": "پیشرفت‌‌گرایان (Progressives)","detailed_description": "پیشرفت‌گرایان رویکردی تحلیلی به مشکلات اجتماعی دارند..."},"O-A-": {"name": "باثبات و مصمم (Resolute)","detailed_description": "اشخاص باثبات و مصمم، باورهای قوی و انعطاف‌ناپذیری دارند..."}}},
+      "learning_style": {"style_name": "سبک یادگیری (Style of Learning)","factors": ["openness", "conscientiousness"],"axes": {"vertical": "openness", "horizontal": "conscientiousness"},"types": {"O+C-": {"name": "رویاپردازان (Dreamers)","detailed_description": "این افراد جذب ایده‌های جدید می‌شوند..."},"O-C+": {"name": "بخشنامه‌ای‌ها (By-the-Bookers)","detailed_description": "این گروه افرادی کوشا، ساختارگرا و منظم هستند..."},"O+C+": {"name": "دانش‌آموزان خوب (Good Students)","detailed_description": "دانش‌آموزان خوب لزوما از دیگران باهوش‌تر نیستند..."},"O-C-": {"name": "پژوهشگران بی‌میل (Reluctant Scholars)","detailed_description": "پژوهشگران بی‌میل نسبت به فعالیت‌های علمی و فکری میل کمی دارند..."}}},
+      "character_style": {"style_name": "سبک شخصیت (Style of Character)","factors": ["agreeableness", "conscientiousness"],"axes": {"vertical": "agreeableness", "horizontal": "conscientiousness"},"types": {"A+C-": {"name": "خوش‌نیت‌ها (Well-Intentioned)","detailed_description": "خوش‌نیت‌ها افراد بخشنده‌ای هستند..."},"A-C+": {"name": "خود-پیش‌برندگان (Self-Promoters)","detailed_description": "این گروه در درجه اول به نیازها، اهداف و علایق خود توجه می‌کنند..."},"A+C+": {"name": "نوع‌دوستان موثر (Effective Altruists)","detailed_description": "این دسته نظم و استقامت بالایی دارند..."},"A-C-": {"name": "نامشخص (Undistinguished)","detailed_description": "این افراد اراده محکمی ندارند..."}}}
+    }
+
+    # --- Main function logic starts here ---
+    try:
+        # 1. Validate input data
+        if not isinstance(raw_data, dict):
+            return {"status": "error", "message": "Invalid input: raw_data must be a dictionary."}
+
+        # --- 2. Calculate Raw Scores ---
+        raw_scores = {dim: 0 for dim in DIMENSIONS_META.keys()}
+        for question in QUESTIONS_DATA:
+            q_id = str(question["id"])
+            dimension = question["dimension_id"]
+            is_reverse = question["is_reverse_scored"]
+
+            response_obj = raw_data.get(q_id)
+            if not response_obj or "response" not in response_obj:
+                # For simplicity, we'll treat missing answers as neutral (2), though this could be handled differently
+                response_value = 2
+            else:
+                try:
+                    response_value = int(response_obj["response"])
+                except (ValueError, TypeError):
+                    response_value = 2 # Default to neutral if value is not a valid integer
+
+            score = (4 - response_value) if is_reverse else response_value
+            raw_scores[dimension] += score
+
+        # --- 3. Calculate Scaled Scores and Interpretations for each Dimension ---
+        dimensions_results = {}
+        for dim_id, raw_score in raw_scores.items():
+            # Scaled score (0-100)
+            scaled_score = round((raw_score / 48) * 100)
+            # Strength percentage (how far from the 50% midpoint)
+            strength_percentage = round((abs(50 - scaled_score) / 50) * 100)
+
+            # Determine level based on raw score
+            if raw_score <= 12: level = "کم"
+            elif raw_score <= 24: level = "متوسط"
+            else: level = "زیاد"
+
+            # Determine strength level based on strength percentage
+            if strength_percentage <= 33: strength_level = "ضعیف"
+            elif strength_percentage <= 66: strength_level = "متوسط"
+            else: strength_level = "قوی"
+
+            dimensions_results[dim_id] = {
+                "name": DIMENSIONS_META[dim_id]["name"],
+                "description": DIMENSIONS_META[dim_id]["description"],
+                "raw_score": {"value": raw_score, "range": [0, 48]},
+                "scaled_score": {"value": scaled_score, "range": [0, 100]},
+                "level": level,
+                "strength_percentage": strength_percentage,
+                "strength_level": strength_level,
+            }
+
+        # --- 4. Determine Personality Styles ---
+        personality_styles_results = {}
+        for style_id, style_meta in PERSONALITY_STYLES_META.items():
+            factors = style_meta["factors"]
+            factor1_id, factor2_id = factors[0], factors[1]
+
+            # Determine high/low status for each factor
+            factor1_status = "+" if dimensions_results[factor1_id]["scaled_score"]["value"] >= 50 else "-"
+            factor2_status = "+" if dimensions_results[factor2_id]["scaled_score"]["value"] >= 50 else "-"
+
+            # Generate quadrant code (e.g., N+E-)
+            quadrant_code = f"{DIMENSIONS_META[factor1_id]['abbr']}{factor1_status}{DIMENSIONS_META[factor2_id]['abbr']}{factor2_status}"
+
+            # Find matching type
+            matching_type_data = style_meta["types"].get(quadrant_code)
+            if not matching_type_data:
+                # Fallback or error, though this should not happen with valid logic
+                matching_type = {"name": "Unknown", "detailed_description": "Could not determine personality style type."}
+            else:
+                matching_type = {
+                    "name": matching_type_data["name"],
+                    "quadrant_code": quadrant_code,
+                    "detailed_description": matching_type_data["detailed_description"]
+                }
+
+            personality_styles_results[style_id] = {
+                "style_name": style_meta["style_name"],
+                "axes": style_meta["axes"],
+                "matching_type": matching_type,
+                "factor_scores": {
+                    factor1_id: dimensions_results[factor1_id]["scaled_score"]["value"],
+                    factor2_id: dimensions_results[factor2_id]["scaled_score"]["value"],
+                },
+                "factor_strength_percentages": {
+                    factor1_id: dimensions_results[factor1_id]["strength_percentage"],
+                    factor2_id: dimensions_results[factor2_id]["strength_percentage"],
+                }
+            }
+
+        # --- 5. Assemble Final Result ---
+        final_result = {
+            "dimensions": dimensions_results,
+            "personality_styles": personality_styles_results
+        }
+
+        logger.info(f"Successfully calculated NEO-FFI scores.")
+        return final_result
+
+    except Exception as e:
+        logger.exception("An unexpected error occurred during NEO-FFI score calculation.")
+        return {"status": "error", "message": str(e)}
 
 def _calculate_disc_scores(responses):
     """

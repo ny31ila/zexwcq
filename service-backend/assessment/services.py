@@ -576,9 +576,6 @@ def _calculate_neo_scores(raw_data):
               or an error message if the input is invalid or incomplete.
     """
     # --- Self-Contained Data Structures for NEO-FFI ---
-    # This data is embedded within the function to ensure it is self-contained and
-    # follows the established pattern in this service module.
-
     QUESTIONS_DATA = [
         {"id": 1, "dimension_id": "neuroticism", "is_reverse_scored": True},
         {"id": 2, "dimension_id": "extraversion", "is_reverse_scored": False},
@@ -643,33 +640,81 @@ def _calculate_neo_scores(raw_data):
     ]
 
     DIMENSIONS_META = {
-      "openness": {"name": "تجربه‌پذیری (Openness)", "abbr": "O", "description": "میزان گشودگی ذهن، علاقه به تجربه‌های جدید، خلاقیت و تفکر انتزاعی."},
-      "conscientiousness": {"name": "وظیفه‌شناسی (Conscientiousness)", "abbr": "C", "description": "میزان نظم، برنامه‌ریزی، پشتکار و مسئولیت‌پذیری در انجام وظایف."},
-      "extraversion": {"name": "برون‌گرایی (Extraversion)", "abbr": "E", "description": "میزان انرژی اجتماعی، تمایل به تعامل با دیگران و واکنش به محرک‌های خارجی."},
-      "agreeableness": {"name": "سازگاری (Agreeableness)", "abbr": "A", "description": "میزان مهربانی، همکاری، اعتماد و تمایل به اجتناب از تعارض."},
-      "neuroticism": {"name": "روان‌رنجوری (Neuroticism)", "abbr": "N", "description": "میزان حساسیت به استرس، اضطراب، نگرانی و نوسانات خلقی."}
+        "openness": {"name": "تجربه‌پذیری (Openness)", "abbr": "O", "description": "میزان گشودگی ذهن، علاقه به تجربه‌های جدید، خلاقیت و تفکر انتزاعی."},
+        "conscientiousness": {"name": "وظیفه‌شناسی (Conscientiousness)", "abbr": "C", "description": "میزان نظم، برنامه‌ریزی، پشتکار و مسئولیت‌پذیری در انجام وظایف."},
+        "extraversion": {"name": "برون‌گرایی (Extraversion)", "abbr": "E", "description": "میزان انرژی اجتماعی، تمایل به تعامل با دیگران و واکنش به محرک‌های خارجی."},
+        "agreeableness": {"name": "سازگاری (Agreeableness)", "abbr": "A", "description": "میزان مهربانی، همکاری، اعتماد و تمایل به اجتناب از تعارض."},
+        "neuroticism": {"name": "روان‌رنجوری (Neuroticism)", "abbr": "N", "description": "میزان حساسیت به استرس، اضطراب، نگرانی و نوسانات خلقی."}
     }
 
     PERSONALITY_STYLES_META = {
-      "well_being": {"style_name": "سبک بهزیستی (Style Of Well-Being)","factors": ["neuroticism", "extraversion"],"axes": {"vertical": "neuroticism", "horizontal": "extraversion"},"types": {"N+E-": {"name": "غمگین و بدبین (Gloomy Pessimists)","detailed_description": "این افراد نیمه خالی لیوان را می‌بینند..."},"N-E+": {"name": "شاد و خوشبین (Upbeat Optimists)","detailed_description": "این دسته اغلب سرزنده و بانشاط هستند..."},"N+E+": {"name": "بسیار هیجانی (Strongly Emotional)","detailed_description": "این افراد هم هیجان‌های منفی و هم هیجان‌های مثبت را با شدت زیادی تجربه می‌کنند..."},"N-E-": {"name": "کم‌هیجان (Low-keyed)","detailed_description": "نه خبرهای بد و نه خبرهای خوب تاثیر زیادی روی هیجان این افراد ندارد..."}}},
-      "defense_style": {"style_name": "سبک دفاعی (Style Of Defense)","factors": ["neuroticism", "openness"],"axes": {"vertical": "neuroticism", "horizontal": "openness"},"types": {"N+O-": {"name": "ناسازگار (Maladaptive)","detailed_description": "کسانی که سبک دفاعی ناسازگار دارند..."},"N-O+": {"name": "سازگار (Adaptive)","detailed_description": "سبک دفاعی سازگار به این معنی است که فرد از تعارض‌ها..."},"N+O+": {"name": "بیش‌حساس (Hypersensitive)","detailed_description": "این گروه افراد در مقابل مشکلات بی‌دفاع به نظر می‌رسند..."},"N-O-": {"name": "غیرحساس (Unconcerned)","detailed_description": "این دسته وضعیت‌های استرس‌زا را کم‌اهمیت می‌دانند..."}}},
-      "anger_control": {"style_name": "سبک مدیریت خشم (Style of Anger Control)","factors": ["neuroticism", "agreeableness"],"axes": {"vertical": "neuroticism", "horizontal": "agreeableness"},"types": {"N+A-": {"name": "تندخو (Temperamental)","detailed_description": "افراد تندخو با کوچک‌ترین چیزی عصبانی می‌شوند..."},"N-A+": {"name": "آسان‌گیر (Easy-Going)","detailed_description": "افراد آسان‌گیر دیر عصبانی می‌شوند..."},"N+A+": {"name": "محجوب (Timid)","detailed_description": "افراد محجوب درباره عصبانیت با خودشان تعارض دارند..."},"N-A-": {"name": "خونسرد (Cold-Blooded)","detailed_description": "این دسته افراد حتی وقتی عصبانی هستند هم ظاهر عصبانی ندارند..."}}},
-      "impulse_control": {"style_name": "سبک مدیریت تکانه (Style of Impulse Control)","factors": ["neuroticism", "conscientiousness"],"axes": {"vertical": "neuroticism", "horizontal": "conscientiousness"},"types": {"N+C-": {"name": "مهارنشده (Undercontrolled)","detailed_description": "این افراد اغلب تحت تاثیر تکانه‌های خود هستند..."},"N-C+": {"name": "جهت‌مند (Directed)","detailed_description": "انسان‌های جهت‌مند درک روشنی از اهداف خود دارند..."},"N+C+": {"name": "بیش‌ازحد مهارشده (Overcontrolled)","detailed_description": "این افراد رفتار خود را به‌شدت و با اضطراب زیاد مدیریت می‌کنند..."},"N-C-": {"name": "آرام (Relaxed)","detailed_description": "این گروه نیاز چندانی به مدیریت دقیق رفتار خود نمی‌بینند..."}}},
-      "interests": {"style_name": "سبک علایق (Style of Interests)","factors": ["extraversion", "openness"],"axes": {"vertical": "extraversion", "horizontal": "openness"},"types": {"E+O-": {"name": "مصرف‌کنندگان اصلی (Mainstream Consumers)","detailed_description": "این گروه به فعالیت‌های هنجار محبوب علاقه‌ دارند..."},"E-O+": {"name": "درون‌نگرها (Introspectors)","detailed_description": "این گروه خلاق و پر از ایده‌های نو هستند..."},"E+O+": {"name": "تعامل‌کنندگان خلاق (Creative Interactors)","detailed_description": "این افراد به تجربه کردن چیزهای جدید و متنوع علاقه دارند..."},"E-O-": {"name": "خانه‌نشین‌ها (Homebodies)","detailed_description": "خانه‌نشین‌ها به فعالیت‌هایی که بتوانند به تنهایی انجام دهند علاقه دارند..."}}},
-      "interaction_style": {"style_name": "سبک تعامل (Style of Interactions)","factors": ["extraversion", "agreeableness"],"axes": {"vertical": "extraversion", "horizontal": "agreeableness"},"types": {"E+A-": {"name": "رهبرها (Leaders)","detailed_description": "این افراد از موقعیت‌های اجتماعی به عنوان فرصتی برای درخشیدن استفاده می‌کنند..."},"E-A+": {"name": "بی‌تکلف‌ها (The Unassuming)","detailed_description": "این گروه فروتن و دلسوز هستند..."},"E+A+": {"name": "استقبال‌کنندگان (Welcomers)","detailed_description": "استقبال‌کنندگان صمیمانه از همراهی با دیگران لذت می‌برند..."},"E-A-": {"name": "رقابت‌کنندگان (Competitors)","detailed_description": "رقابت‌کنندگان دیگران را به عنوان دشمن بالقوه درنظر می‌گیرند..."}}},
-      "activity_style": {"style_name": "سبک فعالیت (Style of Activity)","factors": ["extraversion", "conscientiousness"],"axes": {"vertical": "extraversion", "horizontal": "conscientiousness"},"types": {"E+C-": {"name": "عاشقان سرگرمی (Fun Lovers)","detailed_description": "این افراد سرشار از انرژی و نشاط هستند..."},"E-C+": {"name": "زحمت‌کش‌ها (Plodders)","detailed_description": "این گروه کارکنانی ساختارمند هستند..."},"E+C+": {"name": "به‌دست آورندگان (Go-Getters)","detailed_description": "به‌دست آورندگان مولد و کارآمد هستند..."},"E-C-": {"name": "کم‌کارها (The Lethargic)","detailed_description": "کم‌کارها شور و شوق زیادی از خود نشان نمی‌دهند..."}}},
-      "attitude_style": {"style_name": "سبک نگرش (Style of Attitudes)","factors": ["openness", "agreeableness"],"axes": {"vertical": "openness", "horizontal": "agreeableness"},"types": {"O+A-": {"name": "آزاداندیشان (Free-Thinkers)","detailed_description": "این گروه نه تحت تاثیر سنت قرار می‌گیرند..."},"O-A+": {"name": "سنت‌گرایان (Traditionalists)","detailed_description": "این افراد با تکیه بر سنت‌ها و آداب‌ورسوم..."},"O+A+": {"name": "پیشرفت‌‌گرایان (Progressives)","detailed_description": "پیشرفت‌گرایان رویکردی تحلیلی به مشکلات اجتماعی دارند..."},"O-A-": {"name": "باثبات و مصمم (Resolute)","detailed_description": "اشخاص باثبات و مصمم، باورهای قوی و انعطاف‌ناپذیری دارند..."}}},
-      "learning_style": {"style_name": "سبک یادگیری (Style of Learning)","factors": ["openness", "conscientiousness"],"axes": {"vertical": "openness", "horizontal": "conscientiousness"},"types": {"O+C-": {"name": "رویاپردازان (Dreamers)","detailed_description": "این افراد جذب ایده‌های جدید می‌شوند..."},"O-C+": {"name": "بخشنامه‌ای‌ها (By-the-Bookers)","detailed_description": "این گروه افرادی کوشا، ساختارگرا و منظم هستند..."},"O+C+": {"name": "دانش‌آموزان خوب (Good Students)","detailed_description": "دانش‌آموزان خوب لزوما از دیگران باهوش‌تر نیستند..."},"O-C-": {"name": "پژوهشگران بی‌میل (Reluctant Scholars)","detailed_description": "پژوهشگران بی‌میل نسبت به فعالیت‌های علمی و فکری میل کمی دارند..."}}},
-      "character_style": {"style_name": "سبک شخصیت (Style of Character)","factors": ["agreeableness", "conscientiousness"],"axes": {"vertical": "agreeableness", "horizontal": "conscientiousness"},"types": {"A+C-": {"name": "خوش‌نیت‌ها (Well-Intentioned)","detailed_description": "خوش‌نیت‌ها افراد بخشنده‌ای هستند..."},"A-C+": {"name": "خود-پیش‌برندگان (Self-Promoters)","detailed_description": "این گروه در درجه اول به نیازها، اهداف و علایق خود توجه می‌کنند..."},"A+C+": {"name": "نوع‌دوستان موثر (Effective Altruists)","detailed_description": "این دسته نظم و استقامت بالایی دارند..."},"A-C-": {"name": "نامشخص (Undistinguished)","detailed_description": "این افراد اراده محکمی ندارند..."}}}
+        "well_being": {"style_name": "سبک بهزیستی (Style Of Well-Being)", "factors": ["neuroticism", "extraversion"], "axes": {"vertical": "neuroticism", "horizontal": "extraversion"}, "types": {
+            "N+E-": {"name": "غمگین و بدبین (Gloomy Pessimists)", "condition": "روان‌رنجوری بالا و برون‌گرایی پایین", "detailed_description": "این افراد نیمه خالی لیوان را می‌بینند، به‌سختی خوشحال می‌شوند و با کوچک‌ترین چیزی احساس پریشانی می‌کنند. در شرایط پرفشار و استرس‌زا احساس افسردگی دارند و حتی در شرایط عادی نیز زندگی را سخت و بی‌لذت می‌دانند."},
+            "N-E+": {"name": "شاد و خوشبین (Upbeat Optimists)", "condition": "روان‌رنجوری پایین و برون‌گرایی بالا", "detailed_description": "این دسته اغلب سرزنده و بانشاط هستند و به مشکلات به عنوان چالش‌های زندگی نگاه می‌کنند. وقتی ناکام می‌شوند، ناراحت و خشمگین می‌شوند اما خیلی زود این احساسات را پشت سر می‌گذارند. آن‌ها از زندگی خود لذت می‌برند و ترجیح می‌دهند به جای گذشته روی حال و آینده خود تمرکز کنند."},
+            "N+E+": {"name": "بسیار هیجانی (Strongly Emotional)", "condition": "روان‌رنجوری بالا و برون‌گرایی بالا", "detailed_description": "این افراد هم هیجان‌های منفی و هم هیجان‌های مثبت را با شدت زیادی تجربه می‌کنند و نوسان‌های خلقی دارند. روابط بین‌فردی آن‌ها ممکن است آشوبناک باشد زیرا آن‌ها به راحتی تحت تاثیر احساسات خود قرار می‌گیرند."},
+            "N-E-": {"name": "کم‌هیجان (Low-keyed)", "condition": "روان‌رنجوری پایین و برون‌گرایی پایین", "detailed_description": "نه خبرهای بد و نه خبرهای خوب تاثیر زیادی روی هیجان این افراد ندارد و نسبت به اتفاقاتی که می‌تواند دیگران را شگفت‌زده یا وحشت‌زده کند، بی‌تفاوت هستند. به خاطر هیجانات محدود و سردی روانی این گروه، ممکن است روابط بین‌فردی‌‌ آن‌ها با مشکل روبه‌رو شود."}
+        }},
+        "defense_style": {"style_name": "سبک دفاعی (Style Of Defense)", "factors": ["neuroticism", "openness"], "axes": {"vertical": "neuroticism", "horizontal": "openness"}, "types": {
+            "N+O-": {"name": "ناسازگار (Maladaptive)", "condition": "روان‌رنجوری بالا و تجربه‌پذیری پایین", "detailed_description": "کسانی که سبک دفاعی ناسازگار دارند از روش‌های غیرموثری (مثل انکار، سرکوب و جابه‌جایی) برای مقابله با مشکلات استفاده می‌کنند. آن‌ها ترجیح می‌دهند از افکار آزاردهنده و خطرهای پیش‌رو به کلی چشم‌پوشی کنند، به هیجان‌های منفی خود بی‌توجهی می‌کنند و نمی‌توانند احساسات خود را با کلمات مناسب به زبان بیاورند."},
+            "N-O+": {"name": "سازگار (Adaptive)", "condition": "روان‌رنجوری پایین و تجربه‌پذیری بالا", "detailed_description": "سبک دفاعی سازگار به این معنی است که فرد از تعارض‌ها، استرس‌ها و تهدیدهای روانی درون خود آگاه است اما می‌داند چطور به شیوه‌ای خلاق و موثر با آن‌ها مقابله کند. آن‌ها ممکن است به مشکلات زندگی خود به چشم طنز نگاه کنند یا از مشکلات برای الهام‌گرفتن و خلق آثار هنری استفاده کنند."},
+            "N+O+": {"name": "بیش‌حساس (Hypersensitive)", "condition": "روان‌رنجوری بالا و تجربه‌پذیری بالا", "detailed_description": "این گروه افراد در مقابل مشکلات بی‌دفاع به نظر می‌رسند. آن‌‌ها همواره گوش‌به‌زنگ هستند و بدبختی‌های احتمالی را تصور می‌کنند. ممکن است زیاد کابوس ببینند یا از جایی که تفکرات غیرعادی و خلاق دارند، از افکار عجیب خود آزرده شوند."},
+            "N-O-": {"name": "غیرحساس (Unconcerned)", "condition": "روان‌رنجوری پایین و تجربه‌پذیری پایین", "detailed_description": "این دسته وضعیت‌های استرس‌زا را کم‌اهمیت می‌دانند و به ندرت هیجان‌های منفی شدید را تجربه می‌کنند. آن‌ها به تهدیدها و خطرهای احتمالی فکر نمی‌کنند بلکه روی حل مشکل یا موضوع خوشایند دیگری تمرکز می‌کنند."}
+        }},
+        "anger_control": {"style_name": "سبک مدیریت خشم (Style of Anger Control)", "factors": ["neuroticism", "agreeableness"], "axes": {"vertical": "neuroticism", "horizontal": "agreeableness"}, "types": {
+            "N+A-": {"name": "تندخو (Temperamental)", "condition": "روان‌رنجوری بالا و سازگاری پایین", "detailed_description": "افراد تندخو با کوچک‌ترین چیزی عصبانی می‌شوند و خشم خود را مستقیم ابراز می‌کنند، حتی ممکن است تا مدت‌ها برای مسئله‌ای جزئی خشمگین بمانند. آن‌ها هنگام عصبانیت روی خودشان تمرکز می‌کنند، برای همین متوجه تاثیر رفتار خود بر دیگران نمی‌شوند و ممکن است از پرخاشگری کلامی یا فیزیکی استفاده کنند."},
+            "N-A+": {"name": "آسان‌گیر (Easy-Going)", "condition": "روان‌رنجوری پایین و سازگاری بالا", "detailed_description": "افراد آسان‌گیر دیر عصبانی می‌شوند و تمایلی هم به ابراز خشم خود ندارند. اغلب ترجیح می‌دهند ببخشند و فراموش کنند یا اینکه تقصیرات را دو طرفه می‌دانند و سعی می‌کنند برای رفع اختلاف تلاش کنند."},
+            "N+A+": {"name": "محجوب (Timid)", "condition": "روان‌رنجوری بالا و سازگاری بالا", "detailed_description": "افراد محجوب درباره عصبانیت با خودشان تعارض دارند. آن‌ها به‌راحتی عصبانی و غمگین می‌شوند و احساس می‌کنند قربانی شده‌اند اما چون دوست ندارند دیگران را آزار بدهند، از ابراز خشم خود صرف‌نظر می‌کنند. درنتیجه، ممکن است خشم آن‌ها علیه خودشان به درون برگردد."},
+            "N-A-": {"name": "خونسرد (Cold-Blooded)", "condition": "روان‌رنجوری پایین و سازگاری پایین", "detailed_description": "این دسته افراد حتی وقتی عصبانی هستند هم ظاهر عصبانی ندارند. خشم در لحظه به آن‌ها غلبه نمی‌کند، بلکه صبر می‌کنند و خشم خود را در زمان مناسب به نحو دیگری ابراز می‌کنند تا انتقام خود را بگیرند."}
+        }},
+        "impulse_control": {"style_name": "سبک مدیریت تکانه (Style of Impulse Control)", "factors": ["neuroticism", "conscientiousness"], "axes": {"vertical": "neuroticism", "horizontal": "conscientiousness"}, "types": {
+            "N+C-": {"name": "مهارنشده (Undercontrolled)", "condition": "روان‌رنجوری بالا و وظیفه‌شناسی پایین", "detailed_description": "این افراد اغلب تحت تاثیر تکانه‌های خود هستند و نمی‌توانند در برابر میل خود مقاومت کنند. درنتیجه، ممکن است به‌گونه‌ای عمل کنند که لذت لحظه‌ای اما آسیب بلندمدت در پیش داشته باشد. سوءمصرف مواد، افت تحصیلی، رفتارهای محاظت‌نشده جنسی از جمله خطرهایی است که آن‌ها را تهدید می‌کند."},
+            "N-C+": {"name": "جهت‌مند (Directed)", "condition": "روان‌رنجوری پایین و وظیفه‌شناسی بالا", "detailed_description": "انسان‌های جهت‌مند درک روشنی از اهداف خود و راه‌های رسیدن به آن دارند. آن‌ها توانایی‌های خود را می‌شناسند و ناکامی‌ها را در صلح می‌پذیرند. همچنین،‌ می‌توانند به برنامه‌ریزی خود پایبند باشند و تکانه‌های خود را به‌خوبی مدیریت کنند."},
+            "N+C+": {"name": "بیش‌ازحد مهارشده (Overcontrolled)", "condition": "روان‌رنجوری بالا و وظیفه‌شناسی بالا", "detailed_description": "این افراد رفتار خود را به‌شدت و با اضطراب زیاد مدیریت می‌کنند. آن‌ها کمال‌گرا هستند و نمی‌توانند با ناکامی‌ها کنار بیایند. اهداف آن‌ها اغلب آرمانی و دست‌نیافتنی است، درنتیجه همواره خود را برای نرسیدن به آن سرزنش می‌کنند."},
+            "N-C-": {"name": "آرام (Relaxed)", "condition": "روان‌رنجوری پایین و وظیفه‌شناسی پایین", "detailed_description": "این گروه نیاز چندانی به مدیریت دقیق رفتار خود نمی‌بینند، تمایل دارند آسان‌ترین راه‌ها را انتخاب کنند و ناکامی‌های خود را با سخنرانی‌های فلسفی توجیه می‌کنند. معمولا در انجام کارهای سخت و ساختارگرا، به‌ کمک و تشویق دیگران نیاز دارند."}
+        }},
+        "interests": {"style_name": "سبک علایق (Style of Interests)", "factors": ["extraversion", "openness"], "axes": {"vertical": "extraversion", "horizontal": "openness"}, "types": {
+            "E+O-": {"name": "مصرف‌کنندگان اصلی (Mainstream Consumers)", "condition": "برون‌گرایی بالا و تجربه‌پذیری پایین", "detailed_description": "این گروه به فعالیت‌های هنجار محبوب علاقه‌ دارند. مثل مهمانی‌ها، فعالیت‌های ورزشی، خریدن کردن، فیلم‌های پرفروش و رویدادهای اجتماعی. آن‌ها جذب مشاغلی می‌شوند که ساده هستند اما اجازه مراوده با دیگران را به آن‌ها می‌دهند. فروشندگی یکی از این شغل‌ها است."},
+            "E-O+": {"name": "درون‌نگرها (Introspectors)", "condition": "برون‌گرایی پایین و تجربه‌پذیری بالا", "detailed_description": "این گروه خلاق و پر از ایده‌های نو هستند اما فعالیت‌هایی را دوست دارند که بتوانند به تنهایی انجام دهند. کتاب خواندن، نویسندگی، نقاشی، موسیقی برای آن‌ها جذابیت دارد و شغل‌هایی را ترجیح می‌دهند که هم چالش‌برانگیز باشد و هم خلوت آن‌ها را بهم نزند، مثل باستان‌شناسی یا طبیعت‌شناسی."},
+            "E+O+": {"name": "تعامل‌کنندگان خلاق (Creative Interactors)", "condition": "برون‌گرایی بالا و تجربه‌پذیری بالا", "detailed_description": "این افراد به تجربه کردن چیزهای جدید و متنوع علاقه دارند و دوست دارند کشف‌های خود را با دیگران به اشتراک بگذارند. آن‌ها از سخنرانی در جمع لذت می‌برند و به خوبی می‌توانند در گروه‌ها به مباحثه بپردازند. همچنین از ملاقات با افراد مختلف و پیشینه‌ آن‌ها لذت می‌برند، درنتیجه انسان‌شناسی یا روان‌شناسی شغل مناسبی برای آن‌ها است."},
+            "E-O-": {"name": "خانه‌نشین‌ها (Homebodies)", "condition": "برون‌گرایی پایین و تجربه‌پذیری پایین", "detailed_description": "خانه‌نشین‌ها به فعالیت‌هایی که بتوانند به تنهایی یا در گروه‌های کوچک انجام دهند، علاقه دارند. آن‌ها ماجراجویی و خطرپذیری را دوست ندارند اما از جمع‌آوری کلکسیون یا تماشای منظره‌ای طبیعی لذت می‌برند. مشاغلی مثل حسابداری و کتابداری برای آن‌ها مناسب است."}
+        }},
+        "interaction_style": {"style_name": "سبک تعامل (Style of Interactions)", "factors": ["extraversion", "agreeableness"], "axes": {"vertical": "extraversion", "horizontal": "agreeableness"}, "types": {
+            "E+A-": {"name": "رهبرها (Leaders)", "condition": "برون‌گرایی بالا و سازگاری پایین", "detailed_description": "این افراد از موقعیت‌های اجتماعی به عنوان فرصتی برای درخشیدن استفاده می‌کنند. آن‌ها اعتمادبه‌نفس بالایی برای تصمیم گرفتن دارند، می‌دانند چطور دیگران را با خود همراه کنند و ترجیح می‌دهند رهبر جمع باشند."},
+            "E-A+": {"name": "بی‌تکلف‌ها (The Unassuming)", "condition": "برون‌گرایی پایین و سازگاری بالا", "detailed_description": "این گروه فروتن و دلسوز هستند. آن‌ها ترجیح‌ می‌دهند تنها باشند اما با دلسوزی به نیازهای دیگران پاسخ می‌دهند. اعتماد زیاد بی‌تکلف‌ها گاهی می‌تواند باعث شود دیگران از آن‌ها سوءاستفاده کنند."},
+            "E+A+": {"name": "استقبال‌کنندگان (Welcomers)", "condition": "برون‌گرایی بالا و سازگاری بالا", "detailed_description": "استقبال‌کنندگان صمیمانه از همراهی با دیگران لذت می‌برند. آن‌ها نسبت به دوستان قدیمی خود دلسبتگی زیادی دارند اما آزادانه با دوستان جدید نیز ارتباط برقرار می‌کنند. این دسته خوش‌صحبت و دلسوز هستند، درنتیجه شنونده‌های خوبی به شمار می‌آیند. همچنین صحبت کردن از ایده‌های خودشان، آن‌ها را خشنود می‌سازد."},
+            "E-A-": {"name": "رقابت‌کنندگان (Competitors)", "condition": "برون‌گرایی پایین و سازگاری پایین", "detailed_description": "رقابت‌کنندگان دیگران را به عنوان دشمن بالقوه درنظر می‌گیرند و بسیار محتاط هستند، دوری و دوستی را به صمیمیت ترجیح می‌دهند و به‌شدت از حریم شخصی خود محافظت می‌کنند."}
+        }},
+        "activity_style": {"style_name": "سبک فعالیت (Style of Activity)", "factors": ["extraversion", "conscientiousness"], "axes": {"vertical": "extraversion", "horizontal": "conscientiousness"}, "types": {
+            "E+C-": {"name": "عاشقان سرگرمی (Fun Lovers)", "condition": "برون‌گرایی بالا و وظیفه‌شناسی پایین", "detailed_description": "این افراد سرشار از انرژی و نشاط هستند اما به‌سختی می‌توانند انرژی خود را در جهتی سازنده استفاده کنند. در عوض، ترجیح می‌دهند از زندگی پرهیجان، پر از ماجراجویی و مهمانی‌های شلوغ خود لذت ببرند. آن‌ها بسیار فعال و تکانشی هستند و دنبال بهانه‌ای می‌گردند تا وظایف خود را کنار بگذارند."},
+            "E-C+": {"name": "زحمت‌کش‌ها (Plodders)", "condition": "برون‌گرایی پایین و وظیفه‌شناسی بالا", "detailed_description": "این گروه کارکنانی ساختارمند هستند که بر روی کار خود تمرکز می‌کنند. آن‌ها آهسته و پیوسته وظایف خود را جلو می‌برند تا به موقع به اتمام برسند. وقت‌شناسی آن‌ها بالا است و بدون عجله و بادقت کارها را انجام می‌دهند."},
+            "E+C+": {"name": "به‌دست آورندگان (Go-Getters)", "condition": "برون‌گرایی بالا و وظیفه‌شناسی بالا", "detailed_description": "به‌دست آورندگان مولد و کارآمد هستند و با سرعت بالایی کار می‌کنند. آن‌ها برای کسب مهارت‌های بیشتر مشتاقند و روش‌های توسعه‌ فردی را خودانگیخته دنبال می‌کنند."},
+            "E-C-": {"name": "کم‌کارها (The Lethargic)", "condition": "برون‌گرایی پایین و وظیفه‌شناسی پایین", "detailed_description": "کم‌کارها شور و شوق زیادی از خود نشان نمی‌دهند. اهداف کمی می‌تواند در آن‌ها انگیزه ایجاد کند. آن‌ها بسیار منفعل و تکانشی رفتار می‌کنند و فقط پی رفع فوری‌ترین خواسته‌های خود هستند."}
+        }},
+        "attitude_style": {"style_name": "سبک نگرش (Style of Attitudes)", "factors": ["openness", "agreeableness"], "axes": {"vertical": "openness", "horizontal": "agreeableness"}, "types": {
+            "O+A-": {"name": "آزاداندیشان (Free-Thinkers)", "condition": "تجربه‌پذیری بالا و سازگاری پایین", "detailed_description": "این گروه نه تحت تاثیر سنت قرار می‌گیرند و نه تحت تاثیر جریان‌های مدرن هستند، بلکه همه دیدگاه‌ها را در نظر گرفته و مورد ارزیابی قرار می‌دهند تا نگرش خاص خود را پیدا کنند. آن‌ها می‌توانند احساسات را نادیده بگیرند تا حقیقت محض را پیدا کنند."},
+            "O-A+": {"name": "سنت‌گرایان (Traditionalists)", "condition": "تجربه‌پذیری پایین و سازگاری بالا", "detailed_description": "این افراد با تکیه بر سنت‌ها و آداب‌ورسوم به دنبال کشف بهترین راه زندگی هستند. از نظر آن‌ها پیروی از قوانین موجود بهترین راه برای تضمین رفاه همگی است."},
+            "O+A+": {"name": "پیشرفت‌‌گرایان (Progressives)", "condition": "تجربه‌پذیری بالا و سازگاری بالا", "detailed_description": "پیشرفت‌گرایان رویکردی تحلیلی به مشکلات اجتماعی دارند و مایلند تا راه‌های جدیدی را برای حل مشکل امتحان کنند. آن‌ها به طبیعت انسان ایمان دارند و مطمئن هستند به کمک آموزش، نوآوری و همکاری می‌توان جامعه را بهبود بخشید. به‌طور کل نگاه آن‌ها عقلانی و منطقی است."},
+            "O-A-": {"name": "باثبات و مصمم (Resolute)", "condition": "تجربه‌پذیری پایین و سازگاری پایین", "detailed_description": "اشخاص باثبات و مصمم، باورهای قوی و انعطاف‌ناپذیری در مورد سیاست‌های اجتماعی و اخلاق دارند. آن‌ها به فطرت انسان‌ها اعتماد ندارند و طرفدار رویکردهای سخت‌گیرانه نسبت به مشکلات اجتماعی هستند تا همگان را مجبور به رعایت قانون کنند."}
+        }},
+        "learning_style": {"style_name": "سبک یادگیری (Style of Learning)", "factors": ["openness", "conscientiousness"], "axes": {"vertical": "openness", "horizontal": "conscientiousness"}, "types": {
+            "O+C-": {"name": "رویاپردازان (Dreamers)", "condition": "تجربه‌پذیری بالا و وظیفه‌شناسی پایین", "detailed_description": "این افراد جذب ایده‌های جدید می‌شوند و به کمک تخیل خود، ایده‌های تازه را گسترش می‌دهند. آن‌ها در شروع پروژه‌های نوآورانه خوب هستند اما در تکمیل پروژه‌ها کمتر موفق می‌شوند. رویاپردازان ابهام و عدم‌ قطعیت را به خوبی تحمل می‌کنند اما برای متمرکز ماندن، به کمک نیاز دارند."},
+            "O-C+": {"name": "بخشنامه‌ای‌ها (By-the-Bookers)", "condition": "تجربه‌پذیری پایین و وظیفه‌شناسی بالا", "detailed_description": "این گروه افرادی کوشا، ساختارگرا و منظم هستند که از قوانین موجود پیروی می‌کنند. آن‌ها قدرت خیال‌پردازی بالایی ندارند و ترجیح می‌دهند از بخشنامه‌هایی که مسیر را قدم‌به‌قدم مشخص می‌کنند، استفاده کنند. یادگیری در بخشنامه‌ای‌ها قوی است اما با مسائلی که پاسخ قاطع و روشنی ندارند، مشکل دارند."},
+            "O+C+": {"name": "دانش‌آموزان خوب (Good Students)", "condition": "تجربه‌پذیری بالا و وظیفه‌شناسی بالا", "detailed_description": "دانش‌آموزان خوب لزوما از دیگران باهوش‌تر نیستند اما عشق واقعی نسبت به یادگیری دارند و با سخت‌کوشی و برنامه‌ریزی پیش می‌روند. آن‌ها سطح آرمان بالایی دارند و معمولا در حل مشکلات خلاق هستند. این افراد اغلب تا جایی که بتوانند تحصیلات خود را ادامه می‌دهند."},
+            "O-C-": {"name": "پژوهشگران بی‌میل (Reluctant Scholars)", "condition": "تجربه‌پذیری پایین و وظیفه‌شناسی پایین", "detailed_description": "پژوهشگران بی‌میل نسبت به فعالیت‌های علمی و فکری میل کمی دارند. درنتیجه، برای پایبند کردن‌ آن‌ها به یادگیری باید انگیزه تحصیلی آن‌ها را بالا برد. همچنین، این گروه برای حفظ تمرکز، برنامه‌ریزی و سازمان‌دهی کارهای خود به کمک نیاز دارند."}
+        }},
+        "character_style": {"style_name": "سبک شخصیت (Style of Character)", "factors": ["agreeableness", "conscientiousness"], "axes": {"vertical": "agreeableness", "horizontal": "conscientiousness"}, "types": {
+            "A+C-": {"name": "خوش‌نیت‌ها (Well-Intentioned)", "condition": "سازگاری بالا و وظیفه‌شناسی پایین", "detailed_description": "خوش‌نیت‌ها افراد بخشنده‌ای هستند که واقعا دلسوز و نگران دیگرانند اما به‌علت بی‌برنامه بودن و پیشتکار پایین نمی‌توانند همیشه با موفقیت نیت خیر خود را دنبال کنند."},
+            "A-C+": {"name": "خود-پیش‌برندگان (Self-Promoters)", "condition": "سازگاری پایین و وظیفه‌شناسی بالا", "detailed_description": "این گروه در درجه اول به نیازها، اهداف و علایق خود توجه می‌کنند. منفعت آن‌ها برای خودشان در الویت است و همین ویژگی می‌تواند سبب شود در تجارت یا سیاست افراد بسیار موفقی باشند."},
+            "A+C+": {"name": "نوع‌دوستان موثر (Effective Altruists)", "condition": "سازگاری بالا و وظیفه‌شناسی بالا", "detailed_description": "این دسته نظم و استقامت بالایی دارند و به خوبی وظایف خود را تا انتها پیش می‌‌برند. از سوی دیگر، مایل به خدمت به دیگران هستند. درنتیجه، می‌توانند با پشتکار زیاد در جهت منافع جمعی کار کنند."},
+            "A-C-": {"name": "نامشخص (Undistinguished)", "condition": "سازگاری پایین و وظیفه‌شناسی پایین", "detailed_description": "این افراد اراده محکمی ندارند و بیشتر به فکر راحتی و لذت خود هستند تا رفاه دیگران. آن‌ها به خاطر سازگاری و وظیفه‌شناسی پایین خود، ممکن است مشکلات رفتاری داشته باشند که باید در جهت رفع آن تلاش کنند."}
+        }}
     }
 
     # --- Main function logic starts here ---
     try:
-        # 1. Validate input data
         if not isinstance(raw_data, dict):
             return {"status": "error", "message": "Invalid input: raw_data must be a dictionary."}
 
-        # --- 2. Calculate Raw Scores ---
         raw_scores = {dim: 0 for dim in DIMENSIONS_META.keys()}
         for question in QUESTIONS_DATA:
             q_id = str(question["id"])
@@ -678,31 +723,25 @@ def _calculate_neo_scores(raw_data):
 
             response_obj = raw_data.get(q_id)
             if not response_obj or "response" not in response_obj:
-                # For simplicity, we'll treat missing answers as neutral (2), though this could be handled differently
                 response_value = 2
             else:
                 try:
                     response_value = int(response_obj["response"])
                 except (ValueError, TypeError):
-                    response_value = 2 # Default to neutral if value is not a valid integer
+                    response_value = 2
 
             score = (4 - response_value) if is_reverse else response_value
             raw_scores[dimension] += score
 
-        # --- 3. Calculate Scaled Scores and Interpretations for each Dimension ---
         dimensions_results = {}
         for dim_id, raw_score in raw_scores.items():
-            # Scaled score (0-100)
             scaled_score = round((raw_score / 48) * 100)
-            # Strength percentage (how far from the 50% midpoint)
             strength_percentage = round((abs(50 - scaled_score) / 50) * 100)
 
-            # Determine level based on raw score
             if raw_score <= 12: level = "کم"
             elif raw_score <= 24: level = "متوسط"
             else: level = "زیاد"
 
-            # Determine strength level based on strength percentage
             if strength_percentage <= 33: strength_level = "ضعیف"
             elif strength_percentage <= 66: strength_level = "متوسط"
             else: strength_level = "قوی"
@@ -717,28 +756,24 @@ def _calculate_neo_scores(raw_data):
                 "strength_level": strength_level,
             }
 
-        # --- 4. Determine Personality Styles ---
         personality_styles_results = {}
         for style_id, style_meta in PERSONALITY_STYLES_META.items():
             factors = style_meta["factors"]
             factor1_id, factor2_id = factors[0], factors[1]
 
-            # Determine high/low status for each factor
             factor1_status = "+" if dimensions_results[factor1_id]["scaled_score"]["value"] >= 50 else "-"
             factor2_status = "+" if dimensions_results[factor2_id]["scaled_score"]["value"] >= 50 else "-"
 
-            # Generate quadrant code (e.g., N+E-)
             quadrant_code = f"{DIMENSIONS_META[factor1_id]['abbr']}{factor1_status}{DIMENSIONS_META[factor2_id]['abbr']}{factor2_status}"
 
-            # Find matching type
             matching_type_data = style_meta["types"].get(quadrant_code)
             if not matching_type_data:
-                # Fallback or error, though this should not happen with valid logic
-                matching_type = {"name": "Unknown", "detailed_description": "Could not determine personality style type."}
+                matching_type = {"name": "Unknown", "condition": "Unknown", "detailed_description": "Could not determine personality style type."}
             else:
                 matching_type = {
                     "name": matching_type_data["name"],
                     "quadrant_code": quadrant_code,
+                    "condition": matching_type_data["condition"],
                     "detailed_description": matching_type_data["detailed_description"]
                 }
 
@@ -756,13 +791,12 @@ def _calculate_neo_scores(raw_data):
                 }
             }
 
-        # --- 5. Assemble Final Result ---
         final_result = {
             "dimensions": dimensions_results,
             "personality_styles": personality_styles_results
         }
 
-        logger.info(f"Successfully calculated NEO-FFI scores.")
+        logger.info("Successfully calculated NEO-FFI scores.")
         return final_result
 
     except Exception as e:

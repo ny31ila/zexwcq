@@ -39,6 +39,7 @@ class NEOScoreCalculatorTest(TestCase):
         # 3. Validate a specific personality style (Well-Being)
         well_being = results["personality_styles"]["well_being"]
         self.assertEqual(well_being["matching_type"]["quadrant_code"], "N+E+")
+        self.assertEqual(well_being["matching_type"]["condition"], "روان‌رنجوری بالا و برون‌گرایی بالا")
         self.assertEqual(well_being["factor_scores"]["neuroticism"], 67)
         self.assertEqual(well_being["factor_scores"]["extraversion"], 67)
 
@@ -121,3 +122,4 @@ class NEOScoreCalculatorTest(TestCase):
         defense_style = results["personality_styles"]["defense_style"]
         self.assertEqual(defense_style["matching_type"]["quadrant_code"], "N+O-")
         self.assertEqual(defense_style["matching_type"]["name"], "ناسازگار (Maladaptive)")
+        self.assertEqual(defense_style["matching_type"]["condition"], "روان‌رنجوری بالا و تجربه‌پذیری پایین")

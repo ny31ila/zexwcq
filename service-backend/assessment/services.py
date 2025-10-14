@@ -77,6 +77,8 @@ def calculate_assessment_scores(attempt_id):
              calculated_results = _calculate_disc_scores(attempt.raw_results_json)
         elif assessment.name.lower() == "neo":
             calculated_results = _calculate_neo_scores(attempt.raw_results_json)
+        elif assessment.name.lower() == "pvq":
+            calculated_results = _calculate_pvq_scores(attempt.raw_results_json)
         else:
             # Generic handler or log unsupported assessment
             logger.info(f"No specific calculator implemented for assessment '{assessment.name}'. Using generic processor.")
@@ -477,12 +479,6 @@ def _calculate_gardner_scores(user_responses):
             validated_responses[q_id] = answer
         except (ValueError, TypeError):
             return {"status": "error", "message": f"Invalid or malformed response data for question '{q_id_str}'."}
-
-    # Check for completeness
-    all_required_questions = {q for dim_info in dimensions.values() for q in dim_info["questions"]}
-    missing_questions = sorted(list(all_required_questions - set(validated_responses.keys())))
-    if missing_questions:
-        return {"status": "error", "message": f"Missing responses for questions: {missing_questions}"}
 
     # --- 2. Calculate Scores ---
     scores = {}
@@ -891,6 +887,128 @@ def _calculate_disc_scores(responses):
             "perceived": {"name": "خود ادراک‌شده (برآیند نقاب و ذات - آیینه)", "description": "A composite profile used to determine the final behavioral pattern.", "scores": perceived_scores}
         }
     }
+
+
+def _calculate_pvq_scores(raw_data):
+    """
+    Calculates and interprets scores for the Schwartz Personal Values Questionnaire (PVQ).
+
+    This function processes raw user responses to calculate scores for the ten core
+    human values. It determines a grand mean from all responses to account for
+    individual response bias, then calculates a centered score for each value to show
+    its relative importance to the user.
+
+    The final output is a rich JSON object designed for easy frontend consumption,
+    containing a summary, a ranked list of values, and a detailed breakdown of
+    scores for each value category, using ranks as keys for easy lookup.
+
+    Args:
+        raw_data (dict): The raw_results_json from a UserAssessmentAttempt.
+            Expected format: {"1": {"response": "2"}, "2": {"response": "4"}, ...}
+
+    Returns:
+        dict: A dictionary containing the detailed analysis of the test,
+              or an error message if the input is invalid.
+    """
+    # --- Self-Contained Data Structures for PVQ ---
+    VALUE_CATEGORIES = {
+        "self_direction": {"name_en": "Self-Direction", "name_fa": "خودرهبری", "questions": [1, 11, 22, 34]},
+        "stimulation": {"name_en": "Stimulation", "name_fa": "هیجان خواهی", "questions": [6, 15, 30]},
+        "hedonism": {"name_en": "Hedonism", "name_fa": "لذت جویی", "questions": [10, 26, 37]},
+        "achievement": {"name_en": "Achievement", "name_fa": "موفقیت", "questions": [4, 13, 24, 32]},
+        "power": {"name_en": "Power", "name_fa": "قدرت", "questions": [2, 17, 39]},
+        "security": {"name_en": "Security", "name_fa": "امنیت", "questions": [5, 14, 21, 31, 35]},
+        "conformity": {"name_en": "Conformity", "name_fa": "همنوایی", "questions": [7, 16, 28, 36]},
+        "tradition": {"name_en": "Tradition", "name_fa": "سنت گرایی", "questions": [9, 20, 25, 38]},
+        "benevolence": {"name_en": "Benevolence", "name_fa": "خیرخواهی", "questions": [12, 18, 27, 33]},
+        "universalism": {"name_en": "Universalism", "name_fa": "جهان نگری", "questions": [3, 8, 19, 23, 29, 40]}
+    }
+
+    try:
+        if not isinstance(raw_data, dict):
+            return {"status": "error", "message": "Invalid input: raw_data must be a dictionary."}
+
+        # --- 1. Calculate scores for each value category ---
+        scores = {}
+        all_responses = []
+        for category_key, category_info in VALUE_CATEGORIES.items():
+            total_score = 0
+            category_responses = []
+            for q_id in category_info["questions"]:
+                q_str = str(q_id)
+                if q_str in raw_data and "response" in raw_data[q_str]:
+                    try:
+                        score = int(raw_data[q_str]["response"])
+                        total_score += score
+                        category_responses.append(score)
+                        all_responses.append(score)
+                    except (ValueError, TypeError):
+                        # Assuming complete data, but good to have a fallback.
+                        # We could log a warning here if needed.
+                        pass
+
+            question_count = len(category_responses)
+            avg_score = total_score / question_count if question_count > 0 else 0
+
+            scores[category_key] = {
+                "name_en": category_info["name_en"],
+                "name_fa": category_info["name_fa"],
+                "total_score": total_score,
+                "category_average_score": round(avg_score, 2),
+                "question_count": question_count,
+                "responses": category_responses
+            }
+
+        # --- 2. Calculate grand mean and centered scores ---
+        grand_mean = sum(all_responses) / len(all_responses) if all_responses else 0
+
+        for category_key in scores:
+            centered_score = scores[category_key]["category_average_score"] - grand_mean
+            scores[category_key]["deviation_from_grand_mean"] = round(centered_score, 2)
+
+        # --- 3. Sort by centered score to establish ranking ---
+        sorted_scores_list = sorted(
+            scores.items(),
+            key=lambda item: item[1]["deviation_from_grand_mean"],
+            reverse=True
+        )
+
+        # --- 4. Build the final output structure with ranks as keys ---
+        ranking_obj = {}
+        detailed_scores_obj = {}
+
+        for idx, (category_key, data) in enumerate(sorted_scores_list):
+            rank = str(idx + 1)
+
+            # Populate the ranking object
+            ranking_obj[rank] = {
+                "category": category_key,
+                "name_en": data["name_en"],
+                "name_fa": data["name_fa"],
+                "deviation_from_grand_mean": data["deviation_from_grand_mean"],
+                "category_average_score": data["category_average_score"]
+            }
+
+            # Populate the detailed scores object
+            detailed_scores_obj[rank] = {
+                "category": category_key,
+                **data # Unpack all data from the scores dict
+            }
+
+        final_result = {
+            "summary": {
+                "grand_mean": round(grand_mean, 2)
+            },
+            "ranking": ranking_obj,
+            "detailed_scores": detailed_scores_obj
+        }
+
+        logger.info("Successfully calculated PVQ scores.")
+        return final_result
+
+    except Exception as e:
+        logger.exception("An unexpected error occurred during PVQ score calculation.")
+        return {"status": "error", "message": str(e)}
 
 
 def prepare_aggregated_package_data_for_ai(user, package):

@@ -220,9 +220,9 @@ class SubmitAssessmentAttemptView(views.APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
 
-    def patch(self, request, assessment_id, *args, **kwargs):
+    def post(self, request, assessment_id, *args, **kwargs):
         """
-        PATCH request to submit/finalize an attempt.
+        POST request to submit/finalize an attempt.
         `assessment_id` is passed in the URL.
         """
         user = request.user

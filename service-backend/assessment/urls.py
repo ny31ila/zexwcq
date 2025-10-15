@@ -25,7 +25,7 @@ urlpatterns = [
     # Start a new attempt for this assessment (POST)
     path('assessments/<int:assessment_id>/attempt/start/', views.StartAssessmentAttemptView.as_view(), name='attempt_start'),
     
-    # Submit/finalize the attempt for this assessment (PATCH)
+    # Submit/finalize the attempt for this assessment (POST)
     path('assessments/<int:assessment_id>/attempt/submit/', views.SubmitAssessmentAttemptView.as_view(), name='attempt_submit'),
     
     # Save a single response for this assessment's attempt (PATCH)

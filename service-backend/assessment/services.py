@@ -79,6 +79,8 @@ def calculate_assessment_scores(attempt_id):
             calculated_results = _calculate_neo_scores(attempt.raw_results_json)
         elif assessment.name.lower() == "pvq":
             calculated_results = _calculate_pvq_scores(attempt.raw_results_json)
+        elif assessment.name.lower() == "swanson":
+            calculated_results = _calculate_swanson_scores(attempt.raw_results_json)
         else:
             # Generic handler or log unsupported assessment
             logger.info(f"No specific calculator implemented for assessment '{assessment.name}'. Using generic processor.")
@@ -1008,6 +1010,131 @@ def _calculate_pvq_scores(raw_data):
 
     except Exception as e:
         logger.exception("An unexpected error occurred during PVQ score calculation.")
+        return {"status": "error", "message": str(e)}
+
+
+def _calculate_swanson_scores(raw_data):
+    """
+    Calculates and interprets scores for the Swanson (SNAP-IV) assessment for ADHD.
+    This function processes raw user responses to calculate scores for two primary
+    subscales: Inattention and Hyperactivity/Impulsivity. It provides both sum and
+    average scores, compares them against clinically relevant cutoffs, and determines a
+    final ADHD diagnostic category. The output is a structured JSON object designed
+    for clear frontend presentation.
+    """
+    # --- Self-Contained Data Structures for Swanson (SNAP-IV) ---
+    INTERPRETATION_DATA = {
+        "cutoffs": {
+            "inattention_sum": 9.5,
+            "hyperactivity_impulsivity_sum": 9.5,
+            "total_adhd_sum": 18.5,
+            "inattention_average": 1.06,
+            "hyperactivity_impulsivity_average": 1.06,
+            "total_adhd_average": 1.03
+        },
+        "categories": {
+            "Predominantly Inattentive": {
+                "name": "Predominantly Inattentive",
+                "criteria": "نمره کمبود توجه بالا (بالای برش) و بیش‌فعالی/تکانشگری پایین"
+            },
+            "Predominantly Hyperactive-Impulsive": {
+                "name": "Predominantly Hyperactive-Impulsive",
+                "criteria": "نمره بیش‌فعالی/تکانشگری بالا و کمبود توجه پایین"
+            },
+            "Combined": {
+                "name": "Combined",
+                "criteria": "هر دو زیرمقیاس بالا"
+            },
+            "No Significant ADHD": {
+                "name": "No Significant ADHD",
+                "criteria": "نمرات زیر برش در هر دو زیرمقیاس"
+            }
+        }
+    }
+
+    # --- Main function logic starts here ---
+    try:
+        if not isinstance(raw_data, dict):
+            return {"status": "error", "message": "Invalid input: raw_data must be a dictionary."}
+
+        # 1. Parse and validate responses
+        responses = {}
+        for q_id_str, resp_obj in raw_data.items():
+            try:
+                if isinstance(resp_obj, dict) and "response" in resp_obj:
+                    responses[int(q_id_str)] = int(resp_obj["response"])
+            except (ValueError, TypeError):
+                # Log or handle malformed response data if necessary
+                pass
+
+        # 2. Define subscales and calculate scores
+        inattention_items = list(range(1, 10))
+        hyperactivity_impulsivity_items = list(range(10, 19))
+
+        inattention_sum = sum(responses.get(i, 0) for i in inattention_items)
+        hyperactivity_impulsivity_sum = sum(responses.get(i, 0) for i in hyperactivity_impulsivity_items)
+        total_adhd_sum = inattention_sum + hyperactivity_impulsivity_sum
+
+        inattention_avg = inattention_sum / len(inattention_items)
+        hyperactivity_impulsivity_avg = hyperactivity_impulsivity_sum / len(hyperactivity_impulsivity_items)
+        total_adhd_avg = total_adhd_sum / (len(inattention_items) + len(hyperactivity_impulsivity_items))
+
+        scores = {
+            "inattention": {"sum": inattention_sum, "average": round(inattention_avg, 2)},
+            "hyperactivity_impulsivity": {"sum": hyperactivity_impulsivity_sum, "average": round(hyperactivity_impulsivity_avg, 2)},
+            "total_adhd": {"sum": total_adhd_sum, "average": round(total_adhd_avg, 2)}
+        }
+
+        # 3. Interpret scores and determine category
+        cutoffs = INTERPRETATION_DATA["cutoffs"]
+        inattention_high = scores["inattention"]["average"] > cutoffs["inattention_average"]
+        hyperactivity_high = scores["hyperactivity_impulsivity"]["average"] > cutoffs["hyperactivity_impulsivity_average"]
+
+        if inattention_high and not hyperactivity_high:
+            category_key = "Predominantly Inattentive"
+        elif hyperactivity_high and not inattention_high:
+            category_key = "Predominantly Hyperactive-Impulsive"
+        elif inattention_high and hyperactivity_high:
+            category_key = "Combined"
+        else:
+            category_key = "No Significant ADHD"
+
+        category_details = INTERPRETATION_DATA["categories"][category_key]
+
+        interpretation = {
+            "category": {
+                "id": category_key,
+                "name": category_details["name"],
+                "criteria": category_details["criteria"]
+            },
+            "subscale_status": {
+                "inattention": {
+                    "status": "Above cutoff" if inattention_high else "Below cutoff",
+                    "user_average": scores["inattention"]["average"],
+                    "cutoff_average": cutoffs["inattention_average"]
+                },
+                "hyperactivity_impulsivity": {
+                    "status": "Above cutoff" if hyperactivity_high else "Below cutoff",
+                    "user_average": scores["hyperactivity_impulsivity"]["average"],
+                    "cutoff_average": cutoffs["hyperactivity_impulsivity_average"]
+                }
+            }
+        }
+
+        # 4. Assemble the final result object
+        final_result = {
+            "status": "success",
+            "scores": scores,
+            "interpretation": interpretation,
+            "cutoffs_reference": cutoffs,
+            "notes": "These results are for screening purposes only. Consult a professional for a formal diagnosis."
+        }
+
+        logger.info("Successfully calculated Swanson (SNAP-IV) scores.")
+        return final_result
+
+    except Exception as e:
+        logger.exception("An unexpected error occurred during Swanson (SNAP-IV) score calculation.")
         return {"status": "error", "message": str(e)}
 
 

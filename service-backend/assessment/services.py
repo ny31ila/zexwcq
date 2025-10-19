@@ -1126,8 +1126,7 @@ def _calculate_swanson_scores(raw_data):
             "status": "success",
             "scores": scores,
             "interpretation": interpretation,
-            "cutoffs_reference": cutoffs,
-            "notes": "These results are for screening purposes only. Consult a professional for a formal diagnosis."
+            "cutoffs_reference": cutoffs
         }
 
         logger.info("Successfully calculated Swanson (SNAP-IV) scores.")

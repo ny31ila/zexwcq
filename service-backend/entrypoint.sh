@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # project_root/service-backend/entrypoint.sh
 
 echo "Starting entrypoint script..."

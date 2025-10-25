@@ -17,17 +17,6 @@ fi
 echo "Collecting static files..."
 python manage.py collectstatic --noinput --clear
 
-# Optional: Create default superuser (NOT RECOMMENDED for production or exposed environments)
-# This is controlled by an environment variable
-# if [ "$CREATE_DEFAULT_SUPERUSER" = "true" ]; then
-#     echo "Creating default superuser..."
-#     # Requires django-extensions or a custom management command for --no-input with specific data
-#     # python manage.py createsuperuser --noinput --username 1234567890 --email admin@example.com
-#     # You would then need to set the password separately, which is complex and insecure.
-#     # It's better to run this manually or via a separate secure process.
-#     echo "WARNING: Automatic superuser creation is disabled for security. Run 'createsuperuser' manually."
-# fi
-
 # --- Determine the command to run based on an environment variable or argument ---
 # This allows the same image to be used for different services (web server, celery worker)
 # Default command is to run the Django development server

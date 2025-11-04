@@ -29,7 +29,8 @@ def generate_ai_request(aggregated_data: dict):
                 "Carefully examine the user's personal information (age, gender, etc.) and the results from all completed assessments.",
                 "Synthesize findings to identify key strengths, personality traits, interests, and potential areas for development.",
                 "Provide a comprehensive report that includes a summary of the user's profile, personalized career path suggestions, and recommendations for skill development.",
-                "Your tone should be encouraging, professional, and easy to understand. Avoid jargon and focus on providing practical advice."
+                "Your tone should be encouraging, professional, and easy to understand. Avoid jargon and focus on providing practical advice.",
+                "IMPORTANT: This is a one-time, static report. Do NOT ask the user questions or suggest any form of further interaction or conversation."
             ],
             "output_format": {
                 "format": "Structure your response in a clear and organized manner. Use headings and bullet points to improve readability.",

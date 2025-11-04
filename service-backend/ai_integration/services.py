@@ -5,43 +5,49 @@ Service functions for preparing and logging AI requests.
 import logging
 import json
 from pathlib import Path
+from django.contrib.auth import get_user_model
 
 logger = logging.getLogger(__name__)
 
 # Define the path for the log file within the ai_integration app directory
 LOG_FILE_PATH = Path(__file__).parent / "ai_request_log.json"
+User = get_user_model()
 
 def generate_ai_request(aggregated_data: dict):
     """
-    Generates the AI request payload and logs it to a file.
+    Generates a structured JSON AI request payload and logs it to a file.
     """
-    prompt_template = """
-    As an expert career counselor, your task is to analyze the provided assessment results
-    and user information to generate personalized, insightful, and actionable career-related
-    recommendations.
+    user_data = aggregated_data.get("user_data", {})
 
-    **User and Assessment Data:**
-    {user_and_assessment_data}
-
-    **Instructions:**
-    1.  **Review the Data:** Carefully examine the user's personal information (age, gender, education) and the results from all completed assessments.
-    2.  **Synthesize Findings:** Identify key strengths, personality traits, interests, and potential areas for development based on a holistic view of the data.
-    3.  **Generate Recommendations:** Provide a comprehensive report that includes:
-        *   A summary of the user's profile.
-        *   Personalized career path suggestions.
-        *   Recommendations for skill development and further education.
-        *   Actionable next steps for the user to take in their career exploration journey.
-    4.  **Tone and Style:** Your response should be encouraging, professional, and easy to understand. Avoid jargon and focus on providing practical advice.
-
-    **Output Format:**
-    Please structure your response in a clear and organized manner. Use headings and bullet points to improve readability.
-    """
+    # Construct the structured JSON prompt
+    prompt = {
+        "system_instructions": {
+            "role": "You are an expert career counselor providing guidance to Iranian users.",
+            "language": "Generate the entire response in Persian (Farsi).",
+            "response_guidelines": [
+                "Begin your analysis with a brief, evaluative summary of the user's profile to build trust and rapport.",
+                "Carefully examine the user's personal information (age, gender, etc.) and the results from all completed assessments.",
+                "Synthesize findings to identify key strengths, personality traits, interests, and potential areas for development.",
+                "Provide a comprehensive report that includes a summary of the user's profile, personalized career path suggestions, and recommendations for skill development.",
+                "Your tone should be encouraging, professional, and easy to understand. Avoid jargon and focus on providing practical advice."
+            ],
+            "output_format": {
+                "format": "Structure your response in a clear and organized manner. Use headings and bullet points to improve readability.",
+                "tables": "Use tables where appropriate to present data or comparisons clearly."
+            }
+        },
+        "user_profile": {
+            "age": user_data.get("age"),
+            "gender": user_data.get("gender"),
+            # Add any other important user metadata here
+        },
+        "assessment_results": aggregated_data.get("assessments_data", [])
+    }
 
     # For now, we will just log the aggregated data to a file.
     # In the future, this function will be responsible for sending the request to the AI service.
-    
     payload = {
-        "prompt": prompt_template.format(user_and_assessment_data=json.dumps(aggregated_data, indent=2)),
+        "prompt": prompt,
         "model": "some_future_model",
         "parameters": {
             "max_tokens": 2048,
@@ -50,8 +56,9 @@ def generate_ai_request(aggregated_data: dict):
     }
 
     try:
-        with open(LOG_FILE_PATH, "a") as f:
-            f.write(json.dumps(payload, indent=2))
+        # Use json.dumps with ensure_ascii=False to correctly handle Persian characters
+        with open(LOG_FILE_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(payload, indent=2, ensure_ascii=False))
             f.write("\n---\n") # Separator for multiple requests
         logger.info(f"Successfully logged AI request to {LOG_FILE_PATH}")
     except IOError as e:

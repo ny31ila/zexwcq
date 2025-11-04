@@ -15,7 +15,7 @@ from .serializers import (
 # Import the new service function
 from .services import calculate_assessment_scores, prepare_aggregated_package_data_for_ai
 # Import the Celery task
-from .tasks import send_to_ai
+from ai_integration.tasks import send_to_ai
 # Import user model
 from django.conf import settings
 User = settings.AUTH_USER_MODEL

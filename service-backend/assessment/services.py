@@ -1171,6 +1171,7 @@ def prepare_aggregated_package_data_for_ai(user, package):
 
         # 3. Prepare the data structure to send to the AI service.
         # The structure depends heavily on how the AI service expects the input.
+
         aggregated_ai_input_data = {
             "user_data": {
                 "user_id": user.id,

@@ -49,11 +49,8 @@ def generate_ai_request(aggregated_data: dict):
     # In the future, this function will be responsible for sending the request to the AI service.
     payload = {
         "prompt": prompt,
-        "model": "some_future_model",
-        "parameters": {
-            "max_tokens": 2048,
-            "temperature": 0.7,
-        }
+        "Temperature": 0,
+        "hallucination": 0
     }
 
     try:

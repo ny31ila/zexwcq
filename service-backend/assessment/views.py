@@ -16,6 +16,7 @@ from .serializers import (
 from .services import calculate_assessment_scores, prepare_aggregated_package_data_for_ai
 # Import the Celery task
 from ai_integration.tasks import send_to_ai
+from ai_integration.models import AIInteractionLog
 # Import user model
 from django.conf import settings
 User = settings.AUTH_USER_MODEL
@@ -379,7 +380,14 @@ class SendPackageResultsToAiView(views.APIView):
         """
         user = request.user
 
-        # 1. Get the package instance and verify user access
+        # 1. Check for existing successful submissions
+        if AIInteractionLog.objects.filter(user=user, package_id=package_id, status='success').exists():
+            return Response(
+                {"detail": "The results for this package have already been successfully sent to the AI."},
+                status=status.HTTP_409_CONFLICT
+            )
+
+        # 2. Get the package instance and verify user access
         try:
             package = TestPackage.objects.get(id=package_id, is_active=True)
         except TestPackage.DoesNotExist:

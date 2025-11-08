@@ -1,9 +1,45 @@
 # service-backend/ai_integration/models.py
 from django.db import models
 from django.conf import settings
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from assessment.models import TestPackage
+
 User = settings.AUTH_USER_MODEL
+
+
+class AIInteractionLog(models.Model):
+    """
+    Logs each interaction with the external AI service, tracking the request,
+    response, and status.
+    """
+    STATUS_CHOICES = [
+        ('pending', _('Pending')),
+        ('success', _('Success')),
+        ('error', _('Error')),
+    ]
+
+    user = models.ForeignKey(User, related_name='ai_interactions', on_delete=models.CASCADE, verbose_name=_("user"))
+    package = models.ForeignKey(TestPackage, related_name='ai_interactions', on_delete=models.CASCADE, verbose_name=_("package"))
+
+    status = models.CharField(_("status"), max_length=10, choices=STATUS_CHOICES, default='pending')
+
+    request_payload = models.JSONField(_("request payload"))
+    response_content = models.TextField(_("response content"), blank=True)
+    error_message = models.TextField(_("error message"), blank=True)
+
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("AI Interaction Log")
+        verbose_name_plural = _("AI Interaction Logs")
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"AI Interaction for {self.user} on {self.package.name} ({self.status})"
+
 
 class AIRecommendation(models.Model):
     """

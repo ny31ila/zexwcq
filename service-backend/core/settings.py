@@ -251,10 +251,6 @@ CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localho
 
 # --- External Service Configurations ---
 
-# Ollama Cloud API Settings
-OLLAMA_CLOUD_API_KEY = config('OLLAMA_CLOUD_API_KEY', default='')
-OLLAMA_CLOUD_MODEL_ID = config('OLLAMA_CLOUD_MODEL_ID', default='')
-
 # DeepSeek AI API Settings
 # Note: The prompt says DeepSeek is installed locally/self-hosted.
 # You would typically point this to the internal address of your DeepSeek instance.

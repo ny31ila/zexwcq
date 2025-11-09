@@ -7,7 +7,7 @@ from celery import shared_task
 import logging
 
 from assessment.services import prepare_aggregated_package_data_for_ai
-from .services import send_prompt_to_ollama_and_log
+from .services import generate_ai_request
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ def send_to_ai(self, user_id, package_id):
             logger.warning(warning_msg)
             return f"Skipped: {warning_msg}"
 
-        send_prompt_to_ollama_and_log(user_id, package_id, aggregated_data)
+        generate_ai_request(aggregated_data)
 
         logger.info(f"Successfully initiated sending data to AI for User {user_id}, Package {package_id}.")
         return f"Success: Data sent to AI for User {user_id}, Package {package_id}"

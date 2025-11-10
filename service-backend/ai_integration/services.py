@@ -1,65 +1,145 @@
 # service-backend/ai_integration/services.py
 """
-Service functions for preparing and logging AI requests.
+Service functions for orchestrating interactions with external AI providers.
 """
 import logging
 import json
-from pathlib import Path
-from django.contrib.auth import get_user_model
+import requests
+from django.conf import settings
+from django.db import transaction
+from django.utils import timezone
+from .models import AIInteraction, AIProvider
+from assessment.services import prepare_aggregated_package_data_for_ai
+from account.models import User
+from assessment.models import TestPackage as Package
 
 logger = logging.getLogger(__name__)
 
-# Define the path for the log file within the ai_integration app directory
-LOG_FILE_PATH = Path(__file__).parent / "ai_request_log.json"
-User = get_user_model()
-
-def generate_ai_request(aggregated_data: dict):
+def _parse_successful_response(provider_key: str, response_data: dict) -> str:
     """
-    Generates a structured JSON AI request payload and logs it to a file.
+    Parses the successful JSON response from an AI provider to extract the clean,
+    user-facing text content.
     """
-    user_data = aggregated_data.get("user_data", {})
+    if provider_key == 'ollama_cloud':
+        try:
+            return response_data['message']['content']
+        except (KeyError, TypeError) as e:
+            logger.error(f"Could not parse successful response from {provider_key}: {e}. Response data: {response_data}")
+            return "Error: Could not parse AI response."
+    # Add elif blocks here for other providers in the future
+    else:
+        logger.warning(f"No response parsing logic defined for provider '{provider_key}'. Returning raw JSON.")
+        return json.dumps(response_data)
 
-    # Construct the structured JSON prompt
-    prompt = {
-        "system_instructions": {
-            "role": "You are an expert career counselor providing guidance to Iranian users.",
-            "language": "Generate the entire response in Persian (Farsi).",
-            "response_guidelines": [
-                "Begin your analysis with a brief, evaluative summary of the user's profile to build trust and rapport.",
-                "Carefully examine the user's personal information (age, gender, etc.) and the results from all completed assessments.",
-                "Synthesize findings to identify key strengths, personality traits, interests, and potential areas for development.",
-                "Provide a comprehensive report that includes a summary of the user's profile, personalized career path suggestions, and recommendations for skill development.",
-                "Your tone should be encouraging, professional, and easy to understand. Avoid jargon and focus on providing practical advice.",
-                "IMPORTANT: This is a one-time, static report. Do NOT ask the user questions or suggest any form of further interaction or conversation."
-            ],
-            "output_format": {
-                "format": "Structure your response in a clear and organized manner. Use headings and bullet points to improve readability.",
-                "tables": "Use tables where appropriate to present data or comparisons clearly."
-            }
-        },
-        "user_profile": {
-            "age": user_data.get("age"),
-            "gender": user_data.get("gender"),
-            # Add any other important user metadata here
-        },
-        "assessment_results": aggregated_data.get("assessments_data", [])
-    }
+def _execute_external_ai_request(provider_key: str, model_key: str, prompt: dict) -> requests.Response:
+    """
+    Builds and executes the HTTP request to the specified AI provider.
+    Handles dynamic insertion of keys, models, and prompts into templates.
+    """
+    provider_config = settings.AI_PROVIDERS[provider_key]
+    api_key = provider_config.get('API_KEY', '')
 
-    # For now, we will just log the aggregated data to a file.
-    # In the future, this function will be responsible for sending the request to the AI service.
-    payload = {
-        "prompt": prompt,
-        "Temperature": 0,
-        "hallucination": 0
-    }
+    # Build headers
+    headers = {k: v.format(api_key=api_key) for k, v in provider_config['HEADERS'].items()}
 
+    # Build payload
+    payload = provider_config['PAYLOAD_TEMPLATE'].copy()
+    payload['model'] = model_key
+    # This assumes the prompt is always placed in the 'messages' list.
+    # This might need to be made more flexible for other providers.
+    for message in payload.get('messages', []):
+        if message.get('content') == '{prompt}':
+            message['content'] = json.dumps(prompt, ensure_ascii=False)
+
+    logger.info(f"Sending request to {provider_config['URL']} with model {model_key}.")
+
+    response = requests.post(
+        provider_config['URL'],
+        headers=headers,
+        json=payload,
+        timeout=120  # Set a generous timeout
+    )
+    response.raise_for_status()  # Will raise HTTPError for 4xx/5xx responses
+    return response
+
+@transaction.atomic
+def call_external_ai_provider_and_save_results(
+    user_id: int,
+    package_id: int,
+    provider_key: str,
+    model_key: str
+):
+    """
+    Orchestrates the entire process of sending a request to an AI provider and
+    recording the interaction in the database.
+    """
     try:
-        # Use json.dumps with ensure_ascii=False to correctly handle Persian characters
-        with open(LOG_FILE_PATH, "a", encoding="utf-8") as f:
-            f.write(json.dumps(payload, indent=2, ensure_ascii=False))
-            f.write("\n---\n") # Separator for multiple requests
-        logger.info(f"Successfully logged AI request to {LOG_FILE_PATH}")
-    except IOError as e:
-        logger.error(f"Failed to write AI request to log file: {e}")
-        # Depending on the desired behavior, you might want to re-raise the exception
-        # or handle it gracefully. For now, we'll just log it.
+        user = User.objects.get(pk=user_id)
+        package = Package.objects.get(pk=package_id)
+        provider = AIProvider.objects.get(settings_config_key=provider_key)
+
+        # 1. Prepare the data and prompt
+        aggregated_data = prepare_aggregated_package_data_for_ai(user_id, package_id)
+
+        # 2. Create the initial AIInteraction record
+        interaction = AIInteraction.objects.create(
+            user=user,
+            package=package,
+            provider=provider,
+            status=AIInteraction.Status.PENDING,
+            full_request=aggregated_data # Store the prompt data as the request
+        )
+        logger.info(f"Created pending AIInteraction (ID: {interaction.id}) for user {user_id}, package {package_id}.")
+
+        # 3. Execute the external API call
+        response = _execute_external_ai_request(provider_key, model_key, aggregated_data)
+
+        # 4. Process the successful response
+        interaction.http_status_code = response.status_code
+        interaction.timestamp_received = timezone.now()
+
+        try:
+            response_json = response.json()
+            interaction.full_response = response_json
+            interaction.processed_response = _parse_successful_response(provider_key, response_json)
+            interaction.status = AIInteraction.Status.COMPLETED
+            logger.info(f"AIInteraction (ID: {interaction.id}) completed successfully.")
+        except json.JSONDecodeError:
+            interaction.full_response = {'error': 'Response was not valid JSON.', 'content': response.text}
+            interaction.processed_response = "Error: The response from the AI provider was not valid JSON."
+            interaction.status = AIInteraction.Status.FAILED
+            logger.error(f"AIInteraction (ID: {interaction.id}) failed: Invalid JSON response.")
+
+    except (User.DoesNotExist, Package.DoesNotExist, AIProvider.DoesNotExist) as e:
+        logger.error(f"Could not initiate AI call. Invalid reference: {e}")
+        # No interaction object to update, so we just log and exit.
+        raise
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"AI request failed for interaction (ID: {interaction.id}). Error: {e}")
+        if 'interaction' in locals():
+            interaction.status = AIInteraction.Status.FAILED
+            if e.response is not None:
+                interaction.http_status_code = e.response.status_code
+                try:
+                    interaction.full_response = e.response.json()
+                except json.JSONDecodeError:
+                    interaction.full_response = {'error': 'Failed to decode error response as JSON.', 'content': e.response.text}
+            interaction.timestamp_received = timezone.now()
+        # Re-raise the exception to allow Celery to handle retries
+        raise
+
+    except Exception as e:
+        logger.critical(f"An unexpected error occurred for interaction (ID: {interaction.id}). Error: {e}", exc_info=True)
+        if 'interaction' in locals():
+            interaction.status = AIInteraction.Status.FAILED
+            interaction.full_response = {'error': 'An unexpected critical error occurred.', 'details': str(e)}
+            interaction.timestamp_received = timezone.now()
+        raise
+
+    finally:
+        if 'interaction' in locals():
+            interaction.save()
+            logger.info(f"Saved final state for AIInteraction (ID: {interaction.id}) with status '{interaction.status}'.")
+
+    return interaction.id

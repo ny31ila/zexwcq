@@ -5,50 +5,51 @@ This handles background processing for sending data to AI and processing its res
 """
 from celery import shared_task
 import logging
-
-from assessment.services import prepare_aggregated_package_data_for_ai
-from .services import generate_ai_request
+from requests.exceptions import RequestException
+from .services import call_external_ai_provider_and_save_results
 
 logger = logging.getLogger(__name__)
 
-@shared_task(bind=True, autoretry_for=(Exception,), retry_kwargs={'max_retries': 3, 'countdown': 60})
-def send_to_ai(self, user_id, package_id):
+@shared_task(
+    bind=True,
+    autoretry_for=(RequestException,), # Only retry on network-related errors
+    retry_kwargs={'max_retries': 3, 'countdown': 10} # Retry 3 times with a 10s delay
+)
+def send_to_ai(self, user_id: int, package_id: int, provider_key: str, model_key: str):
     """
-    Celery task to aggregate completed assessment results for a user within a specific package
-    and send them to the AI integration service.
+    Celery task that acts as a lightweight wrapper to call the main AI service function.
+    Handles automatic retries for transient network failures.
     """
-    from django.contrib.auth import get_user_model
-    from assessment.models import TestPackage
-    User = get_user_model()
-
     try:
-        user = User.objects.get(id=user_id)
-        package = TestPackage.objects.get(id=package_id)
-    except User.DoesNotExist:
-        logger.error(f"User with id {user_id} does not exist for sending results to AI.")
-        return f"Failed: User {user_id} not found"
-    except TestPackage.DoesNotExist:
-        logger.error(f"TestPackage with id {package_id} does not exist for sending results to AI.")
-        return f"Failed: Package {package_id} not found"
+        logger.info(
+            f"Starting send_to_ai task for User ID: {user_id}, Package ID: {package_id}, "
+            f"Provider: {provider_key}, Model: {model_key}"
+        )
 
-    try:
-        logger.info(f"Starting send_to_ai task for User {user_id}, Package {package_id}")
+        interaction_id = call_external_ai_provider_and_save_results(
+            user_id=user_id,
+            package_id=package_id,
+            provider_key=provider_key,
+            model_key=model_key
+        )
 
-        aggregated_data = prepare_aggregated_package_data_for_ai(user, package)
+        success_message = f"Successfully processed AI interaction {interaction_id} for User {user_id}."
+        logger.info(success_message)
+        return success_message
 
-        if not aggregated_data or not aggregated_data.get("assessments_data"):
-            warning_msg = f"No completed assessment data found for User {user_id}, Package {package_id}. Nothing to send to AI."
-            logger.warning(warning_msg)
-            return f"Skipped: {warning_msg}"
-
-        generate_ai_request(aggregated_data)
-
-        logger.info(f"Successfully initiated sending data to AI for User {user_id}, Package {package_id}.")
-        return f"Success: Data sent to AI for User {user_id}, Package {package_id}"
-
-    except Exception as exc:
-        logger.error(
-            f"Failed to send data to AI for User {user_id}, Package {package_id}: {exc}",
-            exc_info=True
+    except RequestException as exc:
+        # This exception will be caught by Celery to trigger a retry
+        logger.warning(
+            f"Network error in send_to_ai task for User {user_id}. Attempt {self.request.retries + 1} of {self.max_retries}. "
+            f"Error: {exc}"
         )
         raise self.retry(exc=exc)
+
+    except Exception as exc:
+        # For non-network errors, log critically and do not retry.
+        logger.critical(
+            f"A non-recoverable error occurred in send_to_ai task for User {user_id}: {exc}",
+            exc_info=True
+        )
+        # We don't re-raise here because these are considered final failures.
+        return f"Failed: A non-recoverable error occurred: {exc}"

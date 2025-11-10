@@ -2,8 +2,82 @@
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from assessment.models import TestPackage as Package
 
 User = settings.AUTH_USER_MODEL
+
+class AIProvider(models.Model):
+    """
+    Manages the AI providers available in the system.
+    Administrators can activate or deactivate providers for end-users.
+    """
+    name = models.CharField(
+        _("provider name"),
+        max_length=100,
+        help_text=_("A user-friendly name for the AI provider (e.g., 'Ollama Cloud').")
+    )
+    settings_config_key = models.CharField(
+        _("settings config key"),
+        max_length=50,
+        unique=True,
+        help_text=_("The key that matches a provider's configuration in the `AI_PROVIDERS` dictionary in settings.")
+    )
+    is_active_for_users = models.BooleanField(
+        _("active for users"),
+        default=False,
+        help_text=_("If checked, this provider will be available for users to select.")
+    )
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("AI Provider")
+        verbose_name_plural = _("AI Providers")
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class AIInteraction(models.Model):
+    """
+    Logs every request to and response from an external AI provider.
+    This serves as a comprehensive audit trail for debugging and analysis.
+    """
+    class Status(models.TextChoices):
+        PENDING = 'pending', _('Pending')
+        COMPLETED = 'completed', _('Completed')
+        FAILED = 'failed', _('Failed')
+
+    user = models.ForeignKey(User, related_name='ai_interactions', on_delete=models.CASCADE, verbose_name=_("user"))
+    package = models.ForeignKey(Package, related_name='ai_interactions', on_delete=models.CASCADE, verbose_name=_("package"))
+    provider = models.ForeignKey(AIProvider, related_name='interactions', on_delete=models.PROTECT, verbose_name=_("provider"))
+
+    status = models.CharField(
+        _("status"),
+        max_length=10,
+        choices=Status.choices,
+        default=Status.PENDING,
+        db_index=True
+    )
+    full_request = models.JSONField(_("full request"), help_text=_("The complete request payload sent to the AI provider."))
+    full_response = models.JSONField(_("full response"), null=True, blank=True, help_text=_("The complete, raw response from the AI provider."))
+    processed_response = models.TextField(_("processed response"), blank=True, help_text=_("The clean, user-facing text extracted from the full response."))
+    http_status_code = models.PositiveIntegerField(_("http status code"), null=True, blank=True, help_text=_("The HTTP status code of the response from the AI provider."))
+
+    timestamp_sent = models.DateTimeField(_("timestamp sent"), auto_now_add=True)
+    timestamp_received = models.DateTimeField(_("timestamp received"), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("AI Interaction")
+        verbose_name_plural = _("AI Interactions")
+        ordering = ['-timestamp_sent']
+        unique_together = [['user', 'package']] # Prevents duplicate requests for the same user and package
+
+    def __str__(self):
+        return f"Interaction for {self.user} with {self.provider} on package {self.package_id} ({self.status})"
+
+
 
 class AIRecommendation(models.Model):
     """

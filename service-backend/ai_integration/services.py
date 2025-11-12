@@ -78,8 +78,8 @@ def call_external_ai_provider_and_save_results(
         package = Package.objects.get(pk=package_id)
         provider = AIProvider.objects.get(settings_config_key=provider_key)
 
-        # 1. Prepare the data and prompt
-        aggregated_data = prepare_aggregated_package_data_for_ai(user_id, package_id)
+        # 1. Prepare the data and prompt (pass model instances, not IDs)
+        aggregated_data = prepare_aggregated_package_data_for_ai(user, package)
 
         # 2. Create the initial AIInteraction record
         interaction = AIInteraction.objects.create(
@@ -130,11 +130,20 @@ def call_external_ai_provider_and_save_results(
         raise
 
     except Exception as e:
-        logger.critical(f"An unexpected error occurred for interaction (ID: {interaction.id}). Error: {e}", exc_info=True)
+        # Avoid referencing 'interaction' if it wasn't created yet
         if 'interaction' in locals():
+            logger.critical(
+                f"An unexpected error occurred for interaction (ID: {interaction.id}). Error: {e}",
+                exc_info=True
+            )
             interaction.status = AIInteraction.Status.FAILED
             interaction.full_response = {'error': 'An unexpected critical error occurred.', 'details': str(e)}
             interaction.timestamp_received = timezone.now()
+        else:
+            logger.critical(
+                f"An unexpected error occurred before interaction creation. Error: {e}",
+                exc_info=True
+            )
         raise
 
     finally:

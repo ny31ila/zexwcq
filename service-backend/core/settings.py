@@ -280,8 +280,8 @@ ZARINPAL_API_START_PAY_URL = 'https://sandbox.zarinpal.com/pg/StartPay/' if ZARI
 # The `settings_config_key` in the `AIProvider` model must match a key in this dictionary.
 AI_PROVIDERS = {
     'ollama_cloud': {
-        'API_KEY': config('OLLAMA_CLOUD_API_KEY', default=''),
-        'URL': 'https://ollama.com/api/chat',
+        'API_KEY': config('OLLAMA_CLOUD_API_KEY'),
+        'URL': config('OLLAMA_CLOUD_API_URL'),
         'HEADERS': {
             'Authorization': 'Bearer {api_key}',
             'Content-Type': 'application/json'
@@ -296,10 +296,10 @@ AI_PROVIDERS = {
         },
         'MODELS': {
             'deepseek-v3.1:671b-cloud': {
-                'display_name': 'Deepseek V3.1',
+                'display_name': 'Deepseek V3.1 671b',
             },
-            config('OLLAMA_CLOUD_MODEL', default='llama3:latest'): {
-                'display_name': 'Ollama Cloud Default Model',
+            config('OLLAMA_CLOUD_MODEL_gpt_oss_20b'): {
+                'display_name': config('OLLAMA_CLOUD_MODEL_gpt_oss_20b_display_name'),
             }
         }
     }

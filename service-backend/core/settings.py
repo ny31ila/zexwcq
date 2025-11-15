@@ -302,6 +302,30 @@ AI_PROVIDERS = {
                 'display_name': config('OLLAMA_CLOUD_MODEL_gpt_oss_20b_display_name'),
             }
         }
+    },
+    'ollama_cloud_test': {
+        'API_KEY': config('OLLAMA_CLOUD_API_KEY_FOR_TESTING_IN_THE_AI_INTEGRATION_APP'),
+        'URL': config('OLLAMA_CLOUD_API_URL'),
+        'HEADERS': {
+            'Authorization': 'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        },
+        'PAYLOAD_TEMPLATE': {
+            "model": "{model_name}",
+            "messages": [{"role": "user", "content": "{prompt}"}],
+            "stream": False,
+            "options": {
+                "temperature": 0
+            }
+        },
+        'MODELS': {
+            'deepseek-v3.1:671b-cloud': {
+                'display_name': 'Deepseek V3.1 671b',
+            },
+            config('OLLAMA_CLOUD_MODEL_gpt_oss_20b'): {
+                'display_name': config('OLLAMA_CLOUD_MODEL_gpt_oss_20b_display_name'),
+            }
+        }
     }
 }
 

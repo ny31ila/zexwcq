@@ -7,19 +7,12 @@ from assessment.models import TestPackage as Package, Assessment
 from ai_integration.models import AIProvider, AIInteraction
 from ai_integration.services import call_external_ai_provider_and_save_results
 import requests
+from django.conf import settings
 
 User = get_user_model()
 
 MOCK_AI_PROVIDERS = {
-    'ollama_cloud': {
-        'API_KEY': 'test-key',
-        'URL': 'https://api.testprovider.com/chat',
-        'HEADERS': {'Authorization': 'Bearer {api_key}'},
-        'PAYLOAD_TEMPLATE': {'model': '{model_name}', 'messages': [{'role': 'user', 'content': '{prompt}'}]},
-        'MODELS': {
-            'test_model': {'display_name': 'Test Model'}
-        }
-    }
+    'ollama_cloud': settings.AI_PROVIDERS['ollama_cloud_test']
 }
 
 @override_settings(AI_PROVIDERS=MOCK_AI_PROVIDERS)

@@ -1,110 +1,154 @@
 # service-backend/ai_integration/services.py
 """
-Service functions for interacting with the external DeepSeek AI API.
-This module handles the HTTP requests and responses.
+Service functions for orchestrating interactions with external AI providers.
 """
-
+import logging
+import json
 import requests
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
-import logging
+from django.db import transaction
+from django.utils import timezone
+from .models import AIInteraction, AIProvider
+from assessment.services import prepare_aggregated_package_data_for_ai
+from account.models import User
+from assessment.models import TestPackage as Package
 
 logger = logging.getLogger(__name__)
 
-# --- OpenRouter Configuration for Testing ---
-# New settings for the test task
-OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
-OPENROUTER_API_KEY = getattr(settings, 'OPENROUTER_API_KEY', None)
-# Default test model - can be changed later
-OPENROUTER_TEST_MODEL = getattr(settings, 'OPENROUTER_TEST_MODEL')
-# Optional headers for OpenRouter ranking
-OPENROUTER_SITE_URL = getattr(settings, 'OPENROUTER_SITE_URL', 'http://localhost:8000') # Default for local dev
-OPENROUTER_SITE_NAME = getattr(settings, 'OPENROUTER_SITE_NAME', 'NexaTalentDiscovery')
-
-# --- New Service Function for Testing with OpenRouter ---
-def send_test_prompt_to_openrouter(prompt_text: str) -> dict:
+def _parse_successful_response(provider_key: str, response_data: dict) -> str:
     """
-    Sends a test prompt to the OpenRouter API using a free model.
-    This is used to test the Celery/Redis setup.
-
-    Args:
-        prompt_text (str): The text prompt to send to the AI.
-
-    Returns:
-        dict: The parsed JSON response from the OpenRouter API.
-              Returns an empty dict or raises an exception on failure.
-
-    Raises:
-        ImproperlyConfigured: If the OpenRouter API key is not configured.
-        requests.exceptions.RequestException: For network-related errors.
-        ValueError: If the response cannot be parsed as JSON.
+    Parses the successful JSON response from an AI provider to extract the clean,
+    user-facing text content.
     """
-    if not OPENROUTER_API_KEY:
-        raise ImproperlyConfigured("OPENROUTER_API_KEY setting is not configured for testing.")
+    if provider_key == 'ollama_cloud':
+        try:
+            return response_data['message']['content']
+        except (KeyError, TypeError) as e:
+            logger.error(f"Could not parse successful response from {provider_key}: {e}. Response data: {response_data}")
+            return "Error: Could not parse AI response."
+    # Add elif blocks here for other providers in the future
+    else:
+        logger.warning(f"No response parsing logic defined for provider '{provider_key}'. Returning raw JSON.")
+        return json.dumps(response_data)
 
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": OPENROUTER_SITE_URL, # Optional, for OpenRouter rankings
-        "X-Title": OPENROUTER_SITE_NAME,    # Optional, for OpenRouter rankings
-    }
-    
-    payload = {
-        "model": OPENROUTER_TEST_MODEL,
-        "messages": [
-            {
-                "role": "user",
-                "content": 'tell me whats 2+2 in python.'
-            }
-        ],
-        # Add other parameters if needed by the model/OpenRouter
-        # "max_tokens": 1000, # Example
-        # "temperature": 0.7, # Example
-    }
+def _execute_external_ai_request(provider_key: str, model_key: str, prompt: dict) -> requests.Response:
+    """
+    Builds and executes the HTTP request to the specified AI provider.
+    Handles dynamic insertion of keys, models, and prompts into templates.
+    """
+    provider_config = settings.AI_PROVIDERS[provider_key]
+    api_key = provider_config.get('API_KEY', '')
 
+    # Build headers
+    headers = {k: v.format(api_key=api_key) for k, v in provider_config['HEADERS'].items()}
+
+    # Build payload
+    payload = provider_config['PAYLOAD_TEMPLATE'].copy()
+    payload['model'] = model_key
+    # This assumes the prompt is always placed in the 'messages' list.
+    # This might need to be made more flexible for other providers.
+    for message in payload.get('messages', []):
+        if message.get('content') == '{prompt}':
+            message['content'] = json.dumps(prompt, ensure_ascii=False)
+
+    logger.info(f"Sending request to {provider_config['URL']} with model {model_key}.")
+
+    response = requests.post(
+        provider_config['URL'],
+        headers=headers,
+        json=payload,
+        timeout=120  # Set a generous timeout
+    )
+    response.raise_for_status()  # Will raise HTTPError for 4xx/5xx responses
+    return response
+
+@transaction.atomic
+def call_external_ai_provider_and_save_results(
+    user_id: int,
+    package_id: int,
+    provider_key: str,
+    model_key: str
+):
+    """
+    Orchestrates the entire process of sending a request to an AI provider and
+    recording the interaction in the database.
+    """
     try:
-        logger.info(f"Sending test prompt to OpenRouter API at {OPENROUTER_API_URL}")
-        logger.debug(f"Prompt: {prompt_text}")
-        response = requests.post(OPENROUTER_API_URL, headers=headers, json=payload, timeout=60) # Longer timeout for testing
-        logger.debug(f"OpenRouter API response status: {response.status_code}")
-        response.raise_for_status() # Raises HTTPError for bad responses (4xx or 5xx)
+        user = User.objects.get(pk=user_id)
+        package = Package.objects.get(pk=package_id)
+        provider = AIProvider.objects.get(settings_config_key=provider_key)
 
-        # Attempt to parse JSON response
-        ai_response_data = response.json()
-        logger.info("Successfully received and parsed response from OpenRouter API (Test).")
-        logger.debug(f"OpenRouter API response data: {ai_response_data}")
-        return ai_response_data
+        # 1. Prepare the data and prompt (pass model instances, not IDs)
+        aggregated_data = prepare_aggregated_package_data_for_ai(user, package)
 
-    except requests.exceptions.Timeout:
-        logger.error("Timeout occurred while sending data to OpenRouter API (Test).")
-        raise # Re-raise to be handled by the calling function/task
+        # 2. Create the initial AIInteraction record
+        interaction = AIInteraction.objects.create(
+            user=user,
+            package=package,
+            provider=provider,
+            status=AIInteraction.Status.PENDING,
+            full_request=aggregated_data # Store the prompt data as the request
+        )
+        logger.info(f"Created pending AIInteraction (ID: {interaction.id}) for user {user_id}, package {package_id}.")
+
+        # 3. Execute the external API call
+        response = _execute_external_ai_request(provider_key, model_key, aggregated_data)
+
+        # 4. Process the successful response
+        interaction.http_status_code = response.status_code
+        interaction.timestamp_received = timezone.now()
+
+        try:
+            response_json = response.json()
+            interaction.full_response = response_json
+            interaction.processed_response = _parse_successful_response(provider_key, response_json)
+            interaction.status = AIInteraction.Status.COMPLETED
+            logger.info(f"AIInteraction (ID: {interaction.id}) completed successfully.")
+        except json.JSONDecodeError:
+            interaction.full_response = {'error': 'Response was not valid JSON.', 'content': response.text}
+            interaction.processed_response = "Error: The response from the AI provider was not valid JSON."
+            interaction.status = AIInteraction.Status.FAILED
+            logger.error(f"AIInteraction (ID: {interaction.id}) failed: Invalid JSON response.")
+
+    except (User.DoesNotExist, Package.DoesNotExist, AIProvider.DoesNotExist) as e:
+        logger.error(f"Could not initiate AI call. Invalid reference: {e}")
+        # No interaction object to update, so we just log and exit.
+        raise
+
     except requests.exceptions.RequestException as e:
-        logger.error(f"Request error occurred while sending data to OpenRouter API (Test): {e}")
-        logger.debug(f"Response content (if any): {getattr(e.response, 'text', 'N/A')}")
-        raise # Re-raise
-    except ValueError as e: # Includes json.JSONDecodeError
-        logger.error(f"Error decoding JSON response from OpenRouter API (Test): {e}")
-        # Log the raw response content for debugging
-        logger.debug(f"Raw response content: {getattr(response, 'text', 'N/A')}")
-        raise # Re-raise
+        logger.error(f"AI request failed for interaction (ID: {interaction.id}). Error: {e}")
+        if 'interaction' in locals():
+            interaction.status = AIInteraction.Status.FAILED
+            if e.response is not None:
+                interaction.http_status_code = e.response.status_code
+                try:
+                    interaction.full_response = e.response.json()
+                except json.JSONDecodeError:
+                    interaction.full_response = {'error': 'Failed to decode error response as JSON.', 'content': e.response.text}
+            interaction.timestamp_received = timezone.now()
+        # Re-raise the exception to allow Celery to handle retries
+        raise
 
-# --- Optional: Helper functions for processing AI response ---
-# def parse_ai_recommendations(ai_output_data, user_id: int) -> list:
-#     """
-#     Parses the raw AI output and creates AIRecommendation model instances.
-#     This function needs to be aligned with the actual structure of `ai_output_data`.
-#     """
-#     recommendations = []
-#     # Example parsing logic (needs to be adapted):
-#     # Assume ai_output_data has a key 'recommendations' which is a list of dicts
-#     raw_recommendations = ai_output_data.get('recommendations', [])
-#     for item in raw_recommendations:
-#         rec = AIRecommendation(
-#             user_id=user_id,
-#             recommendation_type=item.get('type', 'general').lower(),
-#             title=item.get('title', 'Untitled Recommendation'),
-#             description=item.get('description', ''),
-#             deepseek_output_json=item # Store the specific item as raw data
-#         )
-#         recommendations.append(rec)
-#     return recommendations
+    except Exception as e:
+        # Avoid referencing 'interaction' if it wasn't created yet
+        if 'interaction' in locals():
+            logger.critical(
+                f"An unexpected error occurred for interaction (ID: {interaction.id}). Error: {e}",
+                exc_info=True
+            )
+            interaction.status = AIInteraction.Status.FAILED
+            interaction.full_response = {'error': 'An unexpected critical error occurred.', 'details': str(e)}
+            interaction.timestamp_received = timezone.now()
+        else:
+            logger.critical(
+                f"An unexpected error occurred before interaction creation. Error: {e}",
+                exc_info=True
+            )
+        raise
+
+    finally:
+        if 'interaction' in locals():
+            interaction.save()
+            logger.info(f"Saved final state for AIInteraction (ID: {interaction.id}) with status '{interaction.status}'.")
+
+    return interaction.id

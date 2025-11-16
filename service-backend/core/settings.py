@@ -274,6 +274,61 @@ ZARINPAL_API_REQUEST_URL = 'https://sandbox.zarinpal.com/pg/rest/WebGate/Payment
 ZARINPAL_API_VERIFY_URL = 'https://sandbox.zarinpal.com/pg/rest/WebGate/PaymentVerification.json' if ZARINPAL_SANDBOX else 'https://www.zarinpal.com/pg/rest/WebGate/PaymentVerification.json'
 ZARINPAL_API_START_PAY_URL = 'https://sandbox.zarinpal.com/pg/StartPay/' if ZARINPAL_SANDBOX else 'https://www.zarinpal.com/pg/StartPay/'
 
+
+# --- AI Provider Configuration ---
+# Centralized configuration for all external AI providers.
+# The `settings_config_key` in the `AIProvider` model must match a key in this dictionary.
+AI_PROVIDERS = {
+    'ollama_cloud': {
+        'API_KEY': config('OLLAMA_CLOUD_API_KEY'),
+        'URL': config('OLLAMA_CLOUD_API_URL'),
+        'HEADERS': {
+            'Authorization': 'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        },
+        'PAYLOAD_TEMPLATE': {
+            "model": "{model_name}",
+            "messages": [{"role": "user", "content": "{prompt}"}],
+            "stream": False,
+            "options": {
+                "temperature": 0
+            }
+        },
+        'MODELS': {
+            'deepseek-v3.1:671b-cloud': {
+                'display_name': 'Deepseek V3.1 671b',
+            },
+            config('OLLAMA_CLOUD_MODEL_gpt_oss_20b'): {
+                'display_name': config('OLLAMA_CLOUD_MODEL_gpt_oss_20b_display_name'),
+            }
+        }
+    },
+    'ollama_cloud_test': {
+        'API_KEY': config('OLLAMA_CLOUD_API_KEY_FOR_TESTING_IN_THE_AI_INTEGRATION_APP'),
+        'URL': config('OLLAMA_CLOUD_API_URL'),
+        'HEADERS': {
+            'Authorization': 'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        },
+        'PAYLOAD_TEMPLATE': {
+            "model": "{model_name}",
+            "messages": [{"role": "user", "content": "{prompt}"}],
+            "stream": False,
+            "options": {
+                "temperature": 0
+            }
+        },
+        'MODELS': {
+            'deepseek-v3.1:671b-cloud': {
+                'display_name': 'Deepseek V3.1 671b',
+            },
+            config('OLLAMA_CLOUD_MODEL_gpt_oss_20b'): {
+                'display_name': config('OLLAMA_CLOUD_MODEL_gpt_oss_20b_display_name'),
+            }
+        }
+    }
+}
+
 # SMS Gateway Settings (Example for a generic service)
 # You will need to replace these with the settings for your chosen SMS provider (e.g., Kavenegar, Ghasedak).
 SMS_API_URL = config('SMS_API_URL', default='https://api.sms-provider.com/send') # Example URL
@@ -318,3 +373,53 @@ LOGGING = {
         # },
     },
 }
+
+
+# --- System Checks ---
+# This section validates custom configurations to prevent runtime errors.
+from django.core.checks import register, Error, Warning
+
+@register('ai_providers', deploy=True)
+def check_ai_providers_config(app_configs, **kwargs):
+    """
+    Validates the structure of the AI_PROVIDERS setting.
+    """
+    errors = []
+    if not isinstance(AI_PROVIDERS, dict):
+        errors.append(Error(
+            'The AI_PROVIDERS setting must be a dictionary.',
+            hint='Please define AI_PROVIDERS as a dictionary in your settings.',
+            id='ai_integration.E001',
+        ))
+        return errors # Stop further checks if the base setting is wrong
+
+    for provider_key, config in AI_PROVIDERS.items():
+        if not isinstance(config, dict):
+            errors.append(Error(
+                f'The configuration for the AI provider "{provider_key}" must be a dictionary.',
+                id='ai_integration.E002',
+            ))
+            continue # Skip to the next provider
+
+        required_keys = ['URL', 'HEADERS', 'PAYLOAD_TEMPLATE', 'MODELS']
+        for key in required_keys:
+            if key not in config:
+                errors.append(Error(
+                    f'Missing required key "{key}" in the configuration for provider "{provider_key}".',
+                    id='ai_integration.E003',
+                ))
+
+        if 'MODELS' in config and not isinstance(config['MODELS'], dict):
+            errors.append(Error(
+                f'The "MODELS" value for provider "{provider_key}" must be a dictionary.',
+                id='ai_integration.E004',
+            ))
+
+        if 'API_KEY' in config and not config['API_KEY']:
+             errors.append(Warning(
+                f'The API_KEY for provider "{provider_key}" is not set.',
+                hint=f'Please set the corresponding environment variable (e.g., OLLAMA_CLOUD_API_KEY).',
+                id='ai_integration.W001',
+            ))
+
+    return errors

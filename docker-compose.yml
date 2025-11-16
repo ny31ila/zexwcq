@@ -7,7 +7,7 @@ services:
       context: ./service-backend
       dockerfile: Dockerfile
     container_name: nexa_service_backend
-    command: ./entrypoint.sh
+    command: sh ./entrypoint.sh
     volumes:
       # Mount source code for development (changes reflect without rebuild)
       - ./service-backend:/app
@@ -20,7 +20,8 @@ services:
       # Environment variables can be loaded from .env file
       # Ensure .env file exists in service-backend/ or project root
     env_file:
-      - .env # Load environment variables from project root .env
+      # - ./service-backend/.env.template
+      - .env
     depends_on:
       - service-redis
     # networks:

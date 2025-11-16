@@ -1,3 +1,4 @@
-
-def send_to_ai(self, user_id, package_id):
-    pass
+# service-backend/assessment/tasks.py
+"""
+Celery tasks for the assessment app.
+"""

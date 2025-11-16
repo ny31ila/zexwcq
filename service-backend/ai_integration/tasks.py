@@ -3,70 +3,53 @@
 Celery tasks for the ai_integration app.
 This handles background processing for sending data to AI and processing its response.
 """
-
-# Import Celery instance (Will be configured later)
 from celery import shared_task
-from django.core.exceptions import ImproperlyConfigured
 import logging
-
-# Import the new service function
-from .services import send_test_prompt_to_openrouter
+from requests.exceptions import RequestException
+from .services import call_external_ai_provider_and_save_results
 
 logger = logging.getLogger(__name__)
 
-# ... (existing tasks like process_ai_response, trigger_ai_analysis_for_user - keep as is) ...
-
-
-@shared_task(bind=True, autoretry_for=(Exception,), retry_kwargs={'max_retries': 3, 'countdown': 60})
-def test_openrouter_task(self, prompt_text: str):
+@shared_task(
+    bind=True,
+    autoretry_for=(RequestException,), # Only retry on network-related errors
+    retry_kwargs={'max_retries': 3, 'countdown': 10} # Retry 3 times with a 10s delay
+)
+def send_to_ai(self, user_id: int, package_id: int, provider_key: str, model_key: str):
     """
-    Celery task to send a test prompt to the OpenRouter API.
-    This task is used to verify the Celery/Redis setup.
+    Celery task that acts as a lightweight wrapper to call the main AI service function.
+    Handles automatic retries for transient network failures.
     """
     try:
-        logger.info(f"Starting test_openrouter_task with prompt: {prompt_text}")
-        # Call the service function to interact with the OpenRouter API
-        # The service function will handle configuration errors (like missing API key)
-        ai_response_data = send_test_prompt_to_openrouter(prompt_text)
+        logger.info(
+            f"Starting send_to_ai task for User ID: {user_id}, Package ID: {package_id}, "
+            f"Provider: {provider_key}, Model: {model_key}"
+        )
 
-        # Extract the model's response content
-        # The structure depends on the OpenAI/OpenRouter chat completion format
-        try:
-            response_content = ai_response_data["choices"][0]["message"]["content"]
-            logger.info(f"OpenRouter Test Task Successful. Response: {response_content}")
-            return {
-                "status": "success",
-                "prompt": prompt_text,
-                "response": response_content,
-                "raw_response": ai_response_data # Include raw data for debugging
-            }
-        except (KeyError, IndexError) as e:
-            error_msg = f"Error parsing OpenRouter response structure: {e}"
-            logger.error(error_msg)
-            logger.debug(f"Raw response data: {ai_response_data}")
-            # Return error status but still complete the task
-            return {
-                "status": "error",
-                "prompt": prompt_text,
-                "error": error_msg,
-                "raw_response": ai_response_data
-            }
+        interaction_id = call_external_ai_provider_and_save_results(
+            user_id=user_id,
+            package_id=package_id,
+            provider_key=provider_key,
+            model_key=model_key
+        )
 
-    # Remove the explicit ImproperlyConfigured check here.
-    # The service function or the request itself will raise exceptions if config is bad.
-    # except ImproperlyConfigured as e:
-    #     error_msg = f"Configuration error in test_openrouter_task: {e}"
-    #     logger.error(error_msg)
-    #     # Don't retry for configuration errors
-    #     return {
-    #         "status": "error",
-    #         "prompt": prompt_text,
-    #         "error": error_msg
-    #     }
-    except Exception as exc:
-        logger.error(f"Failed to execute test_openrouter_task: {exc}", exc_info=True)
-        # Re-raise the exception to trigger retry based on autoretry_for
+        success_message = f"Successfully processed AI interaction {interaction_id} for User {user_id}."
+        logger.info(success_message)
+        return success_message
+
+    except RequestException as exc:
+        # This exception will be caught by Celery to trigger a retry
+        logger.warning(
+            f"Network error in send_to_ai task for User {user_id}. Attempt {self.request.retries + 1} of {self.max_retries}. "
+            f"Error: {exc}"
+        )
         raise self.retry(exc=exc)
 
-
-# ... (other existing tasks) ...
+    except Exception as exc:
+        # For non-network errors, log critically and do not retry.
+        logger.critical(
+            f"A non-recoverable error occurred in send_to_ai task for User {user_id}: {exc}",
+            exc_info=True
+        )
+        # We don't re-raise here because these are considered final failures.
+        return f"Failed: A non-recoverable error occurred: {exc}"

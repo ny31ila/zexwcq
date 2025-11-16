@@ -1,0 +1,9 @@
+# Enforce Unix-style (LF) line endings for specific file types
+# This prevents issues when developers on different OSes (Windows vs. macOS/Linux)
+# collaborate on the same repository, especially for scripts and config files.
+
+*.sh    text eol=lf
+*.py    text eol=lf
+Dockerfile text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf

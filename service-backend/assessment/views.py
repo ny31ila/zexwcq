@@ -5,6 +5,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.db.models import Q
+from django.conf import settings
+from rest_framework.exceptions import ValidationError
+
 # Import your models and serializers
 from .models import TestPackage, Assessment, UserAssessmentAttempt
 from .serializers import (
@@ -15,9 +18,11 @@ from .serializers import (
 # Import the new service function
 from .services import calculate_assessment_scores, prepare_aggregated_package_data_for_ai
 # Import the Celery task
-from .tasks import send_to_ai
+from ai_integration.tasks import send_to_ai
+# Import AI models for validation
+from ai_integration.models import AIProvider, AIInteraction
+
 # Import user model
-from django.conf import settings
 User = settings.AUTH_USER_MODEL
 
 # --- Views for Test Packages ---
@@ -366,9 +371,6 @@ class SendPackageResultsToAiView(views.APIView):
     """
     Manually trigger the process of sending completed assessment results
     for a specific package to the AI service.
-
-    This endpoint should be called by the user/frontend *after* ensuring
-    all required assessments in the package are completed.
     """
     permission_classes = [permissions.IsAuthenticated]
 
@@ -378,69 +380,85 @@ class SendPackageResultsToAiView(views.APIView):
         `package_id` is passed in the URL.
         """
         user = request.user
+        provider_model_key = request.data.get('provider_model_key')
 
-        # 1. Get the package instance and verify user access
-        try:
-            package = TestPackage.objects.get(id=package_id, is_active=True)
-        except TestPackage.DoesNotExist:
+        # 1. --- Validation: Provider and Model Selection ---
+        if not provider_model_key:
             return Response(
-                {"detail": "Test package not found or is inactive."},
-                status=status.HTTP_404_NOT_FOUND
+                {"status": "error", "message": "provider_model_key is a required field."},
+                status=status.HTTP_400_BAD_REQUEST
             )
-
-        # Verify the user has access to this package based on age
-        user_age = user.calculate_age()
-        if not (user_age is not None and package.min_age <= user_age <= package.max_age):
-             return Response(
-                 {"detail": "You do not have access to this package based on your age."},
-                 status=status.HTTP_403_FORBIDDEN
-             )
-
-        # 2. Get all assessments belonging to the specified package
-        package_assessments = package.assessments.filter(is_active=True)
-        package_assessment_ids = list(package_assessments.values_list('id', flat=True))
-
-        if not package_assessment_ids:
+        try:
+            provider_key, model_key = provider_model_key.split('.', 1)
+        except ValueError:
             return Response(
-                {"detail": "This package contains no active assessments."},
+                {"status": "error", "message": "Invalid provider_model_key format. Expected 'provider.model'."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # 3. Get all completed UserAssessmentAttempts for the user and those specific assessments
-        completed_attempts = UserAssessmentAttempt.objects.filter(
-            user=user,
-            assessment_id__in=package_assessment_ids,
-            is_completed=True
-        )
+        # Check if provider is active in the database
+        try:
+            provider = AIProvider.objects.get(settings_config_key=provider_key, is_active_for_users=True)
+        except AIProvider.DoesNotExist:
+            return Response(
+                {"status": "error", "message": f"Provider '{provider_key}' is not active or does not exist."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        completed_assessment_ids = list(completed_attempts.values_list('assessment_id', flat=True))
+        # Check if model is valid in settings
+        if model_key not in settings.AI_PROVIDERS.get(provider_key, {}).get('MODELS', {}):
+            return Response(
+                {"status": "error", "message": f"Model '{model_key}' is not valid for provider '{provider_key}'."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        # 4. --- Validation: Check if ALL required assessments are completed ---
-        # Find assessments in the package that do not have a completed attempt by the user
-        missing_assessment_ids = set(package_assessment_ids) - set(completed_assessment_ids)
+        # 2. --- Validation: Duplicate Request Check ---
+        if AIInteraction.objects.filter(
+            user=user, package_id=package_id, status__in=[AIInteraction.Status.PENDING, AIInteraction.Status.COMPLETED]
+        ).exists():
+            return Response(
+                {"status": "error", "message": "An AI analysis for this package has already been requested or completed."},
+                status=status.HTTP_409_CONFLICT
+            )
 
-        if missing_assessment_ids:
-            missing_assessments = Assessment.objects.filter(id__in=missing_assessment_ids)
-            missing_names = ", ".join([a.name for a in missing_assessments])
+        # 3. Get the package instance and verify user access
+        package = get_object_or_404(TestPackage, id=package_id, is_active=True)
+        user_age = user.calculate_age()
+        if not (user_age is not None and package.min_age <= user_age <= package.max_age):
+             return Response(
+                 {"status": "error", "message": "You do not have access to this package based on your age."},
+                 status=status.HTTP_403_FORBIDDEN
+             )
+
+        # 4. Get all assessments and check for completion
+        package_assessments = package.assessments.filter(is_active=True)
+        package_assessment_ids = set(package_assessments.values_list('id', flat=True))
+        completed_assessment_ids = set(UserAssessmentAttempt.objects.filter(
+            user=user, assessment_id__in=package_assessment_ids, is_completed=True
+        ).values_list('assessment_id', flat=True))
+
+        if package_assessment_ids != completed_assessment_ids:
+            missing_ids = package_assessment_ids - completed_assessment_ids
+            missing_names = ", ".join(Assessment.objects.filter(id__in=missing_ids).values_list('name', flat=True))
             return Response(
                 {
-                    "detail": f"Cannot send to AI. Missing completed attempts for assessments: {missing_names}",
-                    "missing_assessments": missing_names.split(", ") # Optional: structured list
+                    "status": "error",
+                    "message": f"Cannot send to AI. Missing completed attempts for assessments: {missing_names}"
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # 5. --- Trigger the Celery Task ---
-        # All validations passed. Trigger the background task to send data to AI.
-        # The task will handle the aggregation and AI service call.
-        task_result = send_to_ai.delay(user.id, package.id)
+        # 5. --- Trigger the Celery Task with new parameters ---
+        task_result = send_to_ai.delay(user.id, package.id, provider_key, model_key)
 
         return Response(
             {
-                "detail": "Request to send results to AI has been initiated.",
-                "package_id": package.id,
-                "package_name": package.name,
-                "task_id": task_result.id # Optional: Provide task ID for status checking
+                "status": "success",
+                "data": {
+                    "detail": "Request to send results to AI has been initiated.",
+                    "package_id": package.id,
+                    "task_id": task_result.id
+                }
             },
             status=status.HTTP_202_ACCEPTED
         )

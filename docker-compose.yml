@@ -3,10 +3,9 @@ version: '3.8'
 
 services:
   # --- Nginx Service (Reverse Proxy and Static File Server) ---
-  nginx:
+  service-nginx:
     build:
       context: ./nginx
-    container_name: nexa_nginx
     ports:
       - "80:80" # Expose Nginx on the standard HTTP port
     volumes:
@@ -22,7 +21,6 @@ services:
     build:
       context: ./service-backend
       dockerfile: Dockerfile
-    container_name: nexa_service_backend
     command: sh ./entrypoint.sh gunicorn
     volumes:
       - ./service-backend:/app # Mount source code for development
@@ -34,14 +32,13 @@ services:
       - .env # Load environment variables from .env file
     depends_on:
       - service-redis
-      - postgres # Ensure postgres is running before the backend
+      - service-postgres # Ensure postgres is running before the backend
     networks:
       - nexa-network
 
   # --- PostgreSQL Database Service ---
-  postgres:
+  service-postgres:
     image: postgres:15-alpine
-    container_name: nexa_postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data # Persist database data
     environment:
@@ -57,7 +54,6 @@ services:
   # --- Redis Service (Message Broker for Celery) ---
   service-redis:
     image: redis:7-alpine
-    container_name: nexa_service_redis
     expose:
       - "6379" # Expose Redis port to the internal network
     networks:
@@ -68,7 +64,6 @@ services:
     build:
       context: ./service-backend
       dockerfile: Dockerfile
-    container_name: nexa_service_celery
     command: sh ./entrypoint.sh celery worker --loglevel=info
     volumes:
       - ./service-backend:/app # Mount source code for development
@@ -76,15 +71,14 @@ services:
       - .env
     depends_on:
       - service-redis
-      - postgres
+      - service-postgres
       - service-backend
     networks:
       - nexa-network
 
   # --- Prometheus Service (Metrics Collection) ---
-  prometheus:
+  service-prometheus:
     image: prom/prometheus:v2.47.2
-    container_name: nexa_prometheus
     ports:
       - "9090:9090" # Expose Prometheus web UI
     volumes:
@@ -97,13 +91,12 @@ services:
       - nexa-network
 
   # --- Grafana Service (Metrics Visualization) ---
-  grafana:
+  service-grafana:
     image: grafana/grafana:10.1.5
-    container_name: nexa_grafana
     ports:
       - "3000:3000" # Expose Grafana web UI
     depends_on:
-      - prometheus
+      - service-prometheus
     networks:
       - nexa-network
 

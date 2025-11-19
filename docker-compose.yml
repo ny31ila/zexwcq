@@ -1,7 +1,23 @@
 # project_root/docker-compose.yml
+version: '3.8'
 
 services:
-  # --- Django Application Service ---
+  # --- Nginx Service (Reverse Proxy and Static File Server) ---
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nexa_nginx
+    ports:
+      - "80:80" # Expose Nginx on the standard HTTP port
+    volumes:
+      - static_volume:/app/staticfiles # Mount the shared volume for static files
+      - media_volume:/app/media # Mount the shared volume for media files
+    depends_on:
+      - service-backend
+    networks:
+      - nexa-network
+
+  # --- Django Application Service (Gunicorn) ---
   service-backend:
     build:
       context: ./service-backend
@@ -9,35 +25,43 @@ services:
     container_name: nexa_service_backend
     command: sh ./entrypoint.sh
     volumes:
-      # Mount source code for development (changes reflect without rebuild)
-      - ./service-backend:/app
-      # Persist media files (if needed outside container)
-      # - ./service-backend/media:/app/media
-    ports:
-      - "8000:8000" # Expose Django development server port
-    environment:
-      - DEBUG=1
-      # Environment variables can be loaded from .env file
-      # Ensure .env file exists in service-backend/ or project root
+      - ./service-backend:/app # Mount source code for development
+      - static_volume:/app/staticfiles # Mount the shared volume for static files
+      - media_volume:/app/media # Mount the shared volume for media files
+    expose:
+      - "8000" # Expose port 8000 to the internal network, but not to the host
     env_file:
-      # - ./service-backend/.env.template
-      - .env
+      - .env # Load environment variables from .env file
     depends_on:
       - service-redis
-    # networks:
-    #   - nexa-network
+      - postgres # Ensure postgres is running before the backend
+    networks:
+      - nexa-network
+
+  # --- PostgreSQL Database Service ---
+  postgres:
+    image: postgres:15-alpine
+    container_name: nexa_postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persist database data
+    environment:
+      # These variables are required by the postgres image to initialize the database
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    expose:
+      - "5432" # Expose the default postgres port to the internal network
+    networks:
+      - nexa-network
 
   # --- Redis Service (Message Broker for Celery) ---
   service-redis:
-    image: redis:7-alpine # Use a lightweight Redis image
+    image: redis:7-alpine
     container_name: nexa_service_redis
-    ports:
-      - "6379:6379" # Expose Redis port (optional for external access)
-    # volumes:
-    #   - redis_data:/data # Persist Redis data (optional)
-    # networks:
-    #   - nexa-network
-    # command: redis-server --appendonly yes # Enable AOF persistence if needed
+    expose:
+      - "6379" # Expose Redis port to the internal network
+    networks:
+      - nexa-network
 
   # --- Celery Worker Service ---
   service-celery:
@@ -47,26 +71,52 @@ services:
     container_name: nexa_service_celery
     command: celery -A core worker --loglevel=info
     volumes:
-      # Mount source code for development (task code changes reflect)
-      - ./service-backend:/app
-    environment:
-      - DEBUG=1
+      - ./service-backend:/app # Mount source code for development
     env_file:
       - .env
     depends_on:
       - service-redis
-      - service-backend # Ensure DB migrations happen in backend first (implicitly)
-    # networks:
-    #   - nexa-network
+      - postgres
+      - service-backend
+    networks:
+      - nexa-network
 
-# Volumes for data persistence (if needed)
-# volumes:
-#   redis_data:
-#     driver: local
-#   postgres_data: # If/when adding PostgreSQL
-#     driver: local
+  # --- Prometheus Service (Metrics Collection) ---
+  prometheus:
+    image: prom/prometheus:v2.47.2
+    container_name: nexa_prometheus
+    ports:
+      - "9090:9090" # Expose Prometheus web UI
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - service-backend
+    networks:
+      - nexa-network
 
-# Networks for service communication (optional, default bridge is usually fine)
-# networks:
-#   nexa-network:
-#     driver: bridge
+  # --- Grafana Service (Metrics Visualization) ---
+  grafana:
+    image: grafana/grafana:10.1.5
+    container_name: nexa_grafana
+    ports:
+      - "3000:3000" # Expose Grafana web UI
+    depends_on:
+      - prometheus
+    networks:
+      - nexa-network
+
+# --- Volumes for data persistence ---
+volumes:
+  postgres_data:
+    driver: local
+  static_volume:
+    driver: local
+  media_volume:
+    driver: local
+
+# --- Network for service-to-service communication ---
+networks:
+  nexa-network:
+    driver: bridge

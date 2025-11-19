@@ -23,7 +23,7 @@ services:
       context: ./service-backend
       dockerfile: Dockerfile
     container_name: nexa_service_backend
-    command: sh ./entrypoint.sh
+    command: sh ./entrypoint.sh gunicorn
     volumes:
       - ./service-backend:/app # Mount source code for development
       - static_volume:/app/staticfiles # Mount the shared volume for static files
@@ -69,7 +69,7 @@ services:
       context: ./service-backend
       dockerfile: Dockerfile
     container_name: nexa_service_celery
-    command: celery -A core worker --loglevel=info
+    command: sh ./entrypoint.sh celery worker --loglevel=info
     volumes:
       - ./service-backend:/app # Mount source code for development
     env_file:

@@ -1,0 +1,22 @@
+# prometheus/prometheus.yml
+
+global:
+  scrape_interval: 15s # How frequently to scrape targets by default.
+  evaluation_interval: 15s # How frequently to evaluate rules.
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's the Django application.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'django'
+
+    # metrics_path defaults to '/metrics', but we've configured our Django app
+    # to expose metrics at '/prometheus/metrics'.
+    metrics_path: /prometheus/metrics
+
+    # The target to scrape.
+    # 'service-backend' is the service name from docker-compose.yml.
+    # Docker's internal DNS will resolve this to the correct container IP.
+    # The port is 8000, where Gunicorn is running.
+    static_configs:
+      - targets: ['service-backend:8000']

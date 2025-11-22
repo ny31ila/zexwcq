@@ -10,6 +10,7 @@ from django.conf.urls.static import static
 # )
 
 urlpatterns = [
+    path('prometheus/', include('django_prometheus.urls')),
     path('admin/', admin.site.urls),
     # JWT Authentication endpoints (Global, as in previous version)
     # path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

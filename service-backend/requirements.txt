@@ -20,7 +20,10 @@ celery>=5.3.0 # Celery distributed task queue
 djangorestframework-simplejwt>=5.2.0
 
 # --- WSGI Server (for production, Gunicorn is common) ---
-# gunicorn>=21.2.0 # Uncomment for production WSGI server
+gunicorn>=21.2.0 # Uncomment for production WSGI server
 
 # --- Database Adapter (if using PostgreSQL) ---
-# psycopg2-binary>=2.9.0 # Uncomment for PostgreSQL
+psycopg2-binary>=2.9.0 # Uncomment for PostgreSQL
+
+# --- Monitoring ---
+django-prometheus>=2.2.0

@@ -3,38 +3,38 @@
 
 echo "Starting entrypoint script..."
 
-# Check if the database file exists (for SQLite dev setup)
-# This check might be different if using PostgreSQL
-if [ ! -f "db.sqlite3" ]; then
-    echo "Database file not found. Running migrations..."
+echo "Database connection confirmed."
+
+# --- Execute the command provided to the container ---
+# This allows the same Docker image to be used for different services (web, celery).
+# The command is passed as arguments to this script (e.g., "gunicorn", "celery", etc.).
+COMMAND="$1"
+shift # Remove the first argument, leaving the rest for the command itself.
+
+if [ "$COMMAND" = "gunicorn" ]; then
+    # --- Web Server Startup ---
+    echo "Running web server startup tasks..."
+    # Apply database migrations
+    echo "Applying database migrations..."
     python manage.py migrate --noinput
-else
-    echo "Database file found. Applying migrations..."
-    python manage.py migrate --noinput
-fi
 
-# Collect static files
-echo "Collecting static files..."
-python manage.py collectstatic --noinput --clear
+    # Collect static files
+    echo "Collecting static files..."
+    python manage.py collectstatic --noinput --clear
 
-# --- Determine the command to run based on an environment variable or argument ---
-# This allows the same image to be used for different services (web server, celery worker)
-# Default command is to run the Django development server
-CMD="${1:-runserver}"
-echo "Executing command: $CMD"
+    echo "Starting Gunicorn..."
+    # Start Gunicorn, passing any additional arguments.
+    # The --workers argument is an example; this could be configured via an env var.
+    exec gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3 "$@"
 
-if [ "$CMD" = "runserver" ]; then
-    echo "Starting Django development server..."
-    # Use 0.0.0.0:8000 to make it accessible from outside the container
-    # --insecure allows serving static files with runserver (not for production)
-    exec python manage.py runserver 0.0.0.0:8000 --insecure
-elif [ "$CMD" = "celery" ]; then
+elif [ "$COMMAND" = "celery" ]; then
+    # --- Celery Worker Startup ---
     echo "Starting Celery worker..."
-    # The actual celery command will be passed by docker-compose
-    # This part of the script might not be reached if docker-compose overrides CMD
-    # But it's good practice to have a general entrypoint
-    exec "$@"
+    # Start the Celery worker, passing the remaining arguments (e.g., -A core worker -l info)
+    exec celery -A core "$@"
+
 else
-    echo "Unknown command: $CMD"
-    exit 1
+    echo "Unknown command: $COMMAND"
+    echo "Executing command as is: $COMMAND $@"
+    exec $COMMAND "$@"
 fi

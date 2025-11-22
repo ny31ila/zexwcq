@@ -13,6 +13,7 @@ services:
       - media_volume:/app/media # Mount the shared volume for media files
     depends_on:
       - service-backend
+    restart: unless-stopped
     networks:
       - nexa-network
 
@@ -31,8 +32,11 @@ services:
     env_file:
       - .env # Load environment variables from .env file
     depends_on:
-      - service-redis
-      - service-postgres # Ensure postgres is running before the backend
+      service-redis:
+        condition: service_healthy
+      service-postgres:
+        condition: service_healthy
+    restart: unless-stopped
     networks:
       - nexa-network
 
@@ -48,6 +52,13 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     expose:
       - "5432" # Expose the default postgres port to the internal network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB -h localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    restart: unless-stopped
     networks:
       - nexa-network
 
@@ -56,6 +67,13 @@ services:
     image: redis:7-alpine
     expose:
       - "6379" # Expose Redis port to the internal network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    restart: unless-stopped
     networks:
       - nexa-network
 
@@ -70,9 +88,13 @@ services:
     env_file:
       - .env
     depends_on:
-      - service-redis
-      - service-postgres
-      - service-backend
+      service-redis:
+        condition: service_healthy
+      service-postgres:
+        condition: service_healthy
+      service-backend:
+        condition: service_started
+    restart: unless-stopped
     networks:
       - nexa-network
 

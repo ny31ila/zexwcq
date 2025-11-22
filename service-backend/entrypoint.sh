@@ -3,28 +3,6 @@
 
 echo "Starting entrypoint script..."
 
-# --- Wait for the database to be ready ---
-# This common setup step is run for any container using this entrypoint.
-echo "Waiting for database..."
-python << END
-import socket
-import time
-import os
-
-host = os.environ.get("DB_HOST")
-port = int(os.environ.get("DB_PORT", 5432))
-
-while True:
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(1)
-            s.connect((host, port))
-        print("Database is ready!")
-        break
-    except (socket.error, socket.timeout):
-        print("Database isn't ready yet, waiting...")
-        time.sleep(1)
-END
 echo "Database connection confirmed."
 
 # --- Execute the command provided to the container ---

@@ -17,6 +17,18 @@ services:
     networks:
       - nexa-network
 
+  # --- Nginx Metrics Exporter Service ---
+  service-nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.1
+    command: -nginx.scrape-uri=http://service-nginx/stub_status
+    ports:
+      - "9113:9113" # Expose exporter's port for Prometheus
+    depends_on:
+      - service-nginx
+    restart: unless-stopped
+    networks:
+      - nexa-network
+
   # --- Django Application Service (Gunicorn) ---
   service-backend:
     build:
@@ -117,6 +129,8 @@ services:
     image: grafana/grafana:10.1.5
     ports:
       - "3000:3000" # Expose Grafana web UI
+    volumes:
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
     depends_on:
       - service-prometheus
     networks:

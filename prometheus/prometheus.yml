@@ -20,3 +20,7 @@ scrape_configs:
     # The port is 8000, where Gunicorn is running.
     static_configs:
       - targets: ['service-backend:8000']
+
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['service-nginx-exporter:9113']

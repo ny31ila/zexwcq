@@ -1,29 +1,32 @@
 # project_root/service-backend/requirements.txt
 Django>=4.2,<5.0
-djangorestframework>=3.14,<4.0
-django-filter>=23.2
-Pillow>=10.0.0
-jdatetime>=4.1.0 # For Jalali date calculations
-python-decouple>=3.8
-drf-yasg>=1.21.0
-django-simple-captcha>=0.5.0
-requests>=2.31.0
-reportlab>=4.0.0 # For PDF generation in resume app
+djangorestframework>=3.16,<3.17
+django-filter>=25.1,<26.0
+Pillow>=10.0.0,<11.0.0
+jdatetime>=5.2.0,<6.0.0
+python-decouple>=3.8,<4.0
+drf-yasg>=1.21.0,<1.22.0
+django-simple-captcha>=0.6.0,<0.7.0
+requests>=2.32.0,<3.0.0
+reportlab>=4.4.0,<5.0.0
 # WeasyPrint is another option for PDF generation
 
 # --- Celery and Redis for Background Tasks ---
-redis>=4.6.0 # Redis client for Python
-celery>=5.3.0 # Celery distributed task queue
+redis>=7.1.0,<8.0.0
+celery>=5.5.0,<6.0.0
 # billiard # Often included with Celery, specify if needed for specific version
 
 # --- JWT Authentication ---
-djangorestframework-simplejwt>=5.2.0
+djangorestframework-simplejwt>=5.5.0,<6.0.0
 
 # --- WSGI Server (for production, Gunicorn is common) ---
-gunicorn>=21.2.0 # Uncomment for production WSGI server
+gunicorn>=23.0.0,<24.0.0
 
 # --- Database Adapter (if using PostgreSQL) ---
-psycopg2-binary>=2.9.0 # Uncomment for PostgreSQL
+psycopg2-binary>=2.9.0,<2.10.0
 
 # --- Monitoring ---
-django-prometheus>=2.2.0
+django-prometheus>=2.4.0,<2.5.0
+
+# --- Error Tracking ---
+sentry-sdk[django]>=2.46.0,<3.0.0

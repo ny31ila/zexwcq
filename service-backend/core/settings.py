@@ -16,6 +16,8 @@ from pathlib import Path
 from decouple import config # For environment variables
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+import sentry_sdk
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -27,6 +29,23 @@ SECRET_KEY = config('SECRET_KEY', default='your-default-dev-secret-key-change-in
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
+
+# --- Sentry SDK Initialization ---
+# Initialize Sentry for error tracking. This should be done as early as possible.
+SENTRY_DSN = config('SENTRY_DSN', default=None)
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=1.0,
+        # If you wish to associate users to errors (assuming you have a user
+        # authentication system), you can enable sending PII data.
+        send_default_pii=True,
+        # Enable performance monitoring
+        enable_tracing=True,
+    )
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
 
@@ -174,10 +193,16 @@ REST_FRAMEWORK = {
         # 'rest_framework.filters.SearchFilter', # If needed
         # 'rest_framework.filters.OrderingFilter', # If needed
     ],
-    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination', # Optional global pagination
-    # 'PAGE_SIZE': 20
-    # --- Optional: Global DateTime format (removes timezone offset) ---
-    # 'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination', # Optional global pagination
+    'PAGE_SIZE': 10,
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'util.throttles.StaffUserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day',
+        'user': '1000/day'
+    }
 }
 
 # Simple JWT Settings

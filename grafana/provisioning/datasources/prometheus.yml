@@ -6,5 +6,6 @@ datasources:
     type: prometheus
     access: proxy
     url: http://service-prometheus:9090
+    uid: prometheus-ds-uid # A unique identifier for the data source
     isDefault: true
     editable: false

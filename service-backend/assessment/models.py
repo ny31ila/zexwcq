@@ -166,3 +166,14 @@ class UserAssessmentAttempt(models.Model):
 # Note: AIRecommendation model will be defined in the ai_integration app,
 # as it's the result of processing by that service.
 # It will likely have a ForeignKey to User.
+
+class AssessmentTestRunner(Assessment):
+    """
+    A proxy model for running assessment tests in the Django admin.
+    This model does not create its own database table. It provides a separate
+    entry in the admin interface to trigger and view test results.
+    """
+    class Meta:
+        proxy = True
+        verbose_name = _("Assessment Test Runner")
+        verbose_name_plural = _("Assessment Test Runners")

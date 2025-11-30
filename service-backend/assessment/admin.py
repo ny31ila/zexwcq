@@ -1,6 +1,9 @@
 # service-backend/assessment/admin.py
-from django.contrib import admin
-from .models import TestPackage, Assessment, UserAssessmentAttempt
+from django.contrib import admin, messages
+from django.urls import path, reverse
+from django.http import HttpResponseRedirect
+from .models import TestPackage, Assessment, UserAssessmentAttempt, AssessmentTestRunner
+from .tests.test_runner import discover_tests, run_tests
 
 @admin.register(TestPackage)
 class TestPackageAdmin(admin.ModelAdmin):
@@ -8,42 +11,92 @@ class TestPackageAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'created_at', 'min_age', 'max_age')
     search_fields = ('name', 'description')
     ordering = ['min_age', 'name']
-    # --- Key Change: Use filter_horizontal for the M2M field ---
-    # This provides a user-friendly widget to select Assessments for this Package.
-    # This correctly implements the logic: "Edit Package -> Select Assessments"
-    filter_horizontal = ('assessments',) # 'assessments' is the M2M field on TestPackage
+    filter_horizontal = ('assessments',)
 
 @admin.register(Assessment)
 class AssessmentAdmin(admin.ModelAdmin):
-    # --- Simplified list_display for Assessment ---
     list_display = ('name', 'json_filename', 'is_active')
-    # Removed 'packages' from list_filter as it's managed from TestPackage admin
-    # If you still want to filter assessments by packages in the assessment admin list,
-    # you can add it back, but it's primarily managed from the package side.
-    list_filter = ('is_active', 'created_at', 'packages') # Optional: filter by packages
+    list_filter = ('is_active', 'created_at', 'packages')
     search_fields = ('name', 'description', 'json_filename')
     ordering = ['name']
-    # Removed get_packages_list method from here as the relationship is managed from TestPackage
-    # If needed for quick reference in the list view, it can be re-added carefully.
 
 @admin.register(UserAssessmentAttempt)
 class UserAssessmentAttemptAdmin(admin.ModelAdmin):
     list_display = ('user', 'assessment', 'is_completed', 'start_time', 'end_time')
-    # --- Updated the filter reference to use 'assessment__packages' (the M2M field) ---
-    list_filter = ('is_completed', 'start_time', 'assessment__packages') # Filter by packages
+    list_filter = ('is_completed', 'start_time', 'assessment__packages')
     search_fields = ('user__national_code', 'user__first_name', 'user__last_name', 'assessment__name')
-    readonly_fields = ('start_time', 'created_at', 'updated_at') # These shouldn't be editable
-    # Consider adding 'end_time', 'is_completed' to readonly_fields if you want to prevent
-    # admins from accidentally modifying completion status directly in the admin.
-    # readonly_fields = ('start_time', 'end_time', 'is_completed', 'created_at', 'updated_at')
+    readonly_fields = ('start_time', 'created_at', 'updated_at')
 
-    # If you want to display related package names in the list view for quick reference:
-    # def get_queryset(self, request):
-    #     qs = super().get_queryset(request)
-    #     return qs.select_related('user', 'assessment').prefetch_related('assessment__packages')
-    #
-    # def get_packages(self, obj):
-    #     """Custom method to display packages in list_display."""
-    #     return ", ".join([p.name for p in obj.assessment.packages.all()[:3]]) # Show first 3
-    # get_packages.short_description = 'Packages'
-    # Add 'get_packages' to list_display if needed.
+@admin.register(AssessmentTestRunner)
+class AssessmentTestRunnerAdmin(admin.ModelAdmin):
+
+    # This is a proxy model, so we don't want to see a list of actual 'Assessment' objects.
+    # We override the changelist_view to show our custom test runner interface.
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+
+        # Discover all available tests
+        available_tests = discover_tests()
+
+        # The results will be passed via the messages framework after a redirect.
+        # We don't need to fetch them here, the template will render them.
+
+        extra_context['available_tests'] = available_tests
+        extra_context['title'] = "Assessment Test Runner"
+
+        return super().changelist_view(request, extra_context=extra_context)
+
+    # Add custom URLs for running tests
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('run-all/', self.admin_site.admin_view(self.run_all_tests_view), name='assessment_assessmenttestrunner_run_all'),
+            path('run-specific/', self.admin_site.admin_view(self.run_specific_test_view), name='assessment_assessmenttestrunner_run_specific'),
+        ]
+        return custom_urls + urls
+
+    # View to handle running all tests
+    def run_all_tests_view(self, request):
+        if request.method == 'POST':
+            results = run_tests()
+            for result in results:
+                if result['result'] == 'PASS':
+                    messages.success(request, f"PASS: {result['test']}")
+                else:
+                    # Use preformatted tag to preserve traceback formatting
+                    error_message = f"<pre>{result['error']}</pre>"
+                    messages.error(request, f"FAIL: {result['test']}", extra_tags=error_message)
+
+        # Redirect back to the changelist view to display results
+        return HttpResponseRedirect(reverse('admin:assessment_assessmenttestrunner_changelist'))
+
+    # View to handle running a specific test
+    def run_specific_test_view(self, request):
+        if request.method == 'POST':
+            test_path = request.POST.get('test_path')
+            if test_path:
+                results = run_tests(test_path=test_path)
+                for result in results:
+                    if result['result'] == 'PASS':
+                        messages.success(request, f"PASS: {result['test']}")
+                    else:
+                        error_message = f"<pre>{result['error']}</pre>"
+                        messages.error(request, f"FAIL: {result['test']}", extra_tags=error_message)
+
+        return HttpResponseRedirect(reverse('admin:assessment_assessmenttestrunner_changelist'))
+
+    # --- Disable standard model admin actions ---
+    # We don't want to add, change, or delete these proxy objects.
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    # Remove the "actions" dropdown from the changelist
+    def get_actions(self, request):
+        return None

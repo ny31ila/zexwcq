@@ -1,37 +1,37 @@
-# service-backend/core/management/commands/test_ai_task.py
+# service-backend/util/management/commands/test_ai_task.py
 """
-Management command to trigger the test OpenRouter Celery task.
+Management command to trigger a test Celery task.
 This is used to verify the Celery/Redis setup.
 """
 
 from django.core.management.base import BaseCommand
-from ai_integration.tasks import test_openrouter_task
+from ai_integration.tasks import test_celery_connection
 
 class Command(BaseCommand):
-    help = 'Triggers the test OpenRouter Celery task to verify setup.'
+    help = 'Triggers a test Celery task to verify the connection.'
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--prompt',
+            '--message',
             type=str,
-            default="What is 2+2? Explain the calculation in Python.",
-            help='The prompt text to send to the OpenRouter API (default: a simple math question)'
+            default="Hello, Celery!",
+            help='A simple message to send to the test task.'
         )
 
     def handle(self, *args, **options):
-        prompt_text = options['prompt']
+        message = options['message']
         self.stdout.write(
-            self.style.NOTICE(f'Triggering test OpenRouter task with prompt: "{prompt_text}"')
+            self.style.NOTICE(f"Triggering test Celery task with message: '{message}'")
         )
-        
+
         # Trigger the Celery task asynchronously
-        task_result = test_openrouter_task.delay(prompt_text)
-        
+        task_result = test_celery_connection.delay(message)
+
         self.stdout.write(
             self.style.SUCCESS(
                 f'Test task triggered successfully. Task ID: {task_result.id}'
             )
         )
         self.stdout.write(
-            "Use 'docker-compose logs service-celery' to monitor the task execution."
+            "Use 'docker compose logs -f service-celery' to monitor the task execution."
         )

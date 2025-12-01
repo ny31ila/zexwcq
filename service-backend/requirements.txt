@@ -1,29 +1,19 @@
 # project_root/service-backend/requirements.txt
-Django>=4.2,<5.0
-djangorestframework>=3.14,<4.0
-django-filter>=23.2
-Pillow>=10.0.0
-jdatetime>=4.1.0 # For Jalali date calculations
-python-decouple>=3.8
-drf-yasg>=1.21.0
-django-simple-captcha>=0.5.0
-requests>=2.31.0
-reportlab>=4.0.0 # For PDF generation in resume app
+celery>=5.3.0,<6.0.0 # Celery distributed task queue
+Django>=5.0,<6.0
+django-filter>=25.0,<26.0
+django-prometheus>=2.4.0,<3.0.0
+django-simple-captcha>=0.6.0,<0.7.0
+djangorestframework>=3.15.0,<4.0.0
+djangorestframework-simplejwt>=5.5.0,<6.0.0 # --- JWT Authentication ---
+drf-yasg>=1.21.0,<2.0.0
+gunicorn>=23.0.0,<24.0.0 # --- WSGI Server (for production, Gunicorn is common) ---
+jdatetime>=5.2.0,<6.0.0 # For Jalali date calculations
+Pillow>=12.0.0,<13.0.0
+psycopg2-binary>=2.9.0,<3.0.0 # --- Database Adapter (if using PostgreSQL) ---
+python-decouple>=3.8,<4.0
+redis>=7.0.0,<8.0.0 # Redis client for Python
+reportlab>=4.4.0,<5.0.0 # For PDF generation in resume app
+requests>=2.30.0,<3.0.0
 # WeasyPrint is another option for PDF generation
-
-# --- Celery and Redis for Background Tasks ---
-redis>=4.6.0 # Redis client for Python
-celery>=5.3.0 # Celery distributed task queue
 # billiard # Often included with Celery, specify if needed for specific version
-
-# --- JWT Authentication ---
-djangorestframework-simplejwt>=5.2.0
-
-# --- WSGI Server (for production, Gunicorn is common) ---
-gunicorn>=21.2.0 # Uncomment for production WSGI server
-
-# --- Database Adapter (if using PostgreSQL) ---
-psycopg2-binary>=2.9.0 # Uncomment for PostgreSQL
-
-# --- Monitoring ---
-django-prometheus>=2.2.0

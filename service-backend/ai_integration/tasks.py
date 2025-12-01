@@ -53,3 +53,12 @@ def send_to_ai(self, user_id: int, package_id: int, provider_key: str, model_key
         )
         # We don't re-raise here because these are considered final failures.
         return f"Failed: A non-recoverable error occurred: {exc}"
+
+
+@shared_task
+def test_celery_connection(message: str):
+    """
+    A simple test task to verify that the Celery-Redis connection is working.
+    """
+    logger.info(f"Celery test task received message: '{message}'")
+    return f"Task executed successfully with message: '{message}'"

@@ -1,3 +1,3 @@
 venv_nexa_dejavu/
-# .env
+.env
 service-backend/.env.template

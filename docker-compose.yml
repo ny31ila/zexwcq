@@ -1,6 +1,3 @@
-# project_root/docker-compose.yml
-version: '3.8'
-
 services:
   # --- Nginx Service (Reverse Proxy and Static File Server) ---
   service-nginx:

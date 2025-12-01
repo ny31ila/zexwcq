@@ -1,5 +1,5 @@
 # project_root/service-backend/requirements.txt
-celery>=5.3.0,<6.0.0 # Celery distributed task queue
+celery>=5.0.0,<6.0.0 # Celery distributed task queue
 Django>=5.0,<6.0
 django-filter>=25.0,<26.0
 django-prometheus>=2.4.0,<3.0.0

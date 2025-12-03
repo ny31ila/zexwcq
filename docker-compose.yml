@@ -79,7 +79,7 @@ services:
     build:
       context: ./service-backend
       dockerfile: Dockerfile
-    command: sh ./entrypoint.sh celery worker --loglevel=info
+    command: sh ./entrypoint.sh celery worker --loglevel=info --concurrency=1
     volumes:
       - ./service-backend:/app # Mount source code for development
     env_file:
